@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --color-tech-blue: #00f2ff;
+  --color-tech-dark: #020617;
+  --color-tech-glow: rgba(0, 242, 255, 0.3);
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  background-color: var(--color-tech-dark);
+  color: white;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+}
+
+/* Custom scrollbar for tech look */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-tech-blue);
+  border-radius: 10px;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  50% { transform: translate(var(--tx, 10px), var(--ty, 10px)); opacity: 0.6; }
+}
+
+.glow-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+  overflow: hidden;
+}
+
+.halo {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-tech-glow) 0%, transparent 70%);
+  filter: blur(40px);
+  animation: pulse-glow 8s infinite ease-in-out;
+}
+
+.particle {
+  position: absolute;
+  background: var(--color-tech-blue);
+  border-radius: 50%;
+  opacity: 0.3;
+  pointer-events: none;
+  will-change: transform, opacity;
+}

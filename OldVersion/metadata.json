@@ -1,0 +1,5 @@
+{
+  "name": "达人探测器 - 智能获客系统",
+  "description": "基于大模型的全网达人搜索与分析平台，助力品牌精准匹配优质内容创作者。",
+  "requestFramePermissions": ["microphone"]
+}

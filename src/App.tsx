@@ -9,7 +9,167 @@ import {
 } from 'lucide-react';
 import { Background } from './components/Background';
 import { MOCK_INFLUENCERS, Influencer, Post, CITIES, CONTENT_TYPES, TAG_TREE, TagNode, Project, RejectionRecord } from './types';
-import content from './data/content.json';
+
+const CONTENT = {
+  "common": {
+    "appName": "达人探测器",
+    "appDescription": "智能获客系统",
+    "projectTitle": "项目管理",
+    "back": "返回",
+    "cancel": "取消",
+    "confirm": "确定",
+    "submit": "提交",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "search": "搜索",
+    "loadingData": "正在获取海量数据...",
+    "searchPlaceholder": "输入您的营销需求，例如：寻找上海地区、粉丝50万以上、擅长时尚穿搭的女性达人...",
+    "voicePlaceholder": "正在聆听您的需求...",
+    "radarPlaceholder": "补充雷达筛选条件",
+    "aiAnalyzing": "AI 深度解析需求中...",
+    "voiceAnalyzing": "语音分析中...",
+    "radarAnalyzing": "雷达匹配分析",
+    "multiSelect": "(可多选)",
+    "unlimited": "不限",
+    "total": "总计",
+    "page": "页",
+    "showing": "显示第",
+    "of": "条，共",
+    "unit": "条",
+    "selected": "已选择",
+    "tagsUnit": "个标签",
+    "publishedRecently": "发布于最近",
+    "reason": "原因",
+    "inputReason": "请输入不通过的理由...",
+    "followersSuffix": "粉丝"
+  },
+  "radarPage": {
+    "title": "达人探测器",
+    "expandSearch": "展开搜索",
+    "aiAnalysis": "智能分析",
+    "initialSearch": "寻找上海地区、粉丝50万以上、擅长时尚穿搭的女性达人，要求近期有爆款作品。",
+    "inputPlaceholder": "例如：我想找上海地区，粉丝量10万以上，擅长法式穿搭的时尚达人...",
+    "buttonText": "开始搜寻",
+    "aiRecommendation": {
+      "title": "AI 推荐理由",
+      "intro": "根据您关于",
+      "requirements": "的需求：",
+      "locationRec": "我们推荐您挑选 上海、北京 地区的达人，这些核心城市用户对相关话题的讨论热度最高。",
+      "typeRec": "内容类型建议以 时尚、美妆 为主，此类内容在当前时间节点的转化率比平均水平高出 24%",
+      "footer": "当然您也可以重新调整您的需求，或者手动调整筛选条件以获得更精确的结果。"
+    },
+    "filters": {
+      "title": "筛选条件",
+      "tags": "标签",
+      "moreTags": "更多标签",
+      "price": "价格",
+      "followers": "粉丝数",
+      "region": "地区",
+      "moreRegions": "更多地址",
+      "contentType": "内容类型",
+      "startSearch": "开始搜寻",
+      "priceOptions": ["不限", "2000以下", "2000-5000", "5000-1W", "1W-5W", "5W-10W", "10W以上"],
+      "followerOptions": ["不限", "50W以下", "50W-100W", "100W-200W", "200W-300W", "300W-500W", "500W-1000W", "1000W-3000W", "3000W以上"],
+      "filterButton": "执行筛选"
+    }
+  },
+  "resultsPage": {
+    "title": "找更多达人",
+    "matchConditions": "匹配条件",
+    "startRadar": "找更多达人",
+    "precisionSearch": {
+      "title": "精准筛选",
+      "placeholder": "请输入更具体的筛选要求，例如：寻找有露脸自拍、背景干净、光线明亮的笔记...",
+      "button": "精准筛选",
+      "advancedButton": "高级筛选",
+      "scanning": "正在深度扫描达人笔记...",
+      "matchImage": "通过笔记图片匹配",
+      "matchContent": "通过笔记内容匹配",
+      "matchReason": "匹配原因"
+    },
+    "sortBy": "排序方式",
+    "totalFound": "共找到",
+    "unit": "位达人",
+    "table": {
+      "info": "达人信息",
+      "regionType": "地区/类型",
+      "followers": "粉丝数",
+      "recentPosts": "最近笔记",
+      "postCount": "笔记数",
+      "price": "参考报价",
+      "action": "操作"
+    },
+    "sortOptions": [
+      { "id": "followers", "label": "按粉丝数" },
+      { "id": "price", "label": "按价格" },
+      { "id": "views", "label": "按阅读量" },
+      { "id": "posts", "label": "按笔记数" }
+    ]
+  },
+  "project": {
+    "projectTitle": "项目管理",
+    "selectProject": "选择项目",
+    "selectProjectHint": "请从左侧选择一个项目查看达人",
+    "createProject": "新建项目",
+    "newProject": "新建项目",
+    "projectName": "项目名称",
+    "projectNamePlaceholder": "请输入项目名称...",
+    "projectDesc": "项目描述",
+    "projectDescPlaceholder": "请输入项目描述...",
+    "inputName": "请输入项目名称",
+    "inputDesc": "请输入项目描述",
+    "addToProject": "加入项目",
+    "approve": "通过",
+    "reject": "不通过",
+    "rejectReason": "不通过理由",
+    "rejectReasonPlaceholder": "请填写不通过的原因，以便后续优化匹配...",
+    "batchApprove": "批量通过",
+    "batchReject": "批量不通过",
+    "batchContact": "批量建联",
+    "remove": "移除",
+    "approved": "已通过",
+    "cancelApprove": "取消通过",
+    "rejected": "已拒绝",
+    "defaultProjectName": "默认项目",
+    "projectList": "项目列表",
+    "influencerList": "达人列表",
+    "noInfluencers": "该项目暂无达人",
+    "emptyProject": "该项目暂无达人",
+    "backToSelect": "返回选择已有项目"
+  },
+  "displayPage": {
+    "title": "找更多达人",
+    "subtitle": "根据AI智能分析，通过笔记、照片内容进行深度匹配",
+    "matchAnalysis": "雷达匹配分析",
+    "matchReason": "雷达匹配原因",
+    "intro": "达人简介",
+    "postPreview": "匹配笔记预览",
+    "fitScore": "匹配",
+    "statusTexts": [
+      "根据美妆类型，匹配露脸博主",
+      "根据祛痘功能，匹配长痘的博主",
+      "分析笔记内容，识别产品使用场景",
+      "通过照片内容，深度匹配视觉风格",
+      "筛选高互动率达人，确保传播效果",
+      "匹配Z世代受众，精准触达目标人群"
+    ]
+  },
+  "influencerDetail": {
+    "fitScore": "匹配度",
+    "followers": "粉丝",
+    "recentPosts": "最近笔记内容",
+    "collect": "收藏达人"
+  },
+  "postDetail": {
+    "content": "笔记正文",
+    "aiAnalysis": "AI 匹配分析",
+    "views": "阅读量",
+    "comments": "评论数",
+    "likes": "热度值"
+  }
+};
 
 type Page = 'radar' | 'results' | 'display' | 'projects';
 
@@ -19,14 +179,16 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   
   const [projects, setProjects] = useState<Project[]>([
-    { id: 'p1', name: content.project.defaultProjectName, description: '默认创建的项目', influencers: [], createdAt: new Date().toISOString() }
+    { id: 'p1', name: CONTENT.project.defaultProjectName, description: '默认创建的项目', influencers: [], createdAt: new Date().toISOString() }
   ]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [rejections, setRejections] = useState<RejectionRecord[]>([]);
   
   const [selectedInfluencer, setSelectedInfluencer] = useState<Influencer | null>(null);
+  const [precisionMatchInfluencer, setPrecisionMatchInfluencer] = useState<Influencer | null>(null);
   const [selectedPost, setSelectedPost] = useState<{influencer: Influencer, post: Post, matchReason?: string} | null>(null);
   const [flyItem, setFlyItem] = useState<{ x: number; y: number; img: string } | null>(null);
   const [isRadarScanning, setIsRadarScanning] = useState(false);
@@ -35,9 +197,13 @@ export default function App() {
   const [isAnalyzingVoice, setIsAnalyzingVoice] = useState(false);
   const [radarSearchQuery, setRadarSearchQuery] = useState('');
 
+  const [matchedIds, setMatchedIds] = useState<string[]>([]);
+  const [standardizedConditions, setStandardizedConditions] = useState<string[]>([]);
+
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+  const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false);
   const [pendingInfluencers, setPendingInfluencers] = useState<Influencer[]>([]);
 
   useEffect(() => {
@@ -49,8 +215,8 @@ export default function App() {
   // Filters state
   const [filters, setFilters] = useState({
     tags: [TAG_TREE[0].children?.[0].name || '', TAG_TREE[1].children?.[0].children?.[0].name || ''],
-    price: content.common.unlimited,
-    followers: content.common.unlimited,
+    price: CONTENT.common.unlimited,
+    followers: CONTENT.common.unlimited,
     region: [CITIES.hot[0]],
     type: [CONTENT_TYPES[1]]
   });
@@ -69,6 +235,7 @@ export default function App() {
       setIsAnalyzingSearch(false);
       setIsSearching(true);
       setShowFilters(true);
+      setHasSearched(true);
     }, 2000);
   };
 
@@ -190,6 +357,7 @@ export default function App() {
             onOpenProjects={() => navigateTo('projects')}
             projectCount={totalInfluencersCount}
             onSelectInfluencer={setSelectedInfluencer}
+            onSelectPrecisionInfluencer={setPrecisionMatchInfluencer}
             onSelectPost={(inf: Influencer, post: Post) => setSelectedPost({ influencer: inf, post })}
             onStartRadar={() => {
               setIsRadarScanning(true);
@@ -206,7 +374,11 @@ export default function App() {
             rejections={rejections}
             setIsTagModalOpen={setIsTagModalOpen}
             setIsCityModalOpen={setIsCityModalOpen}
-            skipLoading={prevPage === 'projects'}
+            skipLoading={prevPage === 'display' || prevPage === 'projects'}
+            matchedIds={matchedIds}
+            setMatchedIds={setMatchedIds}
+            standardizedConditions={standardizedConditions}
+            setStandardizedConditions={setStandardizedConditions}
           />
         )}
 
@@ -268,6 +440,16 @@ export default function App() {
             onRemoveFromRejections={handleRemoveFromRejections}
             projects={projects}
             rejections={rejections}
+          />
+        )}
+        {precisionMatchInfluencer && (
+          <PrecisionMatchModal 
+            influencer={precisionMatchInfluencer}
+            onClose={() => setPrecisionMatchInfluencer(null)}
+            onSelectPost={(post: Post) => setSelectedPost({ influencer: precisionMatchInfluencer, post })}
+            onApprove={(inf: any) => handleApprove([inf])}
+            onReject={(inf: any) => handleReject([inf])}
+            standardizedConditions={standardizedConditions}
           />
         )}
         {selectedPost && (
@@ -374,7 +556,7 @@ const RadarPage = ({
       setIsVoiceInputActive(false);
       setIsAnalyzingVoice(true);
       setTimeout(() => {
-        setSearchQuery(content.radarPage.initialSearch);
+        setSearchQuery(CONTENT.radarPage.initialSearch);
         setIsAnalyzingVoice(false);
       }, 1500);
     } else {
@@ -396,7 +578,7 @@ const RadarPage = ({
         >
           <Layers size={24} className="group-hover:scale-110 transition-transform" />
           {projectCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-tech-blue text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+            <span className="absolute -top-1 -right-1 bg-tech-blue text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
               {projectCount}
             </span>
           )}
@@ -414,7 +596,7 @@ const RadarPage = ({
             animate={{ y: 0, opacity: 1 }}
             className="text-5xl font-bold text-center mb-8 tracking-tighter bg-gradient-to-r from-tech-blue to-white bg-clip-text text-transparent"
           >
-            {content.radarPage.title}
+            {CONTENT.radarPage.title}
           </motion.h1>
         )}
         
@@ -433,7 +615,7 @@ const RadarPage = ({
                 <Search size={18} />
                 <span className="text-sm font-medium truncate max-w-[300px]">{searchQuery}</span>
                 <div className="w-px h-4 bg-tech-blue/20 mx-2" />
-                <span className="text-xs text-white/40 group-hover:text-tech-blue transition-colors">{content.radarPage.expandSearch}</span>
+                <span className="text-xs text-white/40 group-hover:text-tech-blue transition-colors">{CONTENT.radarPage.expandSearch}</span>
               </button>
             </motion.div>
           ) : (
@@ -452,13 +634,13 @@ const RadarPage = ({
                         />
                       ))}
                     </div>
-                    <span className="text-xs text-tech-blue animate-pulse">{content.common.voiceAnalyzing}</span>
+                    <span className="text-xs text-tech-blue animate-pulse">{CONTENT.common.voiceAnalyzing}</span>
                   </div>
                 ) : (
                   <SearchInput
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    placeholder={isVoiceInputActive ? content.common.voicePlaceholder : content.common.searchPlaceholder}
+                    placeholder={isVoiceInputActive ? CONTENT.common.voicePlaceholder : CONTENT.common.searchPlaceholder}
                   />
                 )}
                 
@@ -487,7 +669,7 @@ const RadarPage = ({
                     ) : (
                       <Search size={20} />
                     )}
-                    {content.radarPage.aiAnalysis}
+                    {CONTENT.radarPage.aiAnalysis}
                   </button>
                 </div>
               </div>
@@ -506,7 +688,7 @@ const RadarPage = ({
                     />
                     <Sparkles className="absolute inset-0 m-auto text-tech-blue animate-pulse" size={24} />
                   </div>
-                  <span className="text-tech-blue font-bold tracking-widest text-sm">{content.common.aiAnalyzing}</span>
+                  <span className="text-tech-blue font-bold tracking-widest text-sm">{CONTENT.common.aiAnalyzing}</span>
                 </motion.div>
               )}
             </div>
@@ -524,18 +706,18 @@ const RadarPage = ({
             {/* Left: Filters */}
             <div className="md:col-span-2 bg-tech-dark/40 border border-tech-blue/20 rounded-3xl p-8 backdrop-blur-md">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-tech-blue">
-                <Filter size={20} /> {content.radarPage.filters.title}
+                <Filter size={20} /> {CONTENT.radarPage.filters.title}
               </h2>
               
               <div className="space-y-6">
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-white/50">{content.radarPage.filters.tags} {content.common.multiSelect}</span>
+                    <span className="text-sm text-white/50">{CONTENT.radarPage.filters.tags} {CONTENT.common.multiSelect}</span>
                     <button 
                       onClick={() => setIsTagModalOpen(true)}
                       className="text-xs text-tech-blue flex items-center gap-1 hover:underline"
                     >
-                      <Plus size={12} /> {content.radarPage.filters.moreTags}
+                      <Plus size={12} /> {CONTENT.radarPage.filters.moreTags}
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -554,26 +736,26 @@ const RadarPage = ({
                   </div>
                 </div>
                 <FilterRow 
-                  label={content.radarPage.filters.price} 
-                  options={content.radarPage.filters.priceOptions} 
+                  label={CONTENT.radarPage.filters.price} 
+                  options={CONTENT.radarPage.filters.priceOptions} 
                   value={filters.price}
                   onChange={(v: string) => setFilters({...filters, price: v})}
                 />
                 <FilterRow 
-                  label={content.radarPage.filters.followers} 
-                  options={content.radarPage.filters.followerOptions} 
+                  label={CONTENT.radarPage.filters.followers} 
+                  options={CONTENT.radarPage.filters.followerOptions} 
                   value={filters.followers}
                   onChange={(v: string) => setFilters({...filters, followers: v})}
                 />
                 
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-white/50">{content.radarPage.filters.region} {content.common.multiSelect}</span>
+                    <span className="text-sm text-white/50">{CONTENT.radarPage.filters.region} {CONTENT.common.multiSelect}</span>
                     <button 
                       onClick={() => setIsCityModalOpen(true)}
                       className="text-xs text-tech-blue flex items-center gap-1 hover:underline"
                     >
-                      <Plus size={12} /> {content.radarPage.filters.moreRegions}
+                      <Plus size={12} /> {CONTENT.radarPage.filters.moreRegions}
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -598,7 +780,7 @@ const RadarPage = ({
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <span className="text-sm text-white/50">{content.radarPage.filters.contentType} {content.common.multiSelect}</span>
+                  <span className="text-sm text-white/50">{CONTENT.radarPage.filters.contentType} {CONTENT.common.multiSelect}</span>
                   <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto pr-2 custom-scrollbar">
                     {CONTENT_TYPES.map(type => {
                       const isSelected = filters.type.includes(type);
@@ -625,7 +807,7 @@ const RadarPage = ({
                 onClick={onStartSearch}
                 className="w-full mt-10 bg-tech-blue/10 border border-tech-blue text-tech-blue py-4 rounded-2xl font-bold text-xl hover:bg-tech-blue hover:text-black transition-all shadow-[0_0_20px_rgba(0,242,255,0.2)]"
               >
-                {content.radarPage.filters.startSearch}
+                {CONTENT.radarPage.filters.startSearch}
               </button>
             </div>
 
@@ -635,14 +817,14 @@ const RadarPage = ({
                 <BarChart3 size={120} />
               </div>
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-tech-blue">
-                <Info size={20} /> {content.radarPage.aiRecommendation.title}
+                <Info size={20} /> {CONTENT.radarPage.aiRecommendation.title}
               </h2>
               <div className="space-y-4 text-white/80 leading-relaxed">
-                <p>{content.radarPage.aiRecommendation.intro} <span className="text-tech-blue">"{searchQuery.slice(0, 15)}..."</span> {content.radarPage.aiRecommendation.requirements}</p>
-                <p>{content.radarPage.aiRecommendation.locationRec}</p>
-                <p>{content.radarPage.aiRecommendation.typeRec}</p>
+                <p>{CONTENT.radarPage.aiRecommendation.intro} <span className="text-tech-blue">"{searchQuery.slice(0, 15)}..."</span> {CONTENT.radarPage.aiRecommendation.requirements}</p>
+                <p>{CONTENT.radarPage.aiRecommendation.locationRec}</p>
+                <p>{CONTENT.radarPage.aiRecommendation.typeRec}</p>
                 <div className="pt-4 border-t border-tech-blue/10">
-                  <p className="text-sm italic opacity-60">{content.radarPage.aiRecommendation.footer}</p>
+                  <p className="text-sm italic opacity-60">{CONTENT.radarPage.aiRecommendation.footer}</p>
                 </div>
               </div>
             </div>
@@ -655,7 +837,7 @@ const RadarPage = ({
 
 const FilterRow = ({ label, options, value, onChange, isMulti }: any) => (
   <div className="flex flex-col gap-2">
-    <span className="text-sm text-white/50">{label} {isMulti && content.common.multiSelect}</span>
+    <span className="text-sm text-white/50">{label} {isMulti && CONTENT.common.multiSelect}</span>
     <div className="flex flex-wrap gap-2">
       {options.map((opt: string) => {
         const isSelected = isMulti ? value.includes(opt) : value === opt;
@@ -683,7 +865,7 @@ const FilterRow = ({ label, options, value, onChange, isMulti }: any) => (
 );
 
 // --- Page 2: Results (Table View) ---
-const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount, onSelectInfluencer, onSelectPost, onStartRadar, onApprove, onReject, onRemoveFromProject, onRemoveFromRejections, projects, rejections, setIsTagModalOpen, setIsCityModalOpen, skipLoading }: any) => {
+const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount, onSelectInfluencer, onSelectPrecisionInfluencer, onSelectPost, onStartRadar, onApprove, onReject, onRemoveFromProject, onRemoveFromRejections, projects, rejections, setIsTagModalOpen, setIsCityModalOpen, skipLoading, matchedIds, setMatchedIds, standardizedConditions, setStandardizedConditions }: any) => {
   const [isLoading, setIsLoading] = useState(!skipLoading);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
@@ -693,16 +875,23 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
 
   // Precision Search State
   const [precisionPrompt, setPrecisionPrompt] = useState('');
-  const [standardizedConditions, setStandardizedConditions] = useState<string[]>([]);
   const [isAnalyzingPrecision, setIsAnalyzingPrecision] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanningId, setScanningId] = useState<string | null>(null);
-  const [matchedIds, setMatchedIds] = useState<string[]>([]);
   const [displayedInfluencers, setDisplayedInfluencers] = useState<Influencer[]>(MOCK_INFLUENCERS);
+  const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false);
+  const [quickFilter, setQuickFilter] = useState<'all' | 'precision' | 'standard' | 'approved' | 'rejected'>('all');
+  const [modalConditions, setModalConditions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (isPrecisionModalOpen) {
+      setModalConditions(standardizedConditions);
+    }
+  }, [isPrecisionModalOpen, standardizedConditions]);
 
   useEffect(() => {
     if (!skipLoading) {
-      const timer = setTimeout(() => setIsLoading(false), 1500);
+      const timer = setTimeout(() => setIsLoading(false), 2000);
       return () => clearTimeout(timer);
     }
   }, [skipLoading]);
@@ -712,11 +901,11 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
     setTimeout(() => {
       const filtered = MOCK_INFLUENCERS.filter(inf => {
         // Region filter
-        if (filters.region.length > 0 && !filters.region.includes(content.common.unlimited)) {
+        if (filters.region.length > 0 && !filters.region.includes(CONTENT.common.unlimited)) {
           if (!filters.region.includes(inf.region)) return false;
         }
         // Type filter
-        if (filters.type.length > 0 && !filters.type.includes(content.common.unlimited)) {
+        if (filters.type.length > 0 && !filters.type.includes(CONTENT.common.unlimited)) {
           if (!filters.type.includes(inf.type)) return false;
         }
         // Tags filter
@@ -724,7 +913,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
           if (!filters.tags.some((tag: string) => inf.tags.includes(tag))) return false;
         }
         // Price filter
-        if (filters.price !== content.common.unlimited) {
+        if (filters.price !== CONTENT.common.unlimited) {
           if (filters.price === "2000以下" && inf.price >= 2000) return false;
           if (filters.price === "2000-5000" && (inf.price < 2000 || inf.price > 5000)) return false;
           if (filters.price === "5000-1W" && (inf.price < 5000 || inf.price > 10000)) return false;
@@ -733,7 +922,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
           if (filters.price === "10W以上" && inf.price < 100000) return false;
         }
         // Followers filter
-        if (filters.followers !== content.common.unlimited) {
+        if (filters.followers !== CONTENT.common.unlimited) {
           if (filters.followers === "50W以下" && inf.followers >= 500000) return false;
           if (filters.followers === "50W-100W" && (inf.followers < 500000 || inf.followers > 1000000)) return false;
           if (filters.followers === "100W-200W" && (inf.followers < 1000000 || inf.followers > 2000000)) return false;
@@ -748,18 +937,29 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
       setDisplayedInfluencers(filtered);
       setIsLoading(false);
       setPage(0);
-    }, 800);
+    }, 2000);
   };
 
-  const handleUnifiedSearch = async () => {
-    if (!precisionPrompt.trim()) return;
+  const handleUnifiedSearch = async (conditionsFromModal?: string[]) => {
+    const baseConditions = conditionsFromModal || standardizedConditions;
+    if (!precisionPrompt.trim() && baseConditions.length === 0) return;
     
     // Step 1: Standardize conditions
     setIsAnalyzingPrecision(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    const conditions = precisionPrompt.split(/[，, ]+/).filter(c => c.length > 1).slice(0, 3);
-    const finalConditions = conditions.length > 0 ? conditions : ["背景干净", "光线明亮", "露脸自拍"];
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    let finalConditions = [...baseConditions];
+    if (precisionPrompt.trim()) {
+      const extracted = precisionPrompt.split(/[，, ]+/).filter(c => c.length > 1 && !finalConditions.includes(c)).slice(0, 3);
+      if (extracted.length > 0) {
+        finalConditions = [...finalConditions, ...extracted];
+      } else if (finalConditions.length === 0) {
+        finalConditions = ["背景干净", "光线明亮", "露脸自拍"];
+      }
+    }
+    
     setStandardizedConditions(finalConditions);
+    setPrecisionPrompt('');
     setIsAnalyzingPrecision(false);
 
     // Step 2: Advanced Search
@@ -793,10 +993,6 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
   };
 
   const sortedInfluencers = [...displayedInfluencers].sort((a, b) => {
-    // Put matched ones at the top
-    if (matchedIds.includes(a.id) && !matchedIds.includes(b.id)) return -1;
-    if (!matchedIds.includes(a.id) && matchedIds.includes(b.id)) return 1;
-
     if (!sortBy || !sortOrder) return 0;
     let valA = (a as any)[sortBy];
     let valB = (b as any)[sortBy];
@@ -813,8 +1009,25 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
     return valA < valB ? 1 : -1;
   });
 
-  const totalPages = Math.ceil(sortedInfluencers.length / itemsPerPage);
-  const currentItems = sortedInfluencers.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+  const filteredByQuick = sortedInfluencers.filter(inf => {
+    if (quickFilter === 'all') return true;
+    if (quickFilter === 'precision') return matchedIds.includes(inf.id);
+    if (quickFilter === 'standard') return !matchedIds.includes(inf.id);
+    if (quickFilter === 'approved') return projects.some((p: Project) => p.influencers.some(item => item.id === inf.id));
+    if (quickFilter === 'rejected') return rejections.some((r: RejectionRecord) => r.influencerId === inf.id);
+    return true;
+  });
+
+  const totalPages = Math.ceil(filteredByQuick.length / itemsPerPage);
+  const currentItems = filteredByQuick.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+
+  const counts = {
+    all: displayedInfluencers.length,
+    precision: displayedInfluencers.filter(inf => matchedIds.includes(inf.id)).length,
+    standard: displayedInfluencers.filter(inf => !matchedIds.includes(inf.id)).length,
+    approved: displayedInfluencers.filter(inf => projects.some((p: Project) => p.influencers.some(item => item.id === inf.id))).length,
+    rejected: displayedInfluencers.filter(inf => rejections.some((r: RejectionRecord) => r.influencerId === inf.id)).length,
+  };
 
   const toggleSelectAll = () => {
     if (selectedIds.length === currentItems.length) {
@@ -834,7 +1047,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
   };
 
   const handleBatchContact = () => {
-    alert(content.project.batchContact + ': ' + selectedIds.length + ' ' + content.resultsPage.unit);
+    alert(CONTENT.project.batchContact + ': ' + selectedIds.length + ' ' + CONTENT.resultsPage.unit);
   };
 
   if (isLoading) {
@@ -848,7 +1061,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
           />
           <Loader2 className="absolute inset-0 m-auto text-tech-blue animate-spin" size={32} />
         </div>
-        <h2 className="text-2xl font-bold text-tech-blue tracking-widest animate-pulse">{content.common.loadingData}</h2>
+        <h2 className="text-2xl font-bold text-tech-blue tracking-widest animate-pulse">{CONTENT.common.loadingData}</h2>
       </div>
     );
   }
@@ -869,7 +1082,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-3xl font-bold tracking-widest text-tech-blue">{content.resultsPage.title}</h1>
+            <h1 className="text-3xl font-bold tracking-widest text-tech-blue">{CONTENT.resultsPage.title}</h1>
           </div>
         </div>
         
@@ -879,7 +1092,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             className="p-4 bg-tech-blue/10 border border-tech-blue/50 rounded-full hover:bg-tech-blue hover:text-black transition-all text-tech-blue flex items-center gap-2 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
           >
             <Radar size={24} className="animate-pulse" />
-            <span className="font-bold">{content.resultsPage.startRadar}</span>
+            <span className="font-bold">{CONTENT.resultsPage.startRadar}</span>
           </button>
           
           <button 
@@ -888,7 +1101,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
           >
             <Layers size={24} className="group-hover:scale-110 transition-transform" />
             {projectCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-tech-blue text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+              <span className="absolute -top-1 -right-1 bg-tech-blue text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
                 {projectCount}
               </span>
             )}
@@ -901,12 +1114,12 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-white/50">{content.radarPage.filters.tags}</span>
+              <span className="text-sm text-white/50">{CONTENT.radarPage.filters.tags}</span>
               <button 
                 onClick={() => setIsTagModalOpen(true)}
                 className="text-sm text-tech-blue flex items-center gap-1 hover:underline"
               >
-                <Plus size={10} /> {content.radarPage.filters.moreTags}
+                <Plus size={10} /> {CONTENT.radarPage.filters.moreTags}
               </button>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -925,25 +1138,25 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             </div>
           </div>
           <FilterRow 
-            label={content.radarPage.filters.price} 
-            options={content.radarPage.filters.priceOptions} 
+            label={CONTENT.radarPage.filters.price} 
+            options={CONTENT.radarPage.filters.priceOptions} 
             value={filters.price}
             onChange={(v: string) => setFilters({...filters, price: v})}
           />
           <FilterRow 
-            label={content.radarPage.filters.followers} 
-            options={content.radarPage.filters.followerOptions} 
+            label={CONTENT.radarPage.filters.followers} 
+            options={CONTENT.radarPage.filters.followerOptions} 
             value={filters.followers}
             onChange={(v: string) => setFilters({...filters, followers: v})}
           />
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-white/50">{content.radarPage.filters.region}</span>
+              <span className="text-sm text-white/50">{CONTENT.radarPage.filters.region}</span>
               <button 
                 onClick={() => setIsCityModalOpen(true)}
                 className="text-sm text-tech-blue flex items-center gap-1 hover:underline"
               >
-                <Plus size={10} /> {content.radarPage.filters.moreRegions}
+                <Plus size={10} /> {CONTENT.radarPage.filters.moreRegions}
               </button>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -967,7 +1180,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             </div>
           </div>
           <div className="flex flex-col gap-2 lg:col-span-2">
-            <span className="text-sm text-white/50">{content.radarPage.filters.contentType}</span>
+            <span className="text-sm text-white/50">{CONTENT.radarPage.filters.contentType}</span>
             <div className="flex flex-wrap gap-1">
               {CONTENT_TYPES.map(type => {
                 const isSelected = filters.type.includes(type);
@@ -995,37 +1208,69 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             className="px-12 py-3 bg-tech-blue text-black rounded-xl font-bold hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
           >
             <Filter size={18} />
-            {content.radarPage.filters.filterButton}
+            {CONTENT.radarPage.filters.filterButton}
           </button>
         </div>
       </div>
 
-      {/* Precision Search Section */}
-      <div className="mb-8 bg-tech-dark/40 border border-tech-blue/20 rounded-3xl p-8 backdrop-blur-md">
-        <div className="flex items-center gap-2 text-tech-blue mb-4">
-          <Sparkles size={20} />
-          <h2 className="text-xl font-bold">{content.resultsPage.precisionSearch.title}</h2>
+      <div className="flex-1 bg-tech-dark/40 border border-tech-blue/20 rounded-3xl overflow-hidden backdrop-blur-md flex flex-col">
+        {/* Quick Filters */}
+        <div className="px-6 py-4 border-b border-tech-blue/10 flex flex-wrap gap-3 bg-tech-blue/5">
+          {[
+            { id: 'all', label: '全部' },
+            { id: 'precision', label: '精准筛选' },
+            { id: 'standard', label: '普通筛选' },
+            { id: 'approved', label: '通过' },
+            { id: 'rejected', label: '不通过' }
+          ].map((f) => (
+            <button
+              key={f.id}
+              onClick={() => {
+                setQuickFilter(f.id as any);
+                setPage(0);
+              }}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                quickFilter === f.id 
+                  ? 'bg-tech-blue text-black border-tech-blue shadow-[0_0_15px_rgba(0,242,255,0.3)]' 
+                  : 'bg-tech-blue/5 text-tech-blue/60 border-tech-blue/20 hover:border-tech-blue/50 hover:text-tech-blue'
+              }`}
+            >
+              {f.label} ({counts[f.id as keyof typeof counts]})
+            </button>
+          ))}
         </div>
-        
-        <div className="space-y-4">
-          <textarea 
-            value={precisionPrompt}
-            onChange={(e) => setPrecisionPrompt(e.target.value)}
-            placeholder={content.resultsPage.precisionSearch.placeholder}
-            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-tech-blue/50 outline-none transition-colors resize-none h-24 text-sm"
-          />
-          
-          <div className="flex items-center gap-6">
-            <div className="flex gap-3">
-              <button 
-                onClick={handleUnifiedSearch}
-                disabled={isAnalyzingPrecision || isScanning || !precisionPrompt.trim()}
-                className="px-10 py-3 bg-tech-blue text-black rounded-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2 shadow-[0_0_20px_rgba(0,242,255,0.3)]"
-              >
-                {isAnalyzingPrecision || isScanning ? <Loader2 className="animate-spin" size={18} /> : <Zap size={18} />}
-                {content.resultsPage.precisionSearch.button}
-              </button>
-            </div>
+
+        {/* Batch Action Bar */}
+      <div className="p-6 flex items-center justify-between bg-tech-blue/5 border-b-0">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 px-4 py-2 bg-tech-blue/10 rounded-xl border border-tech-blue/20">
+            <span className="text-sm text-white/60">{CONTENT.common.selected} <span className="text-tech-blue font-bold">{selectedIds.length}</span></span>
+          </div>
+          <button
+            onClick={handleBatchApprove}
+            disabled={selectedIds.length === 0}
+            className="px-6 py-2 bg-tech-blue text-black rounded-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
+          >
+            {CONTENT.project.batchApprove}
+          </button>
+          <button
+            onClick={() => onReject(MOCK_INFLUENCERS.filter(i => selectedIds.includes(i.id)))}
+            disabled={selectedIds.length === 0}
+            className="px-6 py-2 border border-red-500 text-red-500 rounded-xl font-bold text-sm hover:bg-red-500/10 transition-all disabled:opacity-50"
+          >
+            {CONTENT.project.batchReject}
+          </button>
+
+          <div className="h-6 w-px bg-white/10 mx-2" />
+
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsPrecisionModalOpen(true)}
+              className="px-6 py-2 bg-tech-blue/10 border border-tech-blue/30 text-tech-blue rounded-xl font-bold text-sm hover:bg-tech-blue hover:text-black transition-all flex items-center gap-2"
+            >
+              <Sparkles size={16} />
+              {CONTENT.resultsPage.precisionSearch.title}
+            </button>
 
             <div className="flex flex-wrap gap-2">
               {standardizedConditions.map((cond, idx) => (
@@ -1041,254 +1286,195 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             </div>
           </div>
         </div>
+        <div className="text-sm text-white/40">
+          {CONTENT.resultsPage.totalFound} <span className="text-tech-blue font-bold">{filteredByQuick.length}</span> {CONTENT.resultsPage.unit}
+        </div>
       </div>
 
-      <div className="flex-1 bg-tech-dark/40 border border-tech-blue/20 rounded-3xl overflow-hidden backdrop-blur-md flex flex-col">
-        {/* Batch Action Bar */}
-        <div className="p-6 border-b border-tech-blue/10 flex items-center justify-between bg-tech-blue/5">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-tech-blue/10 rounded-xl border border-tech-blue/20">
-              <span className="text-sm text-white/60">{content.common.selected} <span className="text-tech-blue font-bold">{selectedIds.length}</span></span>
-            </div>
-            <button
-              onClick={handleBatchApprove}
-              disabled={selectedIds.length === 0}
-              className="px-6 py-2 bg-tech-blue text-black rounded-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
-            >
-              {content.project.batchApprove}
-            </button>
-            <button
-              onClick={() => onReject(MOCK_INFLUENCERS.filter(i => selectedIds.includes(i.id)))}
-              disabled={selectedIds.length === 0}
-              className="px-6 py-2 border border-red-500 text-red-500 rounded-xl font-bold text-sm hover:bg-red-500/10 transition-all disabled:opacity-50"
-            >
-              {content.project.batchReject}
-            </button>
-          </div>
-          <div className="text-sm text-white/40">
-            {content.resultsPage.totalFound} <span className="text-tech-blue font-bold">{sortedInfluencers.length}</span> {content.resultsPage.unit}
-          </div>
-        </div>
+      {/* Table */}
+      <div className="flex-1 overflow-x-auto">
+        <table className="w-full text-left border-collapse border-none">
+          <thead className="bg-tech-blue/5 text-tech-blue text-xs uppercase tracking-wider select-none border-b-0">
+            <tr>
+              <th className="px-6 py-4 w-10">
+                <button onClick={toggleSelectAll} className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedIds.length === currentItems.length ? 'bg-tech-blue border-tech-blue text-black' : 'border-tech-blue/30 hover:border-tech-blue'}`}>
+                  {selectedIds.length === currentItems.length && <Plus size={14} className="rotate-45" />}
+                </button>
+              </th>
+              <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('name')}>
+                <div className="flex items-center gap-2">
+                  {CONTENT.resultsPage.table.info}
+                  {sortBy === 'name' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
+                </div>
+              </th>
+              <th className="px-6 py-4 font-bold">{CONTENT.resultsPage.table.regionType}</th>
+              <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('followers')}>
+                <div className="flex items-center gap-2">
+                  {CONTENT.resultsPage.table.followers}
+                  {sortBy === 'followers' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
+                </div>
+              </th>
+              <th className="px-6 py-4 font-bold">{CONTENT.resultsPage.table.recentPosts}</th>
+              <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('posts')}>
+                <div className="flex items-center gap-2">
+                  {CONTENT.resultsPage.table.postCount}
+                  {sortBy === 'posts' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
+                </div>
+              </th>
+              <th className="px-6 py-4 font-bold text-right cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('price')}>
+                <div className="flex items-center justify-end gap-2">
+                  {CONTENT.resultsPage.table.price}
+                  {sortBy === 'price' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
+                </div>
+              </th>
+              <th className="px-6 py-4 font-bold text-center">{CONTENT.resultsPage.table.action}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-tech-blue/30">
+            {currentItems.map((inf, i) => {
+              const isMatched = matchedIds.includes(inf.id);
+              const isScanningThis = scanningId === inf.id;
+              const isApproved = projects.some((p: Project) => p.influencers.some(item => item.id === inf.id));
 
-        {/* Table */}
-        <div className="flex-1 overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-tech-blue/5 text-tech-blue text-xs uppercase tracking-wider select-none">
-              <tr>
-                <th className="px-6 py-4 w-10">
-                  <button onClick={toggleSelectAll} className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedIds.length === currentItems.length ? 'bg-tech-blue border-tech-blue text-black' : 'border-tech-blue/30 hover:border-tech-blue'}`}>
-                    {selectedIds.length === currentItems.length && <Plus size={14} className="rotate-45" />}
-                  </button>
-                </th>
-                <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('name')}>
-                  <div className="flex items-center gap-2">
-                    {content.resultsPage.table.info}
-                    {sortBy === 'name' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
-                  </div>
-                </th>
-                <th className="px-6 py-4 font-bold">{content.resultsPage.table.regionType}</th>
-                <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('followers')}>
-                  <div className="flex items-center gap-2">
-                    {content.resultsPage.table.followers}
-                    {sortBy === 'followers' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
-                  </div>
-                </th>
-                <th className="px-6 py-4 font-bold">{content.resultsPage.table.recentPosts}</th>
-                <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('posts')}>
-                  <div className="flex items-center gap-2">
-                    {content.resultsPage.table.postCount}
-                    {sortBy === 'posts' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
-                  </div>
-                </th>
-                <th className="px-6 py-4 font-bold text-right cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('price')}>
-                  <div className="flex items-center justify-end gap-2">
-                    {content.resultsPage.table.price}
-                    {sortBy === 'price' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
-                  </div>
-                </th>
-                <th className="px-6 py-4 font-bold text-center">{content.resultsPage.table.action}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/20">
-              {currentItems.map((inf, i) => {
-                const isMatched = matchedIds.includes(inf.id);
-                const isScanningThis = scanningId === inf.id;
-                const isApproved = projects.some((p: Project) => p.influencers.some(item => item.id === inf.id));
-
-                return (
-                  <React.Fragment key={inf.id}>
-                    <motion.tr 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className={`hover:bg-white/5 transition-all group ${selectedIds.includes(inf.id) ? 'bg-tech-blue/5' : ''} ${isScanningThis ? 'bg-tech-blue/10' : ''} ${isMatched ? 'bg-tech-blue/5' : ''}`}
-                    >
-                      <td className="px-6 py-4">
-                        <button onClick={() => toggleSelect(inf.id)} className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedIds.includes(inf.id) ? 'bg-tech-blue border-tech-blue text-black' : 'border-tech-blue/30 hover:border-tech-blue'}`}>
-                          {selectedIds.includes(inf.id) && <Plus size={14} className="rotate-45" />}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-4 cursor-pointer" onClick={() => onSelectInfluencer(inf)}>
-                          <div className="relative">
-                            <img src={inf.avatar} className="w-12 h-12 rounded-full border border-tech-blue/30 group-hover:border-tech-blue transition-colors" referrerPolicy="no-referrer" />
-                            {isScanningThis && (
-                              <motion.div 
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                className="absolute -inset-1 border-2 border-transparent border-t-tech-blue rounded-full"
-                              />
-                            )}
-                            {isMatched && (
-                              <div className="absolute -top-1 -right-1 bg-tech-blue text-black rounded-full p-0.5 shadow-lg">
-                                <CheckCircle2 size={10} />
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-bold text-white group-hover:text-tech-blue transition-colors flex items-center gap-2">
-                              {inf.name}
-                              {isMatched && <span className="text-[10px] px-1.5 py-0.5 bg-tech-blue/20 text-tech-blue rounded-full font-normal">MATCHED</span>}
-                            </div>
-                            <div className="flex gap-1 mt-1">
-                              {inf.tags.slice(0, 2).map((tag: string) => (
-                                <span key={tag} className="text-[8px] px-1.5 py-0.5 bg-tech-blue/10 text-tech-blue rounded">#{tag}</span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-white/60">
-                        {inf.region} · {inf.type}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-bold text-white">{(inf.followers / 10000).toFixed(1)}W</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex -space-x-2 overflow-hidden">
-                          {inf.posts.slice(0, 3).map((post: Post) => (
+              return (
+                <React.Fragment key={inf.id}>
+                  <motion.tr 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className={`hover:bg-white/5 transition-all group ${selectedIds.includes(inf.id) ? 'bg-tech-blue/5' : ''} ${isScanningThis ? 'bg-tech-blue/10' : ''} ${isMatched ? 'bg-tech-blue/5' : ''}`}
+                  >
+                    <td className="px-6 py-4">
+                      <button onClick={() => toggleSelect(inf.id)} className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedIds.includes(inf.id) ? 'bg-tech-blue border-tech-blue text-black' : 'border-tech-blue/30 hover:border-tech-blue'}`}>
+                        {selectedIds.includes(inf.id) && <Plus size={14} className="rotate-45" />}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4 cursor-pointer" onClick={() => {
+                        if (isMatched) {
+                          onSelectPrecisionInfluencer(inf);
+                        } else {
+                          onSelectInfluencer(inf);
+                        }
+                      }}>
+                        <div className="relative">
+                          <img src={inf.avatar} className="w-12 h-12 rounded-full border border-tech-blue/30 group-hover:border-tech-blue transition-colors" referrerPolicy="no-referrer" />
+                          {isScanningThis && (
                             <motion.div 
-                              key={post.id}
-                              whileHover={{ scale: 1.1, zIndex: 10 }}
-                              onClick={() => onSelectPost(inf, post)}
-                              className="w-10 h-10 rounded-lg border-2 border-tech-dark overflow-hidden cursor-pointer shadow-lg"
-                            >
-                              <img src={post.images[0]} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                            </motion.div>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-bold text-white">{inf.posts.length}</div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="text-sm font-bold text-tech-blue">¥{inf.price.toLocaleString()}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-center gap-2">
-                          {isApproved ? (
-                            <button 
-                              onClick={() => onRemoveFromProject(inf.id)}
-                              className="px-3 py-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all text-xs font-bold"
-                            >
-                              {content.project.cancelApprove}
-                            </button>
-                          ) : (
-                            <>
-                              <button 
-                                onClick={() => onApprove([inf])}
-                                className="p-2 bg-green-500/10 text-green-500 rounded-lg hover:bg-green-500 hover:text-white transition-all"
-                                title={content.project.approve}
-                              >
-                                <Plus size={18} />
-                              </button>
-                              <button 
-                                onClick={() => onReject([inf])}
-                                className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                                title={content.project.reject}
-                              >
-                                <X size={18} />
-                              </button>
-                            </>
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              className="absolute -inset-1 border-2 border-transparent border-t-tech-blue rounded-full"
+                            />
+                          )}
+                          {isMatched && (
+                            <div className="absolute -top-1 -right-1 bg-tech-blue text-black rounded-full p-0.5 shadow-lg">
+                              <CheckCircle2 size={10} />
+                            </div>
                           )}
                         </div>
-                      </td>
-                    </motion.tr>
-                    
-                    {/* Scanning / Matched Detail Row */}
-                    <AnimatePresence>
-                      {(isScanningThis || isMatched) && (
-                        <motion.tr
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="bg-tech-blue/5 overflow-hidden !border-t-0"
-                        >
-                          <td className="px-6 py-0 !border-t-0"></td>
-                          <td colSpan={7} className="px-6 py-0 !border-t-0">
-                            <div className="py-4">
+                        <div>
+                          <div className="font-bold text-white group-hover:text-tech-blue transition-colors flex items-center gap-2">
+                            {inf.name}
+                            {isMatched && <span className="text-xs px-1.5 py-0.5 bg-tech-blue/20 text-tech-blue rounded-full font-normal">MATCHED</span>}
+                          </div>
+                          <div className="flex gap-1 mt-1">
+                            {inf.tags.slice(0, 2).map((tag: string) => (
+                              <span key={tag} className="text-xs px-1.5 py-0.5 bg-tech-blue/10 text-tech-blue rounded">#{tag}</span>
+                            ))}
+                          </div>
+                          
+                          {(isScanningThis || isMatched) && (
+                            <div className="mt-2 pt-2 border-t border-tech-blue/10">
                               {isScanningThis ? (
-                                <div className="flex items-center gap-3 text-tech-blue text-sm">
-                                  <Loader2 className="animate-spin" size={16} />
-                                  <span>{content.resultsPage.precisionSearch.scanning}</span>
-                                  <motion.div 
-                                    className="h-1 bg-tech-blue/20 rounded-full flex-1 overflow-hidden"
-                                  >
-                                    <motion.div 
-                                      animate={{ x: ['-100%', '100%'] }}
-                                      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                                      className="h-full w-1/3 bg-tech-blue"
-                                    />
-                                  </motion.div>
+                                <div className="flex items-center gap-2 text-tech-blue text-xs">
+                                  <Loader2 className="animate-spin" size={10} />
+                                  <span>{CONTENT.resultsPage.precisionSearch.scanning}</span>
                                 </div>
                               ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                  <button 
-                                    onClick={() => {
-                                      const reason = standardizedConditions.length > 0 ? `根据您的筛选条件“${standardizedConditions.join('、')}”，该笔记在图片视觉风格和内容描述上均表现出极高的契合度。图片背景干净，光线明亮，博主形象气质符合品牌调性。` : undefined;
-                                      onSelectPost(inf, inf.posts[0], reason);
-                                    }}
-                                    className="flex items-center gap-3 text-green-400 text-sm font-bold hover:scale-105 transition-transform text-left"
-                                  >
-                                    <CheckCircle2 size={16} />
-                                    <span>{content.resultsPage.precisionSearch.matchImage}</span>
-                                  </button>
-                                  <button 
-                                    onClick={() => {
-                                      const reason = standardizedConditions.length > 0 ? `根据您的筛选条件“${standardizedConditions.join('、')}”，该笔记在图片视觉风格和内容描述上均表现出极高的契合度。图片背景干净，光线明亮，博主形象气质符合品牌调性。` : undefined;
-                                      onSelectPost(inf, inf.posts[0], reason);
-                                    }}
-                                    className="flex items-center gap-3 text-green-400 text-sm font-bold hover:scale-105 transition-transform text-left"
-                                  >
-                                    <CheckCircle2 size={16} />
-                                    <span>{content.resultsPage.precisionSearch.matchContent}</span>
-                                  </button>
-                                  <div className="flex flex-col gap-1">
-                                    <span className="text-[10px] text-white/40 uppercase tracking-widest">{content.resultsPage.precisionSearch.matchReason}</span>
-                                    <div className="flex flex-wrap gap-1">
-                                      {standardizedConditions.map((c, idx) => (
-                                        <span key={idx} className="text-[10px] text-tech-blue">#{c}</span>
-                                      ))}
-                                    </div>
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-center gap-1 text-green-400 text-xs font-bold">
+                                    <CheckCircle2 size={10} />
+                                    <span>{CONTENT.resultsPage.precisionSearch.matchImage}</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1">
+                                    {standardizedConditions.map((c, idx) => (
+                                      <span key={idx} className="text-xs text-tech-blue/60">#{c}</span>
+                                    ))}
                                   </div>
                                 </div>
                               )}
                             </div>
-                          </td>
-                        </motion.tr>
-                      )}
-                    </AnimatePresence>
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-white/60">
+                      {inf.region} · {inf.type}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-bold text-white">{(inf.followers / 10000).toFixed(1)}W</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex -space-x-2 overflow-hidden">
+                        {inf.posts.slice(0, 3).map((post: Post) => (
+                          <motion.div 
+                            key={post.id}
+                            whileHover={{ scale: 1.1, zIndex: 10 }}
+                            onClick={() => onSelectPost(inf, post)}
+                            className="w-10 h-10 rounded-lg border-2 border-tech-dark overflow-hidden cursor-pointer shadow-lg"
+                          >
+                            <img src={post.images[0]} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          </motion.div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-bold text-white">{inf.posts.length}</div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="text-sm font-bold text-tech-blue">¥{inf.price.toLocaleString()}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center gap-2">
+                        {isApproved ? (
+                          <button 
+                            onClick={() => onRemoveFromProject(inf.id)}
+                            className="px-3 py-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all text-xs font-bold"
+                          >
+                            {CONTENT.project.cancelApprove}
+                          </button>
+                        ) : (
+                          <>
+                            <button 
+                              onClick={() => onApprove([inf])}
+                              className="p-2 bg-green-500/10 text-green-500 rounded-lg hover:bg-green-500 hover:text-white transition-all"
+                              title={CONTENT.project.approve}
+                            >
+                              <Plus size={18} />
+                            </button>
+                            <button 
+                              onClick={() => onReject([inf])}
+                              className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                              title={CONTENT.project.reject}
+                            >
+                              <X size={18} />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
         {/* Pagination */}
         <div className="p-6 border-t border-tech-blue/10 flex items-center justify-between bg-tech-blue/5">
           <div className="text-sm text-white/40">
-            {content.common.showing} {page * itemsPerPage + 1} - {Math.min((page + 1) * itemsPerPage, sortedInfluencers.length)} {content.common.of} {sortedInfluencers.length} {content.common.unit}
+            {CONTENT.common.showing} {page * itemsPerPage + 1} - {Math.min((page + 1) * itemsPerPage, filteredByQuick.length)} {CONTENT.common.of} {filteredByQuick.length} {CONTENT.common.unit}
           </div>
           <div className="flex gap-2">
             <button 
@@ -1317,6 +1503,72 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
           </div>
         </div>
       </div>
+
+      {/* Precision Search Modal */}
+      <AnimatePresence>
+        {isPrecisionModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-tech-dark border border-tech-blue/30 rounded-3xl p-8 w-full max-w-2xl shadow-[0_0_50px_rgba(0,242,255,0.1)]"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-tech-blue flex items-center gap-2">
+                  <Sparkles /> {CONTENT.resultsPage.precisionSearch.title}
+                </h2>
+                <button onClick={() => setIsPrecisionModalOpen(false)} className="text-white/50 hover:text-white">
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 focus-within:border-tech-blue/50 transition-colors">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {modalConditions.map((cond, idx) => (
+                    <span 
+                      key={idx}
+                      className="px-3 py-1 bg-tech-blue/20 text-tech-blue text-xs rounded-full border border-tech-blue/30 flex items-center gap-2"
+                    >
+                      {cond}
+                      <button 
+                        onClick={() => setModalConditions(prev => prev.filter((_, i) => i !== idx))}
+                        className="hover:text-white transition-colors p-0.5"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <textarea 
+                  value={precisionPrompt}
+                  onChange={(e) => setPrecisionPrompt(e.target.value)}
+                  placeholder={CONTENT.resultsPage.precisionSearch.placeholder}
+                  className="w-full bg-transparent border-none outline-none text-white transition-colors resize-none h-32 text-sm"
+                />
+              </div>
+              
+              <div className="flex justify-end gap-4">
+                <button 
+                  onClick={() => setIsPrecisionModalOpen(false)}
+                  className="px-8 py-3 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-all"
+                >
+                  {CONTENT.common.cancel}
+                </button>
+                <button 
+                  onClick={() => {
+                    handleUnifiedSearch(modalConditions);
+                    setIsPrecisionModalOpen(false);
+                  }}
+                  className="px-12 py-3 bg-tech-blue text-black rounded-xl font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(0,242,255,0.3)]"
+                >
+                  {CONTENT.radarPage.filters.filterButton.replace('执行', '')}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
@@ -1327,7 +1579,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
   const [showWall, setShowWall] = useState(!isRadarScanning);
   const [avatarPositions, setAvatarPositions] = useState<any[]>([]);
   const [visibleAvatarsCount, setVisibleAvatarsCount] = useState(0);
-  const [progressText, setProgressText] = useState(content.common.aiAnalyzing);
+  const [progressText, setProgressText] = useState(CONTENT.common.aiAnalyzing);
   
   const itemsPerPage = 5;
   const totalPages = Math.ceil(MOCK_INFLUENCERS.length / itemsPerPage);
@@ -1351,7 +1603,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
       setAvatarPositions(positions);
 
       // Status text switching logic - specific conditions
-      const statusTexts = content.displayPage.statusTexts;
+      const statusTexts = CONTENT.displayPage.statusTexts;
       
       let textIdx = 0;
       const textInterval = setInterval(() => {
@@ -1396,7 +1648,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
         
         <div className="text-center flex flex-col items-center gap-2">
           <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold tracking-widest text-tech-blue">{content.displayPage.title}</h1>
+            <h1 className="text-3xl font-bold tracking-widest text-tech-blue">{CONTENT.displayPage.title}</h1>
             <button 
               onClick={onStartRadar}
               className="p-2 bg-tech-blue/20 rounded-full text-tech-blue hover:scale-110 transition-transform shadow-[0_0_15px_rgba(0,242,255,0.3)]"
@@ -1405,8 +1657,8 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
             </button>
           </div>
           
-          <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-medium">
-            {content.displayPage.subtitle}
+          <p className="text-white/40 text-xs uppercase tracking-[0.2em] font-medium">
+            {CONTENT.displayPage.subtitle}
           </p>
 
           {/* Supplementary Search Bar - Only show after results appear */}
@@ -1425,7 +1677,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && onStartRadar()}
-                    placeholder={content.common.radarPlaceholder} 
+                    placeholder={CONTENT.common.radarPlaceholder} 
                     className="bg-transparent border-none outline-none text-white text-sm w-full placeholder:text-white/20"
                   />
                   <div className="flex items-center gap-1">
@@ -1454,7 +1706,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
         >
           <Layers size={24} className="group-hover:scale-110 transition-transform" />
           {projectCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-tech-blue text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+            <span className="absolute -top-1 -right-1 bg-tech-blue text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
               {projectCount}
             </span>
           )}
@@ -1527,7 +1779,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
                   <div className="text-tech-blue font-bold tracking-wide text-sm flex items-start gap-3">
                     <Sparkles size={18} className="shrink-0 mt-0.5" /> 
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] uppercase opacity-50 tracking-[0.2em]">{content.displayPage.matchAnalysis}</span>
+                      <span className="text-xs uppercase opacity-50 tracking-[0.2em]">{CONTENT.displayPage.matchAnalysis}</span>
                       <span className="leading-relaxed">
                         {progressText}
                       </span>
@@ -1575,7 +1827,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
                             referrerPolicy="no-referrer" 
                           />
                           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-tech-blue text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                            {inf.fitScore}% {content.displayPage.fitScore}
+                            {inf.fitScore}% {CONTENT.displayPage.fitScore}
                           </div>
                         </div>
                         <h3 className="text-2xl font-bold mb-2 group-hover:text-tech-blue transition-colors">{inf.name}</h3>
@@ -1585,11 +1837,11 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
                         
                         <div className="grid grid-cols-2 gap-4 w-full mb-8">
                           <div className="bg-white/5 p-3 rounded-2xl text-center">
-                            <div className="text-[10px] text-white/40 mb-1">{content.resultsPage.table.followers}</div>
+                            <div className="text-xs text-white/40 mb-1">{CONTENT.resultsPage.table.followers}</div>
                             <div className="text-sm font-bold text-tech-blue">{(inf.followers / 10000).toFixed(1)}W</div>
                           </div>
                           <div className="bg-white/5 p-3 rounded-2xl text-center">
-                            <div className="text-[10px] text-white/40 mb-1">{content.resultsPage.table.price}</div>
+                            <div className="text-xs text-white/40 mb-1">{CONTENT.resultsPage.table.price}</div>
                             <div className="text-sm font-bold text-tech-blue">¥{inf.price.toLocaleString()}</div>
                           </div>
                         </div>
@@ -1599,13 +1851,13 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
                             onClick={() => onApprove([inf])}
                             className="flex-1 py-3 bg-tech-blue text-black rounded-2xl font-bold hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
                           >
-                            <Plus size={18} /> {content.project.approve}
+                            <Plus size={18} /> {CONTENT.project.approve}
                           </button>
                           <button 
                             onClick={() => onReject([inf])}
                             className="flex-1 py-3 border border-red-500/50 text-red-500 rounded-2xl font-bold hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"
                           >
-                            <X size={18} /> {content.project.reject}
+                            <X size={18} /> {CONTENT.project.reject}
                           </button>
                         </div>
                       </div>
@@ -1614,7 +1866,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
                       <div className="flex-1 flex flex-col gap-8">
                         <div className="space-y-4">
                           <h4 className="text-lg font-bold text-tech-blue flex items-center gap-2">
-                            <Sparkles size={20} /> {content.displayPage.matchReason}
+                            <Sparkles size={20} /> {CONTENT.displayPage.matchReason}
                           </h4>
                           <div className="relative">
                             <div className="absolute -left-4 top-0 bottom-0 w-1 bg-tech-blue/30 rounded-full" />
@@ -1625,7 +1877,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
                         </div>
                         
                         <div className="space-y-3">
-                          <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider">{content.displayPage.intro}</h4>
+                          <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider">{CONTENT.displayPage.intro}</h4>
                           <p className="text-sm text-white/50 leading-relaxed">{inf.intro}</p>
                         </div>
 
@@ -1638,7 +1890,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
 
                       {/* Right: Matched Post Preview */}
                       <div className="lg:w-72 shrink-0 flex flex-col">
-                        <h4 className="text-sm font-bold text-white/60 mb-4 uppercase tracking-wider">{content.displayPage.postPreview}</h4>
+                        <h4 className="text-sm font-bold text-white/60 mb-4 uppercase tracking-wider">{CONTENT.displayPage.postPreview}</h4>
                         <div 
                           className="relative rounded-3xl overflow-hidden aspect-[3/4] cursor-pointer group/post flex-1 shadow-2xl"
                           onClick={() => onSelectPost(inf, inf.posts[0])}
@@ -1667,7 +1919,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
             {/* Pagination */}
             <div className="flex items-center justify-between w-full py-8 border-t border-white/10">
               <div className="text-sm text-white/40">
-                {content.common.showing} {page * itemsPerPage + 1} - {Math.min((page + 1) * itemsPerPage, MOCK_INFLUENCERS.length)} {content.common.of} {MOCK_INFLUENCERS.length} {content.common.unit}
+                {CONTENT.common.showing} {page * itemsPerPage + 1} - {Math.min((page + 1) * itemsPerPage, MOCK_INFLUENCERS.length)} {CONTENT.common.of} {MOCK_INFLUENCERS.length} {CONTENT.common.unit}
               </div>
               <div className="flex gap-3">
                 <button 
@@ -1704,9 +1956,9 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
       {showWall && (
         <footer className="mt-12 text-center">
           <div className="inline-flex items-center gap-4 px-6 py-2 bg-tech-blue/10 border border-tech-blue/20 rounded-full backdrop-blur-md">
-            <span className="text-white/40">{content.common.total}: <span className="text-tech-blue font-bold">{MOCK_INFLUENCERS.length}</span></span>
+            <span className="text-white/40">{CONTENT.common.total}: <span className="text-tech-blue font-bold">{MOCK_INFLUENCERS.length}</span></span>
             <div className="w-px h-4 bg-tech-blue/20" />
-            <span className="text-white/40">{content.common.page} <span className="text-tech-blue font-bold">{page + 1}</span> / {totalPages} {content.common.page}</span>
+            <span className="text-white/40">{CONTENT.common.page} <span className="text-tech-blue font-bold">{page + 1}</span> / {totalPages} {CONTENT.common.page}</span>
           </div>
         </footer>
       )}
@@ -1737,13 +1989,13 @@ const InfluencerCard = ({ influencer, index, onSelectInfluencer, onSelectPost, o
             referrerPolicy="no-referrer" 
           />
           {isApproved && (
-            <div className="absolute -bottom-1 -right-1 bg-tech-blue text-black text-[8px] font-bold px-1.5 py-0.5 rounded-full z-20 shadow-lg">
-              {content.project.approved}
+            <div className="absolute -bottom-1 -right-1 bg-tech-blue text-black text-xs font-bold px-1.5 py-0.5 rounded-full z-20 shadow-lg">
+              {CONTENT.project.approved}
             </div>
           )}
           {isRejected && (
-            <div className="absolute -bottom-1 -right-1 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full z-20 shadow-lg">
-              {content.project.rejected}
+            <div className="absolute -bottom-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full z-20 shadow-lg">
+              {CONTENT.project.rejected}
             </div>
           )}
         </div>
@@ -1751,7 +2003,7 @@ const InfluencerCard = ({ influencer, index, onSelectInfluencer, onSelectPost, o
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
             <h3 className="text-xl font-bold truncate">{influencer.name}</h3>
-            <span className="px-2 py-0.5 bg-tech-blue/10 text-tech-blue text-[10px] rounded border border-tech-blue/20">
+            <span className="px-2 py-0.5 bg-tech-blue/10 text-tech-blue text-xs rounded border border-tech-blue/20">
               {influencer.type}
             </span>
           </div>
@@ -1764,11 +2016,11 @@ const InfluencerCard = ({ influencer, index, onSelectInfluencer, onSelectPost, o
 
         <div className="hidden lg:flex items-center gap-10 px-10 border-x border-white/5">
           <div className="text-center">
-            <div className="text-[10px] text-white/40 mb-1 uppercase tracking-wider">{content.resultsPage.table.price}</div>
+            <div className="text-xs text-white/40 mb-1 uppercase tracking-wider">{CONTENT.resultsPage.table.price}</div>
             <div className="text-lg font-bold text-tech-blue">¥{influencer.price.toLocaleString()}</div>
           </div>
           <div className="text-center">
-            <div className="text-[10px] text-white/40 mb-1 uppercase tracking-wider">{content.influencerDetail.fitScore}</div>
+            <div className="text-xs text-white/40 mb-1 uppercase tracking-wider">{CONTENT.influencerDetail.fitScore}</div>
             <div className="text-lg font-bold text-tech-blue">{influencer.fitScore}%</div>
           </div>
         </div>
@@ -1797,7 +2049,7 @@ const InfluencerCard = ({ influencer, index, onSelectInfluencer, onSelectPost, o
               }}
               className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all text-xs font-bold"
             >
-              {content.project.remove}
+              {CONTENT.project.remove}
             </button>
           ) : (
             <>
@@ -1894,7 +2146,7 @@ const TagSelectionModal = ({ selectedTags, onClose, onConfirm }: any) => {
       >
         <div className="p-6 border-b border-white/10 flex justify-between items-center bg-tech-blue/5">
           <h3 className="text-xl font-bold text-tech-blue flex items-center gap-2">
-            <Tag size={20} /> {content.radarPage.filters.moreTags}
+            <Tag size={20} /> {CONTENT.radarPage.filters.moreTags}
           </h3>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
             <X size={20} />
@@ -1909,20 +2161,20 @@ const TagSelectionModal = ({ selectedTags, onClose, onConfirm }: any) => {
 
         <div className="p-6 border-t border-white/10 bg-tech-blue/5 flex justify-between items-center">
           <div className="text-xs text-white/40">
-            {content.common.selected} <span className="text-tech-blue font-bold">{tempTags.length}</span> {content.common.tagsUnit}
+            {CONTENT.common.selected} <span className="text-tech-blue font-bold">{tempTags.length}</span> {CONTENT.common.tagsUnit}
           </div>
           <div className="flex gap-4">
             <button 
               onClick={onClose}
               className="px-6 py-2 rounded-xl border border-white/10 hover:bg-white/5 transition-colors"
             >
-              {content.common.cancel}
+              {CONTENT.common.cancel}
             </button>
             <button 
               onClick={() => onConfirm(tempTags)}
               className="px-8 py-2 rounded-xl bg-tech-blue text-black font-bold hover:scale-105 transition-transform"
             >
-              {content.common.confirm}
+              {CONTENT.common.confirm}
             </button>
           </div>
         </div>
@@ -1961,13 +2213,13 @@ const InfluencerDetailModal = ({ influencer, onClose, onSelectPost, onApprove, o
             <div className="relative">
               <img src={influencer.avatar} className="w-32 h-32 rounded-full border-4 border-tech-blue/30 shadow-[0_0_30px_rgba(0,242,255,0.2)]" referrerPolicy="no-referrer" />
               {isApproved && (
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-tech-blue text-black text-[10px] font-bold px-3 py-1 rounded-full z-20 shadow-lg whitespace-nowrap">
-                  {content.project.approved}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-tech-blue text-black text-xs font-bold px-3 py-1 rounded-full z-20 shadow-lg whitespace-nowrap">
+                  {CONTENT.project.approved}
                 </div>
               )}
               {isRejected && (
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full z-20 shadow-lg whitespace-nowrap">
-                  {content.project.rejected}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full z-20 shadow-lg whitespace-nowrap">
+                  {CONTENT.project.rejected}
                 </div>
               )}
             </div>
@@ -1975,13 +2227,13 @@ const InfluencerDetailModal = ({ influencer, onClose, onSelectPost, onApprove, o
               <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
                 <h2 className="text-4xl font-bold text-white tracking-tight">{influencer.name}</h2>
                 <div className="bg-tech-blue text-black text-xs font-bold px-3 py-1 rounded-full">
-                  {influencer.fitScore}% {content.influencerDetail.fitScore}
+                  {influencer.fitScore}% {CONTENT.influencerDetail.fitScore}
                 </div>
               </div>
               <div className="flex flex-wrap justify-center md:justify-start gap-4 text-white/60 mb-6">
                 <span className="flex items-center gap-2"><MapPin size={16} /> {influencer.region}</span>
                 <span className="flex items-center gap-2"><Tag size={16} /> {influencer.type}</span>
-                <span className="flex items-center gap-2"><Users size={16} /> {(influencer.followers / 10000).toFixed(1)}W {content.common.followersSuffix}</span>
+                <span className="flex items-center gap-2"><Users size={16} /> {(influencer.followers / 10000).toFixed(1)}W {CONTENT.common.followersSuffix}</span>
               </div>
               <p className="text-white/50 leading-relaxed max-w-2xl mx-auto md:mx-0">{influencer.intro}</p>
             </div>
@@ -1994,7 +2246,7 @@ const InfluencerDetailModal = ({ influencer, onClose, onSelectPost, onApprove, o
                   }}
                   className="px-8 py-3 bg-white/5 border border-white/10 rounded-2xl text-white/60 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all font-bold"
                 >
-                  {content.project.remove}
+                  {CONTENT.project.remove}
                 </button>
               ) : (
                 <>
@@ -2002,13 +2254,13 @@ const InfluencerDetailModal = ({ influencer, onClose, onSelectPost, onApprove, o
                     onClick={() => onApprove(influencer)}
                     className="bg-tech-blue text-black px-8 py-3 rounded-2xl font-bold hover:scale-105 transition-transform flex items-center gap-2 shadow-[0_0_20px_rgba(0,242,255,0.3)]"
                   >
-                    <Plus size={20} /> {content.project.approve}
+                    <Plus size={20} /> {CONTENT.project.approve}
                   </button>
                   <button 
                     onClick={() => onReject(influencer)}
                     className="bg-red-500/10 border border-red-500/50 text-red-500 px-8 py-3 rounded-2xl font-bold hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
                   >
-                    <X size={20} /> {content.project.reject}
+                    <X size={20} /> {CONTENT.project.reject}
                   </button>
                 </>
               )}
@@ -2018,7 +2270,7 @@ const InfluencerDetailModal = ({ influencer, onClose, onSelectPost, onApprove, o
           {/* Recent Posts Section */}
           <div>
             <h3 className="text-xl font-bold text-tech-blue mb-6 flex items-center gap-2">
-              <FileText size={20} /> {content.influencerDetail.recentPosts}
+              <FileText size={20} /> {CONTENT.influencerDetail.recentPosts}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {influencer.posts.map((post: Post) => (
@@ -2032,7 +2284,7 @@ const InfluencerDetailModal = ({ influencer, onClose, onSelectPost, onApprove, o
                     <img src={post.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end">
                       <p className="text-xs text-white/80 line-clamp-2 mb-2">{post.text}</p>
-                      <div className="flex justify-between items-center text-[10px] text-tech-blue font-bold">
+                      <div className="flex justify-between items-center text-xs text-tech-blue font-bold">
                         <span className="flex items-center gap-1"><TrendingUp size={10} /> {(post.views / 10000).toFixed(1)}W</span>
                         <span className="flex items-center gap-1"><Heart size={10} /> {post.likes}</span>
                       </div>
@@ -2146,13 +2398,13 @@ const PostDetailModal = ({ influencer, post, onClose, showAI, matchReason }: any
               <img src={influencer.avatar} className="w-12 h-12 rounded-full border-2 border-tech-blue/30" referrerPolicy="no-referrer" />
               <div>
                 <div className="font-bold text-lg">{influencer.name}</div>
-                <div className="text-xs text-white/40">{content.common.publishedRecently}</div>
+                <div className="text-xs text-white/40">{CONTENT.common.publishedRecently}</div>
               </div>
             </div>
 
             <div className="bg-white/5 rounded-2xl p-6 mb-8">
               <div className="flex items-center gap-2 text-tech-blue mb-4 text-sm font-bold">
-                <FileText size={18} /> {content.postDetail.content}
+                <FileText size={18} /> {CONTENT.postDetail.content}
               </div>
               <p className="text-white/80 leading-relaxed text-sm whitespace-pre-wrap">{post.text}</p>
             </div>
@@ -2160,7 +2412,7 @@ const PostDetailModal = ({ influencer, post, onClose, showAI, matchReason }: any
             {showAI && (
               <div className="bg-tech-blue/10 border border-tech-blue/20 rounded-2xl p-6 mb-8">
                 <div className="flex items-center gap-2 text-tech-blue mb-4 text-sm font-bold">
-                  <Sparkles size={18} /> {content.postDetail.aiAnalysis}
+                  <Sparkles size={18} /> {CONTENT.postDetail.aiAnalysis}
                 </div>
                 <p className="text-white/70 text-sm italic leading-relaxed">"{post.matchAnalysis}"</p>
               </div>
@@ -2169,7 +2421,7 @@ const PostDetailModal = ({ influencer, post, onClose, showAI, matchReason }: any
             {matchReason && (
               <div className="bg-tech-blue/10 border border-tech-blue/30 rounded-2xl p-6 mb-8">
                 <div className="flex items-center gap-2 text-tech-blue mb-4 text-sm font-bold">
-                  <Sparkles size={18} /> {content.resultsPage.precisionSearch.matchReason}
+                  <Sparkles size={18} /> {CONTENT.resultsPage.precisionSearch.matchReason}
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   {matchReason}
@@ -2179,15 +2431,15 @@ const PostDetailModal = ({ influencer, post, onClose, showAI, matchReason }: any
 
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-white/5 p-4 rounded-2xl text-center">
-                <div className="text-[10px] text-white/40 mb-1">{content.postDetail.views}</div>
+                <div className="text-xs text-white/40 mb-1">{CONTENT.postDetail.views}</div>
                 <div className="text-sm font-bold text-tech-blue">{(post.views / 10000).toFixed(1)}W</div>
               </div>
               <div className="bg-white/5 p-4 rounded-2xl text-center">
-                <div className="text-[10px] text-white/40 mb-1">{content.postDetail.comments}</div>
+                <div className="text-xs text-white/40 mb-1">{CONTENT.postDetail.comments}</div>
                 <div className="text-sm font-bold text-tech-blue">{post.comments}</div>
               </div>
               <div className="bg-white/5 p-4 rounded-2xl text-center">
-                <div className="text-[10px] text-white/40 mb-1">{content.postDetail.likes}</div>
+                <div className="text-xs text-white/40 mb-1">{CONTENT.postDetail.likes}</div>
                 <div className="text-sm font-bold text-tech-blue">{post.likes}</div>
               </div>
             </div>
@@ -2239,21 +2491,21 @@ const ProjectsPage = ({
           >
             <ArrowLeft size={24} />
           </button>
-          <h1 className="text-3xl font-bold tracking-widest text-tech-blue">{content.project.projectTitle}</h1>
+          <h1 className="text-3xl font-bold tracking-widest text-tech-blue">{CONTENT.project.projectTitle}</h1>
         </div>
         <button 
           onClick={() => setIsCreating(true)}
           className="px-6 py-3 bg-tech-blue text-black rounded-2xl font-bold flex items-center gap-2 hover:scale-105 transition-transform"
         >
           <Plus size={20} />
-          {content.project.newProject}
+          {CONTENT.project.newProject}
         </button>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 flex-1">
         {/* Project List */}
         <div className="lg:col-span-1 space-y-4">
-          <h2 className="text-sm font-bold text-white/40 uppercase tracking-widest px-4">{content.project.projectList}</h2>
+          <h2 className="text-sm font-bold text-white/40 uppercase tracking-widest px-4">{CONTENT.project.projectList}</h2>
           <div className="space-y-2">
             {projects.map((p: Project) => (
               <button
@@ -2262,7 +2514,7 @@ const ProjectsPage = ({
                 className={`w-full text-left p-4 rounded-2xl border transition-all group relative ${selectedProjectId === p.id ? 'bg-tech-blue/10 border-tech-blue text-tech-blue' : 'bg-tech-dark/40 border-white/10 text-white/60 hover:border-tech-blue/30'}`}
               >
                 <div className="font-bold truncate pr-8">{p.name}</div>
-                <div className="text-[10px] opacity-60 mt-1">{p.influencers.length} {content.resultsPage.unit}</div>
+                <div className="text-xs opacity-60 mt-1">{p.influencers.length} {CONTENT.resultsPage.unit}</div>
                 <button 
                   onClick={(e) => { e.stopPropagation(); onDeleteProject(p.id); }}
                   className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-all"
@@ -2286,7 +2538,7 @@ const ProjectsPage = ({
                 {selectedProject.influencers.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-white/20 gap-4">
                     <Users size={64} strokeWidth={1} />
-                    <p>{content.project.noInfluencers}</p>
+                    <p>{CONTENT.project.noInfluencers}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -2328,11 +2580,11 @@ const ProjectsPage = ({
               {selectedProject.influencers.length > 0 && (
                 <div className="p-6 border-t border-tech-blue/10 bg-tech-blue/5 flex justify-end">
                   <button 
-                    onClick={() => alert(content.project.batchContact + ': ' + selectedProject.influencers.length + ' ' + content.resultsPage.unit)}
+                    onClick={() => alert(CONTENT.project.batchContact + ': ' + selectedProject.influencers.length + ' ' + CONTENT.resultsPage.unit)}
                     className="px-8 py-3 bg-tech-blue text-black rounded-xl font-bold hover:scale-105 transition-transform flex items-center gap-2"
                   >
                     <MessageSquare size={20} />
-                    {content.project.batchContact}
+                    {CONTENT.project.batchContact}
                   </button>
                 </div>
               )}
@@ -2340,7 +2592,7 @@ const ProjectsPage = ({
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-white/20 gap-4">
               <Layers size={64} strokeWidth={1} />
-              <p>{content.project.selectProjectHint}</p>
+              <p>{CONTENT.project.selectProjectHint}</p>
             </div>
           )}
         </div>
@@ -2363,25 +2615,25 @@ const ProjectsPage = ({
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative w-full max-w-md bg-tech-dark border border-tech-blue/30 rounded-3xl p-8 shadow-[0_0_50px_rgba(0,242,255,0.2)]"
             >
-              <h2 className="text-2xl font-bold text-tech-blue mb-6">{content.project.newProject}</h2>
+              <h2 className="text-2xl font-bold text-tech-blue mb-6">{CONTENT.project.newProject}</h2>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{content.project.projectName}</label>
+                  <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{CONTENT.project.projectName}</label>
                   <input 
                     type="text"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-tech-blue/50 outline-none transition-colors"
-                    placeholder={content.project.projectNamePlaceholder}
+                    placeholder={CONTENT.project.projectNamePlaceholder}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{content.project.projectDesc}</label>
+                  <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{CONTENT.project.projectDesc}</label>
                   <textarea 
                     value={newDesc}
                     onChange={(e) => setNewDesc(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-tech-blue/50 outline-none transition-colors resize-none h-32"
-                    placeholder={content.project.projectDescPlaceholder}
+                    placeholder={CONTENT.project.projectDescPlaceholder}
                   />
                 </div>
                 <div className="flex gap-4 pt-4">
@@ -2389,13 +2641,13 @@ const ProjectsPage = ({
                     onClick={() => setIsCreating(false)}
                     className="flex-1 py-3 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition-colors"
                   >
-                    {content.common.cancel}
+                    {CONTENT.common.cancel}
                   </button>
                   <button 
                     onClick={handleCreate}
                     className="flex-1 py-3 bg-tech-blue text-black rounded-xl font-bold hover:scale-105 transition-transform"
                   >
-                    {content.common.confirm}
+                    {CONTENT.common.confirm}
                   </button>
                 </div>
               </div>
@@ -2438,13 +2690,13 @@ const ProjectSelectionModal = ({ projects, onClose, onConfirm, onCreateProject }
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         className="relative w-full max-w-md bg-tech-dark border border-tech-blue/30 rounded-3xl p-8 shadow-[0_0_50px_rgba(0,242,255,0.2)]"
       >
-        <h2 className="text-2xl font-bold text-tech-blue mb-6">{content.project.addToProject}</h2>
+        <h2 className="text-2xl font-bold text-tech-blue mb-6">{CONTENT.project.addToProject}</h2>
         
         <div className="space-y-6">
           {!isCreating ? (
             <>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{content.project.selectProject}</label>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{CONTENT.project.selectProject}</label>
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                   {projects.map((p: Project) => (
                     <button
@@ -2462,35 +2714,35 @@ const ProjectSelectionModal = ({ projects, onClose, onConfirm, onCreateProject }
                 className="w-full py-3 border border-dashed border-tech-blue/30 text-tech-blue rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-tech-blue/5 transition-colors"
               >
                 <Plus size={16} />
-                {content.project.newProject}
+                {CONTENT.project.newProject}
               </button>
             </>
           ) : (
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{content.project.projectName}</label>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{CONTENT.project.projectName}</label>
                 <input 
                   type="text"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-tech-blue/50 outline-none transition-colors"
-                  placeholder={content.project.projectNamePlaceholder}
+                  placeholder={CONTENT.project.projectNamePlaceholder}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{content.project.projectDesc}</label>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{CONTENT.project.projectDesc}</label>
                 <textarea 
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-tech-blue/50 outline-none transition-colors resize-none h-24"
-                  placeholder={content.project.projectDescPlaceholder}
+                  placeholder={CONTENT.project.projectDescPlaceholder}
                 />
               </div>
               <button 
                 onClick={() => setIsCreating(false)}
                 className="text-tech-blue text-xs hover:underline"
               >
-                {content.project.backToSelect}
+                {CONTENT.project.backToSelect}
               </button>
             </div>
           )}
@@ -2500,13 +2752,13 @@ const ProjectSelectionModal = ({ projects, onClose, onConfirm, onCreateProject }
               onClick={onClose}
               className="flex-1 py-3 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition-colors"
             >
-              {content.common.cancel}
+              {CONTENT.common.cancel}
             </button>
             <button 
               onClick={handleConfirm}
               className="flex-1 py-3 bg-tech-blue text-black rounded-xl font-bold hover:scale-105 transition-transform"
             >
-              {content.common.confirm}
+              {CONTENT.common.confirm}
             </button>
           </div>
         </div>
@@ -2533,15 +2785,15 @@ const RejectionReasonModal = ({ onClose, onConfirm }: any) => {
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         className="relative w-full max-w-md bg-tech-dark border border-tech-blue/30 rounded-3xl p-8 shadow-[0_0_50px_rgba(0,242,255,0.2)]"
       >
-        <h2 className="text-2xl font-bold text-red-400 mb-6">{content.project.reject}</h2>
+        <h2 className="text-2xl font-bold text-red-400 mb-6">{CONTENT.project.reject}</h2>
         <div className="space-y-6">
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{content.project.rejectReason}</label>
+            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">{CONTENT.project.rejectReason}</label>
             <textarea 
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-400/50 outline-none transition-colors resize-none h-32"
-              placeholder={content.project.rejectReasonPlaceholder}
+              placeholder={CONTENT.project.rejectReasonPlaceholder}
             />
           </div>
           <div className="flex gap-4 pt-4">
@@ -2549,14 +2801,14 @@ const RejectionReasonModal = ({ onClose, onConfirm }: any) => {
               onClick={onClose}
               className="flex-1 py-3 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition-colors"
             >
-              {content.common.cancel}
+              {CONTENT.common.cancel}
             </button>
             <button 
               onClick={() => onConfirm(reason)}
               disabled={!reason.trim()}
               className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:scale-105 transition-transform disabled:opacity-50 disabled:scale-100"
             >
-              {content.common.submit}
+              {CONTENT.common.submit}
             </button>
           </div>
         </div>
@@ -2590,7 +2842,7 @@ const CitySelectionModal = ({ selectedCities, onClose, onConfirm }: any) => {
         className="relative w-full max-w-4xl max-h-[80vh] bg-tech-dark border border-tech-blue/30 rounded-3xl p-8 shadow-[0_0_50px_rgba(0,242,255,0.2)] flex flex-col"
       >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-tech-blue">{content.radarPage.filters.moreRegions}</h2>
+          <h2 className="text-2xl font-bold text-tech-blue">{CONTENT.radarPage.filters.moreRegions}</h2>
           <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
             <X size={24} />
           </button>
@@ -2623,14 +2875,145 @@ const CitySelectionModal = ({ selectedCities, onClose, onConfirm }: any) => {
             onClick={onClose}
             className="flex-1 py-3 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition-colors"
           >
-            {content.common.cancel}
+            {CONTENT.common.cancel}
           </button>
           <button 
             onClick={() => onConfirm(tempSelected)}
             className="flex-1 py-3 bg-tech-blue text-black rounded-xl font-bold hover:scale-105 transition-transform"
           >
-            {content.common.confirm}
+            {CONTENT.common.confirm}
           </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const PrecisionMatchModal = ({ influencer, onClose, onSelectPost, onApprove, onReject, standardizedConditions }: any) => {
+  return (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-tech-dark border border-tech-blue/30 rounded-[2.5rem] p-10 w-full max-w-5xl shadow-[0_0_100px_rgba(0,242,255,0.15)] relative overflow-hidden"
+      >
+        <button 
+          onClick={onClose}
+          className="absolute top-8 right-8 p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-all z-20"
+        >
+          <X size={24} />
+        </button>
+
+        <div className="flex flex-col lg:flex-row gap-12 relative z-10">
+          {/* Left: Basic Info & Stats */}
+          <div className="flex flex-col items-center text-center lg:w-64 shrink-0 border-r border-white/5 pr-0 lg:pr-12">
+            <div className="relative mb-8 group/avatar">
+              <div className="absolute -inset-3 bg-tech-blue/30 rounded-full blur opacity-40 group-hover/avatar:opacity-70 transition-opacity"></div>
+              <img 
+                src={influencer.avatar} 
+                className="w-36 h-36 rounded-full border-4 border-tech-blue/30 group-hover/avatar:border-tech-blue transition-colors object-cover relative z-10 shadow-[0_0_30px_rgba(0,242,255,0.3)]" 
+                referrerPolicy="no-referrer" 
+              />
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-tech-blue text-black text-sm font-bold px-4 py-1.5 rounded-full shadow-xl">
+                {influencer.fitScore}% {CONTENT.displayPage.fitScore}
+              </div>
+            </div>
+            <h3 className="text-3xl font-bold mb-3 group-hover:text-tech-blue transition-colors">{influencer.name}</h3>
+            <div className="flex items-center gap-2 text-white/40 text-base mb-8">
+              <MapPin size={16} /> {influencer.region} · {influencer.type}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 w-full mb-10">
+              <div className="bg-white/5 p-4 rounded-3xl text-center border border-white/5">
+                <div className="text-xs text-white/40 mb-1 uppercase tracking-wider">{CONTENT.resultsPage.table.followers}</div>
+                <div className="text-base font-bold text-tech-blue">{(influencer.followers / 10000).toFixed(1)}W</div>
+              </div>
+              <div className="bg-white/5 p-4 rounded-3xl text-center border border-white/5">
+                <div className="text-xs text-white/40 mb-1 uppercase tracking-wider">{CONTENT.resultsPage.table.price}</div>
+                <div className="text-base font-bold text-tech-blue">¥{influencer.price.toLocaleString()}</div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 w-full">
+              <button 
+                onClick={() => {
+                  onApprove(influencer);
+                  onClose();
+                }}
+                className="flex-1 py-4 bg-tech-blue text-black rounded-2xl font-bold hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(0,242,255,0.3)]"
+              >
+                <Plus size={20} /> {CONTENT.project.approve}
+              </button>
+              <button 
+                onClick={() => {
+                  onReject(influencer);
+                  onClose();
+                }}
+                className="flex-1 py-4 border border-red-500/50 text-red-500 rounded-2xl font-bold hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"
+              >
+                <X size={20} /> {CONTENT.project.reject}
+              </button>
+            </div>
+          </div>
+
+          {/* Middle: AI Analysis & Bio */}
+          <div className="flex-1 flex flex-col gap-10">
+            <div className="space-y-6">
+              <h4 className="text-xl font-bold text-tech-blue flex items-center gap-3">
+                <Sparkles size={24} /> {CONTENT.displayPage.matchReason}
+              </h4>
+              <div className="relative">
+                <div className="absolute -left-6 top-0 bottom-0 w-1.5 bg-tech-blue/30 rounded-full" />
+                <div className="flex flex-col gap-4 pl-6">
+                  <p className="text-lg text-white/90 leading-relaxed italic">
+                    "{influencer.posts[0].matchAnalysis}"
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {standardizedConditions.map((cond: string, idx: number) => (
+                      <span key={idx} className="px-3 py-1 bg-tech-blue/10 text-tech-blue text-xs rounded-full border border-tech-blue/20 flex items-center gap-1">
+                        <Tag size={10} /> {cond}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="text-sm font-bold text-white/60 uppercase tracking-[0.2em]">{CONTENT.displayPage.intro}</h4>
+              <p className="text-base text-white/50 leading-relaxed">{influencer.intro}</p>
+            </div>
+
+            <div className="flex flex-wrap gap-2.5">
+              {influencer.tags.map((tag: string) => (
+                <span key={tag} className="px-4 py-2 bg-tech-blue/5 border border-tech-blue/10 rounded-2xl text-xs text-tech-blue/80 hover:border-tech-blue/40 transition-colors">#{tag}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Matched Post Preview */}
+          <div className="lg:w-80 shrink-0 flex flex-col">
+            <h4 className="text-sm font-bold text-white/60 mb-6 uppercase tracking-[0.2em]">{CONTENT.displayPage.postPreview}</h4>
+            <div 
+              className="relative rounded-[2rem] overflow-hidden aspect-[3/4] cursor-pointer group/post flex-1 shadow-2xl border border-white/5"
+              onClick={() => onSelectPost(influencer.posts[0])}
+            >
+              <img 
+                src={influencer.posts[0].images[0]} 
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover/post:scale-110" 
+                referrerPolicy="no-referrer" 
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent flex flex-col justify-end p-8">
+                <p className="text-base text-white/90 line-clamp-3 mb-6 font-medium leading-relaxed">{influencer.posts[0].text}</p>
+                <div className="flex justify-between items-center text-sm text-tech-blue font-bold bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+                  <span className="flex items-center gap-2"><TrendingUp size={16} /> {influencer.posts[0].views.toLocaleString()}</span>
+                  <span className="flex items-center gap-2"><Heart size={16} /> {influencer.posts[0].likes.toLocaleString()}</span>
+                  <span className="flex items-center gap-2"><MessageSquare size={16} /> {influencer.posts[0].comments.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </motion.div>
     </div>

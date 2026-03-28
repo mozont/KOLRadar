@@ -19,7 +19,11 @@ export interface Influencer {
 export interface Post {
   id: string;
   images: string[];
+  image?: string; // For compatibility
+  title?: string; // For compatibility
   text: string;
+  content?: string; // For compatibility
+  date?: string; // For compatibility
   features: string[];
   views: number;
   comments: number;
@@ -36,7 +40,9 @@ export interface Project {
 }
 
 export interface RejectionRecord {
+  id: string;
   influencerId: string;
+  influencer: Influencer;
   reason: string;
   timestamp: string;
 }
@@ -68,14 +74,21 @@ export const MOCK_INFLUENCERS: Influencer[] = Array.from({ length: 48 }).map((_,
   fitScore: 85 + Math.floor(Math.random() * 15),
   matchingFilters: ['高互动率', '内容优质', '调性契合', '转化极佳'],
   avgViews: (10 + Math.floor(Math.random() * 90)) + 'W+',
-  posts: Array.from({ length: 3 }).map((_, j) => ({
-    id: `post-${i}-${j}`,
-    images: Array.from({ length: 4 }).map((_, k) => `https://picsum.photos/seed/post-${i}-${j}-${k}/600/800`),
-    text: "今天分享一个超级好用的好物！用了之后感觉整个人的生活品质都提升了。强烈推荐给大家，绝对不踩雷！#好物分享 #生活美学 #日常",
-    features: ['构图精美', '色彩明快', '产品突出', '氛围感强'],
-    views: 10000 + Math.floor(Math.random() * 90000),
-    comments: 100 + Math.floor(Math.random() * 900),
-    likes: 500 + Math.floor(Math.random() * 4500),
-    matchAnalysis: "该笔记内容与搜索词高度匹配。笔记中提到的生活品质提升与用户追求的高端生活方式相契合，视觉风格也符合目标受众的审美偏好。产品展示自然，种草属性强。"
-  }))
+  posts: Array.from({ length: 3 }).map((_, j) => {
+    const images = Array.from({ length: 4 }).map((_, k) => `https://picsum.photos/seed/post-${i}-${j}-${k}/600/800`);
+    return {
+      id: `post-${i}-${j}`,
+      images,
+      image: images[0],
+      title: ["这个好物真的绝了！", "今日份穿搭分享", "我的宝藏护肤品", "周末去哪儿玩？", "科技改变生活"][Math.floor(Math.random() * 5)],
+      text: "今天分享一个超级好用的好物！用了之后感觉整个人的生活品质都提升了。强烈推荐给大家，绝对不踩雷！#好物分享 #生活美学 #日常",
+      content: "今天分享一个超级好用的好物！用了之后感觉整个人的生活品质都提升了。强烈推荐给大家，绝对不踩雷！#好物分享 #生活美学 #日常",
+      date: "2024-03-20",
+      features: ['构图精美', '色彩明快', '产品突出', '氛围感强'],
+      views: 10000 + Math.floor(Math.random() * 90000),
+      comments: 100 + Math.floor(Math.random() * 900),
+      likes: 500 + Math.floor(Math.random() * 4500),
+      matchAnalysis: "该笔记内容与搜索词高度匹配。笔记中提到的生活品质提升与用户追求的高端生活方式相契合，视觉风格也符合目标受众的审美偏好。产品展示自然，种草属性强。"
+    };
+  })
 }));

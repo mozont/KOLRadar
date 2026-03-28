@@ -301,7 +301,7 @@ const RadarPage = ({
             animate={{ y: 0, opacity: 1 }}
             className="text-5xl font-bold text-center mb-8 tracking-tighter bg-gradient-to-r from-tech-blue to-white bg-clip-text text-transparent"
           >
-            达人雷达
+            达人探测器
           </motion.h1>
         )}
         
@@ -627,7 +627,7 @@ const ResultsPage = ({ filters, onBack, onOpenCart, onSelectInfluencer, onSelect
             className="p-4 bg-tech-blue/10 border border-tech-blue/50 rounded-full hover:bg-tech-blue hover:text-black transition-all text-tech-blue flex items-center gap-2 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
           >
             <Radar size={24} className="animate-pulse" />
-            <span className="font-bold">开启雷达搜寻</span>
+            <span className="font-bold">开启探测器搜寻</span>
           </button>
           
           <button 
@@ -868,7 +868,7 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenCart, onSelectInf
         
         <div className="text-center flex flex-col items-center gap-2">
           <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold tracking-widest text-tech-blue">雷达搜寻</h1>
+            <h1 className="text-3xl font-bold tracking-widest text-tech-blue">探测器搜寻</h1>
             <button 
               onClick={onStartRadar}
               className="p-2 bg-tech-blue/20 rounded-full text-tech-blue hover:scale-110 transition-transform shadow-[0_0_15px_rgba(0,242,255,0.3)]"

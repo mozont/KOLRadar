@@ -34,13 +34,15 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+  0%, 100% { opacity: 0.3; transform: scale(1) translate(0, 0); }
+  50% { opacity: 0.6; transform: scale(1.1) translate(20px, -20px); }
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
-  50% { transform: translate(var(--tx, 10px), var(--ty, 10px)); opacity: 0.6; }
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.4; }
+  25% { transform: translate3d(calc(var(--tx) * 0.8), calc(var(--ty) * 0.3), 0) scale(1.4); opacity: 0.8; }
+  50% { transform: translate3d(var(--tx), var(--ty), 0) scale(1); opacity: 0.5; }
+  75% { transform: translate3d(calc(var(--tx) * 0.3), calc(var(--ty) * 0.8), 0) scale(1.6); opacity: 0.9; }
 }
 
 .glow-bg {

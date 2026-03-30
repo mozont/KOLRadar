@@ -5,7 +5,7 @@ import {
   ArrowLeft, Plus, X,
   Tag, Radar, Layers, Loader2, CheckCircle2, Sparkles
 } from 'lucide-react';
-import { MOCK_INFLUENCERS, Influencer, Post, CITIES, CONTENT_TYPES, Project, RejectionRecord } from '../types';
+import { MOCK_INFLUENCERS, Influencer, Post, ImageAnalysis, CITIES, CONTENT_TYPES, Project, RejectionRecord } from '../types';
 import { CONTENT } from '../content';
 import FilterRow from './FilterRow';
 
@@ -41,49 +41,59 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
     }
   }, [skipLoading]);
 
-  const handleFilter = () => {
+  // 筛选变化时自动触发搜索
+  const filterRef = React.useRef(false);
+  useEffect(() => {
+    if (!filterRef.current) { filterRef.current = true; return; }
     setIsLoading(true);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       const filtered = MOCK_INFLUENCERS.filter(inf => {
-        // Region filter
-        if (filters.region.length > 0 && !filters.region.includes(CONTENT.common.unlimited)) {
-          if (!filters.region.includes(inf.region)) return false;
+        if (filters.region.length > 0) {
+          const regionMatch = filters.region.some((r: string) =>
+            inf.region === r || inf.region.includes(r) || r.includes(inf.region)
+          );
+          if (!regionMatch) return false;
         }
-        // Type filter
         if (filters.type.length > 0 && !filters.type.includes(CONTENT.common.unlimited)) {
           if (!filters.type.includes(inf.type)) return false;
         }
-        // Tags filter
         if (filters.tags.length > 0) {
-          if (!filters.tags.some((tag: string) => inf.tags.includes(tag))) return false;
+          const allInfTags = [
+            ...inf.tags,
+            ...inf.posts.flatMap((p: Post) => {
+              const kw = (p as any).keyword;
+              return kw ? [kw] : [];
+            })
+          ].map(t => t.toLowerCase());
+          const tagMatch = filters.tags.some((tag: string) =>
+            allInfTags.some(t => t.includes(tag.toLowerCase()) || tag.toLowerCase().includes(t))
+          );
+          if (!tagMatch) return false;
         }
-        // Price filter
         if (filters.price !== CONTENT.common.unlimited) {
-          if (filters.price === "2000以下" && inf.price >= 2000) return false;
-          if (filters.price === "2000-5000" && (inf.price < 2000 || inf.price > 5000)) return false;
-          if (filters.price === "5000-1W" && (inf.price < 5000 || inf.price > 10000)) return false;
-          if (filters.price === "1W-5W" && (inf.price < 10000 || inf.price > 50000)) return false;
-          if (filters.price === "5W-10W" && (inf.price < 50000 || inf.price > 100000)) return false;
-          if (filters.price === "10W以上" && inf.price < 100000) return false;
+          if (filters.price === "500以下" && inf.price >= 500) return false;
+          if (filters.price === "500-1500" && (inf.price < 500 || inf.price > 1500)) return false;
+          if (filters.price === "1500-3000" && (inf.price < 1500 || inf.price > 3000)) return false;
+          if (filters.price === "3000-8000" && (inf.price < 3000 || inf.price > 8000)) return false;
+          if (filters.price === "8000-2.5W" && (inf.price < 8000 || inf.price > 25000)) return false;
+          if (filters.price === "2.5W以上" && inf.price < 25000) return false;
         }
-        // Followers filter
         if (filters.followers !== CONTENT.common.unlimited) {
-          if (filters.followers === "50W以下" && inf.followers >= 500000) return false;
-          if (filters.followers === "50W-100W" && (inf.followers < 500000 || inf.followers > 1000000)) return false;
-          if (filters.followers === "100W-200W" && (inf.followers < 1000000 || inf.followers > 2000000)) return false;
-          if (filters.followers === "200W-300W" && (inf.followers < 2000000 || inf.followers > 3000000)) return false;
-          if (filters.followers === "300W-500W" && (inf.followers < 3000000 || inf.followers > 5000000)) return false;
-          if (filters.followers === "500W-1000W" && (inf.followers < 5000000 || inf.followers > 10000000)) return false;
-          if (filters.followers === "1000W-3000W" && (inf.followers < 10000000 || inf.followers > 30000000)) return false;
-          if (filters.followers === "3000W以上" && inf.followers < 30000000) return false;
+          if (filters.followers === "1000以下" && inf.followers >= 1000) return false;
+          if (filters.followers === "1000-5000" && (inf.followers < 1000 || inf.followers > 5000)) return false;
+          if (filters.followers === "5000-1W" && (inf.followers < 5000 || inf.followers > 10000)) return false;
+          if (filters.followers === "1W-5W" && (inf.followers < 10000 || inf.followers > 50000)) return false;
+          if (filters.followers === "5W-10W" && (inf.followers < 50000 || inf.followers > 100000)) return false;
+          if (filters.followers === "10W以上" && inf.followers < 100000) return false;
         }
         return true;
       });
       setDisplayedInfluencers(filtered);
       setIsLoading(false);
       setPage(0);
-    }, 2000);
-  };
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [filters.region, filters.type, filters.tags, filters.price, filters.followers]);
 
   const handleUnifiedSearch = async (conditionsFromModal?: string[]) => {
     const baseConditions = conditionsFromModal || standardizedConditions;
@@ -107,20 +117,81 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
     setPrecisionPrompt('');
     setIsAnalyzingPrecision(false);
 
-    // Step 2: Advanced Search
+    // Step 2: Advanced Search — match against image analysis data
     setIsScanning(true);
     setMatchedIds([]);
 
     for (const inf of displayedInfluencers) {
       setScanningId(inf.id);
-      await new Promise(resolve => setTimeout(resolve, 600));
-      if (Math.random() > 0.4) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Check if any post has imageAnalysis that matches the conditions
+      const matched = inf.posts.some((post: Post) => {
+        const ia = post.imageAnalysis;
+        if (!ia) return false;
+        return matchImageAnalysis(ia, finalConditions, post);
+      });
+
+      if (matched) {
         setMatchedIds(prev => [...prev, inf.id]);
       }
     }
 
     setScanningId(null);
     setIsScanning(false);
+  };
+
+  /** 匹配图片分析数据与用户条件 */
+  const matchImageAnalysis = (ia: ImageAnalysis, conditions: string[], post: Post): boolean => {
+    // Build a searchable text pool from the image analysis
+    const pool = [
+      ...ia.labels,
+      ia.skinCondition,
+      ia.face,
+      ia.contentForm,
+      ia.visualStyle,
+      ia.description,
+      ia.productDetail,
+      ia.hasBeforeAfter ? '前后对比' : '',
+      ia.hasProduct ? '有产品' : '',
+      post.text || '',
+      post.title || '',
+    ].join(' ').toLowerCase();
+
+    // Synonym map for fuzzy matching
+    const synonyms: Record<string, string[]> = {
+      '露脸': ['正脸', '侧脸', '露脸'],
+      '痘肌': ['痘痘', '痘肌', '长痘', '爆痘'],
+      '素颜': ['素颜', '无滤镜', '原相机'],
+      '产品': ['产品展示', '有产品', '产品图'],
+      '对比': ['前后对比', '对比图', '效果展示'],
+      '干货': ['干货分享', '攻略', '教程'],
+      '真实': ['原相机真实', '接地气', '真实'],
+      '特写': ['局部特写', '特写'],
+      '油皮': ['油皮', '油性'],
+      '敏感': ['敏感肌', '过敏', '泛红'],
+      '痘印': ['痘印肌', '痘印'],
+      '日记': ['日记打卡', '打卡', '记录'],
+      '药膏': ['药膏', '药物'],
+      '精华': ['精华', '精华液'],
+      '面膜': ['面膜'],
+      '洗面奶': ['洗面奶', '洁面'],
+    };
+
+    let matchCount = 0;
+    for (const cond of conditions) {
+      const c = cond.toLowerCase();
+      // Direct match
+      if (pool.includes(c)) { matchCount++; continue; }
+      // Partial match
+      if (pool.split(/\s+/).some(w => w.includes(c) || c.includes(w))) { matchCount++; continue; }
+      // Synonym match
+      const syns = Object.entries(synonyms).find(([key]) => c.includes(key) || key.includes(c));
+      if (syns && syns[1].some(s => pool.includes(s.toLowerCase()))) { matchCount++; continue; }
+    }
+
+    // Match if at least half of conditions are met (or at least 1)
+    return matchCount >= Math.max(1, Math.ceil(conditions.length * 0.4));
   };
 
   const handleSort = (id: string) => {
@@ -273,7 +344,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                   key={tag}
                   onClick={() => {
                     const next = filters.tags.filter((t: string) => t !== tag);
-                    setFilters({...filters, tags: next.length ? next : [tag]});
+                    setFilters({...filters, tags: next});
                   }}
                   className="px-2 py-0.5 rounded text-sm border border-tech-blue bg-tech-blue text-black transition-all"
                 >
@@ -314,7 +385,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                       const next = isSelected
                         ? filters.region.filter(c => c !== city)
                         : [...filters.region, city];
-                      setFilters({...filters, region: next.length ? next : [city]});
+                      setFilters({...filters, region: next});
                     }}
                     className={`px-2 py-0.5 rounded text-sm border transition-all ${isSelected ? 'bg-tech-blue text-black border-tech-blue' : 'border-white/10 hover:border-tech-blue/50'}`}
                   >
@@ -336,7 +407,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                       const next = isSelected
                         ? filters.type.filter(t => t !== type)
                         : [...filters.type, type];
-                      setFilters({...filters, type: next.length ? next : [type]});
+                      setFilters({...filters, type: next});
                     }}
                     className={`px-2 py-0.5 rounded text-sm border transition-all ${isSelected ? 'bg-tech-blue text-black border-tech-blue' : 'border-white/10 hover:border-tech-blue/50'}`}
                   >
@@ -346,15 +417,6 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
               })}
             </div>
           </div>
-        </div>
-        <div className="mt-6 pt-6 border-t border-tech-blue/10 flex justify-center">
-          <button
-            onClick={handleFilter}
-            className="px-12 py-3 bg-tech-blue text-black rounded-xl font-bold hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(0,242,255,0.2)]"
-          >
-            <Filter size={18} />
-            {CONTENT.radarPage.filters.filterButton}
-          </button>
         </div>
       </div>
 
@@ -535,19 +597,34 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                                   <Loader2 className="animate-spin" size={10} />
                                   <span>{CONTENT.resultsPage.precisionSearch.scanning}</span>
                                 </div>
-                              ) : (
-                                <div className="flex flex-col gap-1">
-                                  <div className="flex items-center gap-1 text-green-400 text-xs font-bold">
-                                    <CheckCircle2 size={10} />
-                                    <span>{CONTENT.resultsPage.precisionSearch.matchImage}</span>
+                              ) : (() => {
+                                const matchedPost = inf.posts.find((p: Post) => p.imageAnalysis);
+                                const ia = matchedPost?.imageAnalysis;
+                                // Split labels into matched (hit conditions) vs rest
+                                const allLabels = ia ? ia.labels : [];
+                                const hitLabels = allLabels.filter(label =>
+                                  standardizedConditions.some(c =>
+                                    label.includes(c) || c.includes(label)
+                                  )
+                                );
+                                const restLabels = allLabels.filter(label => !hitLabels.includes(label));
+                                return (
+                                  <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-1 text-green-400 text-xs font-bold">
+                                      <CheckCircle2 size={10} />
+                                      <span>{ia ? CONTENT.resultsPage.precisionSearch.matchImage : CONTENT.resultsPage.precisionSearch.matchContent}</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1">
+                                      {hitLabels.map((label, idx) => (
+                                        <span key={`hit-${idx}`} className="text-xs px-1.5 py-0.5 rounded bg-green-500/15 text-green-400 border border-green-500/30 font-bold">#{label}</span>
+                                      ))}
+                                      {restLabels.slice(0, 3).map((label, idx) => (
+                                        <span key={`rest-${idx}`} className="text-xs px-1.5 py-0.5 rounded text-white/30">#{label}</span>
+                                      ))}
+                                    </div>
                                   </div>
-                                  <div className="flex flex-wrap gap-1">
-                                    {standardizedConditions.map((c, idx) => (
-                                      <span key={idx} className="text-xs text-tech-blue/60">#{c}</span>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
+                                );
+                              })()}
                             </div>
                           )}
                         </div>
@@ -668,6 +745,45 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                 </button>
               </div>
 
+              {/* Preset Condition Chips */}
+              <div className="mb-4">
+                <div className="text-xs text-white/40 mb-2">快速添加条件（基于图片 AI 解析）：</div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { group: '内容特征', items: ['露脸', '素颜', '局部特写', '前后对比'] },
+                    { group: '皮肤状态', items: ['痘肌', '油皮', '敏感肌', '痘印'] },
+                    { group: '内容形式', items: ['干货分享', '日记打卡', '产品展示', '效果展示'] },
+                    { group: '风格', items: ['原相机', '接地气', '高颜值'] },
+                  ].map(({ group, items }) => (
+                    <div key={group} className="flex items-center gap-1.5">
+                      <span className="text-xs text-white/30 mr-1">{group}:</span>
+                      {items.map(item => {
+                        const isActive = modalConditions.includes(item);
+                        return (
+                          <button
+                            key={item}
+                            onClick={() => {
+                              if (isActive) {
+                                setModalConditions(prev => prev.filter(c => c !== item));
+                              } else {
+                                setModalConditions(prev => [...prev, item]);
+                              }
+                            }}
+                            className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
+                              isActive
+                                ? 'bg-tech-blue text-black border-tech-blue'
+                                : 'bg-white/5 text-white/60 border-white/10 hover:border-tech-blue/50 hover:text-tech-blue'
+                            }`}
+                          >
+                            {item}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 focus-within:border-tech-blue/50 transition-colors">
                 <div className="flex flex-wrap gap-2 mb-3">
                   {modalConditions.map((cond, idx) => (
@@ -689,7 +805,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                   value={precisionPrompt}
                   onChange={(e) => setPrecisionPrompt(e.target.value)}
                   placeholder={CONTENT.resultsPage.precisionSearch.placeholder}
-                  className="w-full bg-transparent border-none outline-none text-white transition-colors resize-none h-32 text-sm"
+                  className="w-full bg-transparent border-none outline-none text-white transition-colors resize-none h-24 text-sm"
                 />
               </div>
 

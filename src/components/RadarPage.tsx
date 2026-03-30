@@ -189,7 +189,7 @@ const RadarPage = ({
                         key={tag}
                         onClick={() => {
                           const next = filters.tags.filter((t: string) => t !== tag);
-                          setFilters({...filters, tags: next.length ? next : [tag]});
+                          setFilters({...filters, tags: next});
                         }}
                         className="px-3 py-1 rounded-lg text-sm border border-tech-blue bg-tech-blue text-black transition-all"
                       >
@@ -231,7 +231,7 @@ const RadarPage = ({
                             const next = isSelected
                               ? filters.region.filter(c => c !== city)
                               : [...filters.region, city];
-                            setFilters({...filters, region: next.length ? next : [city]});
+                            setFilters({...filters, region: next});
                           }}
                           className={`px-3 py-1 rounded-lg text-sm border transition-all ${isSelected ? 'bg-tech-blue text-black border-tech-blue' : 'border-white/10 hover:border-tech-blue/50'}`}
                         >
@@ -254,7 +254,7 @@ const RadarPage = ({
                             const next = isSelected
                               ? filters.type.filter(t => t !== type)
                               : [...filters.type, type];
-                            setFilters({...filters, type: next.length ? next : [type]});
+                            setFilters({...filters, type: next});
                           }}
                           className={`px-3 py-1 rounded-lg text-sm border transition-all ${isSelected ? 'bg-tech-blue text-black border-tech-blue' : 'border-white/10 hover:border-tech-blue/50'}`}
                         >

@@ -2,18 +2,25 @@ import { motion } from 'motion/react';
 import {
   Heart, Plus, X,
   MapPin, Tag, Sparkles,
-  TrendingUp, MessageSquare
+  TrendingUp, MessageSquare,
+  Eye, Camera, Droplets, Package, Image as ImageIcon
 } from 'lucide-react';
 import { CONTENT } from '../content';
+import { Post, ImageAnalysis } from '../types';
 
 const PrecisionMatchModal = ({ influencer, onClose, onSelectPost, onApprove, onReject, standardizedConditions }: any) => {
+  // Find the best post with imageAnalysis
+  const postWithAnalysis = influencer.posts.find((p: Post) => p.imageAnalysis) || influencer.posts[0];
+  const ia: ImageAnalysis | undefined = postWithAnalysis?.imageAnalysis;
+  const displayPost = postWithAnalysis || influencer.posts[0];
+
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-tech-dark border border-tech-blue/30 rounded-[2.5rem] p-10 w-full max-w-5xl shadow-[0_0_100px_rgba(0,242,255,0.15)] relative overflow-hidden"
+        className="bg-tech-dark border border-tech-blue/30 rounded-[2.5rem] p-10 w-full max-w-6xl shadow-[0_0_100px_rgba(0,242,255,0.15)] relative overflow-hidden max-h-[90vh] overflow-y-auto"
       >
         <button
           onClick={onClose}
@@ -32,7 +39,7 @@ const PrecisionMatchModal = ({ influencer, onClose, onSelectPost, onApprove, onR
                 className="w-36 h-36 rounded-full border-4 border-tech-blue/30 group-hover/avatar:border-tech-blue transition-colors object-cover relative z-10 shadow-[0_0_30px_rgba(0,242,255,0.3)]"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-tech-blue text-black text-sm font-bold px-4 py-1.5 rounded-full shadow-xl">
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 bg-tech-blue text-black text-sm font-bold px-4 py-1.5 rounded-full shadow-xl">
                 {influencer.fitScore}% {CONTENT.displayPage.fitScore}
               </div>
             </div>
@@ -74,9 +81,10 @@ const PrecisionMatchModal = ({ influencer, onClose, onSelectPost, onApprove, onR
             </div>
           </div>
 
-          {/* Middle: AI Analysis & Bio */}
-          <div className="flex-1 flex flex-col gap-10">
-            <div className="space-y-6">
+          {/* Middle: AI Analysis & Image Analysis */}
+          <div className="flex-1 flex flex-col gap-8">
+            {/* Match Reason */}
+            <div className="space-y-4">
               <h4 className="text-xl font-bold text-tech-blue flex items-center gap-3">
                 <Sparkles size={24} /> {CONTENT.displayPage.matchReason}
               </h4>
@@ -84,7 +92,7 @@ const PrecisionMatchModal = ({ influencer, onClose, onSelectPost, onApprove, onR
                 <div className="absolute -left-6 top-0 bottom-0 w-1.5 bg-tech-blue/30 rounded-full" />
                 <div className="flex flex-col gap-4 pl-6">
                   <p className="text-lg text-white/90 leading-relaxed italic">
-                    "{influencer.posts[0].matchAnalysis}"
+                    "{displayPost.matchAnalysis}"
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {standardizedConditions.map((cond: string, idx: number) => (
@@ -97,9 +105,87 @@ const PrecisionMatchModal = ({ influencer, onClose, onSelectPost, onApprove, onR
               </div>
             </div>
 
-            <div className="space-y-4">
+            {/* Image Analysis Section */}
+            {ia && (
+              <div className="space-y-4">
+                <h4 className="text-lg font-bold text-purple-400 flex items-center gap-3">
+                  <ImageIcon size={20} /> 笔记 AI 解析
+                </h4>
+                <div className="bg-purple-500/5 border border-purple-500/20 rounded-2xl p-5 space-y-4">
+                  {/* Description */}
+                  <p className="text-sm text-white/70 leading-relaxed">{ia.description}</p>
+
+                  {/* Labels */}
+                  <div className="flex flex-wrap gap-2">
+                    {ia.labels.map((label, idx) => (
+                      <span
+                        key={idx}
+                        className={`px-3 py-1 text-xs rounded-full border flex items-center gap-1 ${
+                          standardizedConditions.some(c =>
+                            label.includes(c) || c.includes(label)
+                          )
+                            ? 'bg-green-500/20 text-green-400 border-green-500/30'
+                            : 'bg-purple-500/10 text-purple-300 border-purple-500/20'
+                        }`}
+                      >
+                        <Tag size={10} /> {label}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Structured Fields */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                      <div className="flex items-center gap-1.5 text-white/40 text-xs mb-1">
+                        <Eye size={12} /> 出镜方式
+                      </div>
+                      <div className="text-sm font-bold text-white/80">{ia.face}</div>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                      <div className="flex items-center gap-1.5 text-white/40 text-xs mb-1">
+                        <Droplets size={12} /> 皮肤状态
+                      </div>
+                      <div className="text-sm font-bold text-white/80">{ia.skinCondition}</div>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                      <div className="flex items-center gap-1.5 text-white/40 text-xs mb-1">
+                        <Camera size={12} /> 视觉风格
+                      </div>
+                      <div className="text-sm font-bold text-white/80">{ia.visualStyle}</div>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                      <div className="flex items-center gap-1.5 text-white/40 text-xs mb-1">
+                        <ImageIcon size={12} /> 内容形式
+                      </div>
+                      <div className="text-sm font-bold text-white/80">{ia.contentForm}</div>
+                    </div>
+                  </div>
+
+                  {/* Product Details */}
+                  {ia.hasProduct && ia.productDetail && (
+                    <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 flex items-start gap-2">
+                      <Package size={16} className="text-amber-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs text-amber-400 font-bold mb-1">涉及产品</div>
+                        <div className="text-sm text-white/70">{ia.productDetail}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Before/After flag */}
+                  {ia.hasBeforeAfter && (
+                    <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3 flex items-center gap-2">
+                      <span className="text-green-400 text-xs font-bold">含前后对比图</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Bio & Tags */}
+            <div className="space-y-3">
               <h4 className="text-sm font-bold text-white/60 uppercase tracking-[0.2em]">{CONTENT.displayPage.intro}</h4>
-              <p className="text-base text-white/50 leading-relaxed">{influencer.intro}</p>
+              <p className="text-sm text-white/50 leading-relaxed">{influencer.intro}</p>
             </div>
 
             <div className="flex flex-wrap gap-2.5">
@@ -114,19 +200,19 @@ const PrecisionMatchModal = ({ influencer, onClose, onSelectPost, onApprove, onR
             <h4 className="text-sm font-bold text-white/60 mb-6 uppercase tracking-[0.2em]">{CONTENT.displayPage.postPreview}</h4>
             <div
               className="relative rounded-[2rem] overflow-hidden aspect-[3/4] cursor-pointer group/post flex-1 shadow-2xl border border-white/5"
-              onClick={() => onSelectPost(influencer.posts[0])}
+              onClick={() => onSelectPost(displayPost)}
             >
               <img
-                src={influencer.posts[0].images[0]}
+                src={displayPost.images[0]}
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover/post:scale-110"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent flex flex-col justify-end p-8">
-                <p className="text-base text-white/90 line-clamp-3 mb-6 font-medium leading-relaxed">{influencer.posts[0].text}</p>
+                <p className="text-base text-white/90 line-clamp-3 mb-6 font-medium leading-relaxed">{displayPost.text}</p>
                 <div className="flex justify-between items-center text-sm text-tech-blue font-bold bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-white/10">
-                  <span className="flex items-center gap-2"><TrendingUp size={16} /> {influencer.posts[0].views.toLocaleString()}</span>
-                  <span className="flex items-center gap-2"><Heart size={16} /> {influencer.posts[0].likes.toLocaleString()}</span>
-                  <span className="flex items-center gap-2"><MessageSquare size={16} /> {influencer.posts[0].comments.toLocaleString()}</span>
+                  <span className="flex items-center gap-2"><TrendingUp size={16} /> {displayPost.views.toLocaleString()}</span>
+                  <span className="flex items-center gap-2"><Heart size={16} /> {displayPost.likes.toLocaleString()}</span>
+                  <span className="flex items-center gap-2"><MessageSquare size={16} /> {displayPost.comments.toLocaleString()}</span>
                 </div>
               </div>
             </div>

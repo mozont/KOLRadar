@@ -58,11 +58,11 @@ export default function App() {
 
   // Filters state
   const [filters, setFilters] = useState({
-    tags: [TAG_TREE[0].children?.[0].name || '', TAG_TREE[1].children?.[0].children?.[0].name || ''],
+    tags: [] as string[],
     price: CONTENT.common.unlimited,
     followers: CONTENT.common.unlimited,
-    region: [CITIES.hot[0]],
-    type: [CONTENT_TYPES[1]]
+    region: [] as string[],
+    type: [] as string[]
   });
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
@@ -76,11 +76,55 @@ export default function App() {
     if (!searchQuery.trim()) return;
     setIsAnalyzingSearch(true);
     setTimeout(() => {
+      // AI 根据搜索词自动推荐筛选条件
+      const query = searchQuery;
+      const autoTags: string[] = [];
+      const tagKeywords: Record<string, string[]> = {
+        '战痘日记': ['战痘', '祛痘', '痘痘', '长痘'],
+        '烂脸自救': ['烂脸', '爆痘', '过敏', '泛红'],
+        '闭口粉刺': ['闭口', '粉刺', '黑头'],
+        '沉浸式祛痘': ['沉浸', '护肤vlog', '护肤流程'],
+        '护肤红黑榜': ['红黑榜', '测评', '好用', '踩雷'],
+        '爆痘记录': ['爆痘', '记录', '打卡'],
+        '姨妈痘': ['姨妈', '经期', '生理期'],
+        '熬夜烂脸': ['熬夜', '晚睡'],
+        '反复长痘': ['反复', '总是长痘'],
+        '下巴长痘': ['下巴', '嘴周'],
+        '内调祛痘': ['内调', '饮食', '忌口'],
+        '学生党战痘': ['学生', '平价', '便宜'],
+      };
+      for (const [tag, keywords] of Object.entries(tagKeywords)) {
+        if (keywords.some(kw => query.includes(kw))) {
+          autoTags.push(tag);
+        }
+      }
+      // 默认推荐标签
+      if (!autoTags.length) {
+        autoTags.push('战痘日记', '烂脸自救');
+      }
+      // 根据搜索词推荐价格区间
+      let autoPrice = CONTENT.common.unlimited;
+      const priceMatch = query.match(/(\d+)\s*以内/);
+      if (priceMatch) {
+        const budget = parseInt(priceMatch[1]);
+        if (budget <= 500) autoPrice = '500以下';
+        else if (budget <= 1500) autoPrice = '500-1500';
+        else if (budget <= 3000) autoPrice = '1500-3000';
+        else if (budget <= 8000) autoPrice = '3000-8000';
+        else autoPrice = '8000-2.5W';
+      }
+
+      setFilters(prev => ({
+        ...prev,
+        tags: autoTags.slice(0, 4),
+        price: autoPrice,
+        type: query.includes('护肤') || query.includes('祛痘') || query.includes('痘') ? ['护肤博主'] : prev.type,
+      }));
       setIsAnalyzingSearch(false);
       setIsSearching(true);
       setShowFilters(true);
       setHasSearched(true);
-    }, 2000);
+    }, 2500);
   };
 
   const handleApprove = (infs: Influencer[]) => {

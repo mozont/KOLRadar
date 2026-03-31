@@ -6,12 +6,11 @@ import {
 } from 'lucide-react';
 import { Influencer, Project, ContactRecord, ContactStatus, DMRecord } from '../types';
 import { CONTENT } from '../content';
+import { loadRecords as loadContactRecords } from './ContactPage';
 
 function loadContactMap(): Map<string, ContactStatus> {
   try {
-    const raw = localStorage.getItem('rader_contact_records');
-    if (!raw) return new Map();
-    const records: ContactRecord[] = JSON.parse(raw);
+    const records = loadContactRecords();
     const map = new Map<string, ContactStatus>();
     records.forEach(r => map.set(r.influencer.id, r.status));
     return map;

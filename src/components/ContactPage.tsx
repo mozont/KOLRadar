@@ -9,7 +9,7 @@ import { Influencer, Project, ContactRecord, ContactStatus, ChatMessage } from '
 import { CONTENT } from '../content';
 import ScriptManagementModal from './ScriptManagementModal';
 
-const STORAGE_KEY = 'rader_contact_records';
+const STORAGE_KEY = 'rader_contact_records_v3';
 
 const STATUS_STEPS: ContactStatus[] = ['waiting_follow', 'contacting', 'no_reply', 'accepted', 'need_human', 'completed'];
 const STATUS_CONFIG: Record<ContactStatus, { label: string; color: string; bg: string; barColor: string; icon: any; step: number }> = {
@@ -114,6 +114,8 @@ function buildMessages(inf: Influencer, projectName: string, status: ContactStat
   const t = (h: number, m: number) => `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
   const budgetHigh = inf.price > 3000;
   const budgetRange = budgetHigh ? '3000-5000' : '1000-3000';
+  // 不要在对话中显示"默认项目"，用通用称呼代替
+  const displayProject = projectName === '默认项目' ? '我们品牌' : projectName;
 
   if (status === 'waiting_follow') {
     msgs.push({ sender: 'system', content: '对方尚未关注你，无法发送私信', time: t(9, 0) });
@@ -123,7 +125,7 @@ function buildMessages(inf: Influencer, projectName: string, status: ContactStat
   // ===== Day 1 上午：问候 + 自我介绍 =====
   msgs.push({ sender: 'system', content: '对方已关注你', time: t(9, 0) });
   msgs.push({ sender: 'service', content: `嗨～你好呀！关注你好久了，你分享的祛痘内容真的超真实，每次看完都忍不住点赞👍`, time: t(9, 2) });
-  msgs.push({ sender: 'service', content: `我是「${projectName}」的品牌合作负责人小鱼，我们正在找和痘肌护理方向契合的博主合作，觉得你特别合适，想跟你聊聊～方便吗？`, time: t(9, 3) });
+  msgs.push({ sender: 'service', content: `我是「${displayProject}」的品牌合作负责人小鱼，我们正在找和痘肌护理方向契合的博主合作，觉得你特别合适，想跟你聊聊～方便吗？`, time: t(9, 3) });
 
   if (status === 'contacting') return msgs;
 
@@ -142,7 +144,7 @@ function buildMessages(inf: Influencer, projectName: string, status: ContactStat
     msgs.push({ sender: 'service', content: '我们这次主推图文笔记，1篇就好。内容方向比较灵活，可以是使用分享、成分科普、或者融入你的日常护肤流程都OK～不会限制太多', time: t(10, 28) });
     msgs.push({ sender: 'influencer', content: '嗯嗯了解了。那费用方面呢？可以发一下你们的报价表看看吗', time: t(10, 35) });
     // 发询价表
-    msgs.push({ sender: 'service', content: `当然～以下是我们这次的合作方案：\n\n📋【${projectName}·达人合作询价单】\n产品：氨基酸祛痘精华 30ml 正装\n合作形式：小红书图文笔记 × 1篇\n内容方向：真实体验分享 / 产品测评\n寄样：正装1瓶 + 旅行装2支\n稿费预算：${budgetRange}元/篇\n修改次数：含1次小幅调整\n发布时间：产品到手后7-10天内\n\n你看看这个方案OK吗？费用可以根据你的报价再商量～`, time: t(10, 40) });
+    msgs.push({ sender: 'service', content: `当然～以下是我们这次的合作方案：\n\n📋【${displayProject}·达人合作询价单】\n产品：氨基酸祛痘精华 30ml 正装\n合作形式：小红书图文笔记 × 1篇\n内容方向：真实体验分享 / 产品测评\n寄样：正装1瓶 + 旅行装2支\n稿费预算：${budgetRange}元/篇\n修改次数：含1次小幅调整\n发布时间：产品到手后7-10天内\n\n你看看这个方案OK吗？费用可以根据你的报价再商量～`, time: t(10, 40) });
     msgs.push({ sender: 'influencer', content: '收到！我看了一下，产品和形式都没问题。不过费用方面，我目前图文笔记的报价是' + (budgetHigh ? '5500' : '2800') + '元/篇，你们这个预算能接受吗？', time: t(11, 5) });
     msgs.push({ sender: 'service', content: '了解你的报价～我们这边预算确实有限，但是可以给你额外的福利：除了正装寄样，还可以提供小样礼盒给你做粉丝福利，增加互动数据。价格方面' + (budgetHigh ? '4500' : '2500') + '元可以考虑吗？', time: t(11, 12) });
     msgs.push({ sender: 'influencer', content: '嗯…粉丝福利这个可以的，确实能提升互动。那' + (budgetHigh ? '5000' : '2600') + '元行不行？我这边也让一步', time: t(11, 20) });
@@ -159,12 +161,12 @@ function buildMessages(inf: Influencer, projectName: string, status: ContactStat
     msgs.push({ sender: 'influencer', content: '哈哈谢谢！那篇确实反响不错。你们产品具体是什么呢？我先了解一下', time: t(11, 8) });
     msgs.push({ sender: 'service', content: '是一款氨基酸祛痘精华，核心成分是2%水杨酸+烟酰胺，温和配方不刺激。我发个详细方案你看看？', time: t(11, 10) });
     msgs.push({ sender: 'influencer', content: '好的发来看看～', time: t(11, 12) });
-    msgs.push({ sender: 'service', content: `📋【${projectName}·合作方案】\n\n🧴 产品：氨基酸祛痘精华 30ml\n📝 形式：图文笔记1篇\n🎯 方向：真实使用体验（可融入你的战痘日记系列）\n📦 寄样：正装1瓶 + 旅行装小样2支\n💰 稿费：${budgetRange}元/篇（可商议）\n📅 档期：收到产品后7-10天内发布\n✏️ 修改：含1次小调整\n\n你觉得怎么样？`, time: t(11, 15) });
+    msgs.push({ sender: 'service', content: `📋【${displayProject}·合作方案】\n\n🧴 产品：氨基酸祛痘精华 30ml\n📝 形式：图文笔记1篇\n🎯 方向：真实使用体验（可融入你的战痘日记系列）\n📦 寄样：正装1瓶 + 旅行装小样2支\n💰 稿费：${budgetRange}元/篇（可商议）\n📅 档期：收到产品后7-10天内发布\n✏️ 修改：含1次小调整\n\n你觉得怎么样？`, time: t(11, 15) });
     msgs.push({ sender: 'influencer', content: '方案挺清晰的！融入我的战痘日记系列这个想法很好。费用方面，我现在图文报价是' + (budgetHigh ? '4800' : '2200') + '元，你们能接受吗？', time: t(11, 25) });
     msgs.push({ sender: 'service', content: (budgetHigh ? '4800没问题！' : '2200可以的！') + '这个价格我们OK。那档期方面，你这边什么时候方便开始呢？', time: t(11, 28) });
     msgs.push({ sender: 'influencer', content: '我这周手上还有一个合作在收尾，产品寄过来的话下周就可以开始用了。大概下周五之前能出初稿给你看', time: t(11, 35) });
     msgs.push({ sender: 'service', content: '时间刚刚好！那我今天安排寄出。你方便给一下收货地址吗？另外你的微信号可以加一下吗，后面沟通brief比较方便～', time: t(11, 38) });
-    msgs.push({ sender: 'influencer', content: '地址：' + (budgetHigh ? '杭州市余杭区文一西路969号' : '成都市锦江区红星路三段99号') + '，微信号 ' + inf.name.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, '').slice(0, 4) + '_xhs，备注「' + projectName + '」就好', time: t(11, 42) });
+    msgs.push({ sender: 'influencer', content: '地址：' + (budgetHigh ? '杭州市余杭区文一西路969号' : '成都市锦江区红星路三段99号') + '，微信号 ' + inf.name.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, '').slice(0, 4) + '_xhs，备注「' + displayProject + '」就好', time: t(11, 42) });
     msgs.push({ sender: 'service', content: '收到！马上加你微信，产品今天下午发出。等你收到之后我们再详细对一下内容方向，不着急哈～', time: t(11, 45) });
     msgs.push({ sender: 'influencer', content: '好嘞～期待合作！', time: t(11, 48) });
     msgs.push({ sender: 'system', content: '💡 AI 判断：达人已同意合作', time: t(11, 49) });
@@ -190,7 +192,7 @@ function buildMessages(inf: Influencer, projectName: string, status: ContactStat
     msgs.push({ sender: 'influencer', content: '这样最好了！我之前也拒绝过一些产品不行但非要我说好的品牌哈哈。你们这个态度我很喜欢', time: t(13, 10) });
     msgs.push({ sender: 'service', content: '哈哈我们对自己产品还是很有信心的～那我先发一下产品信息给你看看？', time: t(13, 12) });
     msgs.push({ sender: 'influencer', content: '好的发来看看', time: t(13, 14) });
-    msgs.push({ sender: 'service', content: `🧴 产品信息：\n名称：${projectName}·氨基酸祛痘精华\n规格：30ml 正装\n核心成分：2%水杨酸 + 烟酰胺 + 积雪草提取物\n适用肤质：油痘肌 / 敏感痘肌\n功效：祛痘消炎 + 淡化痘印 + 控油\n使用方法：洁面后取2-3滴涂抹患处\n\n已通过国家药监局备案，无激素无酒精～`, time: t(13, 16) });
+    msgs.push({ sender: 'service', content: `🧴 产品信息：\n名称：${displayProject}·氨基酸祛痘精华\n规格：30ml 正装\n核心成分：2%水杨酸 + 烟酰胺 + 积雪草提取物\n适用肤质：油痘肌 / 敏感痘肌\n功效：祛痘消炎 + 淡化痘印 + 控油\n使用方法：洁面后取2-3滴涂抹患处\n\n已通过国家药监局备案，无激素无酒精～`, time: t(13, 16) });
     msgs.push({ sender: 'influencer', content: '成分看起来不错！水杨酸浓度2%比较温和，配合烟酰胺淡印也合理。我最在意的就是有没有添加酒精和香精', time: t(13, 22) });
     msgs.push({ sender: 'service', content: '零酒精零香精的！而且我们做过敏感肌测试，刺激指数很低。你试用之后如果觉得OK，我们再聊合作方案', time: t(13, 25) });
     msgs.push({ sender: 'influencer', content: '好的可以！那你寄过来我先用一周看看效果。地址我发你：' + (budgetHigh ? '北京市朝阳区建外SOHO东区A座' : '武汉市武昌区中北路109号') + '，收件人写昵称就行', time: t(13, 30) });
@@ -216,7 +218,7 @@ function buildMessages(inf: Influencer, projectName: string, status: ContactStat
     msgs.push({ sender: 'service', content: '好的没问题，你现在的报价是多少呢？', time: t(15, 3) });
     msgs.push({ sender: 'influencer', content: '图文笔记6000元/篇，视频8000元/篇。这是我目前的统一报价', time: t(15, 8) });
     msgs.push({ sender: 'service', content: '了解了～我先介绍一下我们的产品和合作方案哈', time: t(15, 10) });
-    msgs.push({ sender: 'service', content: `📋【${projectName}·合作询价单】\n产品：氨基酸祛痘精华 30ml\n形式：图文笔记1篇\n寄样：正装+小样礼盒+粉丝福利品\n我方预算：${budgetRange}元/篇\n要求：真实体验分享，不硬广\n修改：含1次调整\n发布时间：7-10天内`, time: t(15, 12) });
+    msgs.push({ sender: 'service', content: `📋【${displayProject}·合作询价单】\n产品：氨基酸祛痘精华 30ml\n形式：图文笔记1篇\n寄样：正装+小样礼盒+粉丝福利品\n我方预算：${budgetRange}元/篇\n要求：真实体验分享，不硬广\n修改：含1次调整\n发布时间：7-10天内`, time: t(15, 12) });
     msgs.push({ sender: 'influencer', content: '产品看了挺好的，但你们的预算和我的报价差距有点大呀…我这个报价是综合了粉丝量和平均互动数据定的', time: t(15, 20) });
     msgs.push({ sender: 'service', content: '理解的！你的数据确实很好。这样，我们可以在产品福利上加码：额外提供价值500元的正装礼盒，你可以自用也可以做粉丝抽奖。价格方面能到' + (budgetHigh ? '4500' : '3500') + '吗？', time: t(15, 25) });
     msgs.push({ sender: 'influencer', content: '礼盒可以，但价格方面我不太好低于5000。你看这样行不行——5000元，我多给你加一条story，相当于两条内容了', time: t(15, 32) });
@@ -259,7 +261,7 @@ function buildMessages(inf: Influencer, projectName: string, status: ContactStat
   if (status === 'completed') {
     msgs.push({ sender: 'system', content: '——— 以下为人工客服确认 ———', time: t(16, 30) });
     msgs.push({ sender: 'service', content: '合作细节全部确认完毕！我整理一份合作确认单发你，麻烦确认一下～', time: t(16, 35) });
-    msgs.push({ sender: 'service', content: `📄【合作确认单】\n达人：${inf.name}\n项目：${projectName}\n形式：图文笔记1篇\n稿费：${inf.price}元\n产品：正装1瓶+旅行装+粉丝福利\n发布时间：收到产品后7天内\n修改：含1次微调\n\n确认无误请回复"确认"～`, time: t(16, 38) });
+    msgs.push({ sender: 'service', content: `📄【合作确认单】\n达人：${inf.name}\n项目：${displayProject}\n形式：图文笔记1篇\n稿费：${inf.price}元\n产品：正装1瓶+旅行装+粉丝福利\n发布时间：收到产品后7天内\n修改：含1次微调\n\n确认无误请回复"确认"～`, time: t(16, 38) });
     msgs.push({ sender: 'influencer', content: '确认！没问题的，等产品到了就开始准备', time: t(16, 42) });
     msgs.push({ sender: 'service', content: '完美！那我这边走流程安排打款和寄样。合作愉快，有什么需要随时联系我哈～', time: t(16, 45) });
     msgs.push({ sender: 'influencer', content: '好嘞合作愉快！', time: t(16, 48) });
@@ -779,199 +781,283 @@ interface SimulatedExchange {
   nextStatus: ContactStatus; // 状态保持 contacting 直到真正谈妥
 }
 
-const SIMULATED_EXCHANGES: Record<string, SimulatedExchange[]> = {
-  contacting: [
-    {
-      influencerReply: '你好呀～看了一下你们的产品，挺感兴趣的！具体是什么产品呢？合作形式是怎样的？',
-      serviceAutoReply: '是我们自研的氨基酸祛痘精华，主打温和修护。合作形式是图文笔记1篇，内容方向很灵活，可以融入你日常的内容风格～我发一份详细方案给你看看？',
-      nextStatus: 'contacting',
-    },
-    {
-      influencerReply: '嗯嗯看到了！不过我最近手上有两个合作在收尾，可能要下周才能开始新的～',
-      serviceAutoReply: '没关系的，时间不着急！你手上的忙完了随时跟我说，我们可以先把方案和产品信息发你，你有空了再看～',
-      nextStatus: 'contacting',
-    },
-    {
-      influencerReply: '可以了解一下～你们预算大概是多少？我先看看跟我的报价能不能匹配',
-      serviceAutoReply: '我们这次的预算范围是1000-5000元/篇，根据达人的粉丝量和数据表现会有不同档位。我可以先发你一份询价表，你看看合不合适？',
-      nextStatus: 'contacting',
-    },
-    {
-      influencerReply: '你好～产品看了一下还不错，不过我想先确认下，你们对内容有什么硬性要求吗？我不太接限制太多的合作',
-      serviceAutoReply: '完全理解！我们没有硬性脚本要求，主要就是真实体验分享。你可以按自己的风格来创作，我们只需要提前看一下大纲就好～',
-      nextStatus: 'contacting',
-    },
-    {
-      influencerReply: '这个品类我之前接过不少，你们跟XX品牌比有什么差异化的点吗？不然我粉丝看了会觉得内容雷同',
-      serviceAutoReply: '这个问题问得好！我们最大的差异化是纯氨基酸体系+零酒精零香精，专门针对敏感痘肌。很多竞品含酒精刺激性大，我们可以主打这个角度～',
-      nextStatus: 'contacting',
-    },
-  ],
-  no_reply: [
-    {
-      influencerReply: '不好意思才看到消息！最近太忙了。你们产品我大概看了一下，可以详细介绍一下吗？',
-      serviceAutoReply: '没关系呀！我们是做祛痘护肤的品牌，产品是氨基酸祛痘精华，温和不刺激。我整理一份合作方案发你，你有空了看看？',
-      nextStatus: 'contacting',
-    },
-    {
-      influencerReply: '嗨～刚看到，最近私信太多没来得及一一回复。你们产品具体是什么类型的呀？',
-      serviceAutoReply: '理解理解！我们产品是氨基酸祛痘精华，主打温和修护敏感痘肌。看你之前的内容方向很匹配，想跟你聊聊合作的可能性～',
-      nextStatus: 'contacting',
-    },
-    {
-      influencerReply: '看到了看到了！我最近在忙期末/搬家，过几天回你可以吗？',
-      serviceAutoReply: '当然可以！完全不着急，你忙完了随时找我就行。我先把产品资料发你，你有空了翻一下～',
-      nextStatus: 'contacting',
-    },
-  ],
-};
-
-// 生成根据达人最后一条消息内容匹配的客服跟进回复
-function generateContextualServiceReply(lastInfluencerMsg: string, record: ContactRecord): string {
-  const msg = lastInfluencerMsg;
-  const name = record.influencer.name;
-
-  // 达人提到档期忙/下个月
-  if (/档期|排满|下个月|下周|在忙|忙不过来|收尾/.test(msg)) {
-    return '没关系呀，时间方面完全配合你！你忙完手上的项目随时跟我说，我们先把产品信息和方案留给你参考，不着急～';
-  }
-  // 达人问价格/费用/报价
-  if (/价格|费用|报价|预算|多少钱|稿费/.test(msg)) {
-    const price = record.influencer.price;
-    const range = price > 3000 ? '3000-5000' : '1000-3000';
-    return `我们这次的预算范围是${range}元/篇，当然具体可以根据你的报价和合作内容再商量。我发一份详细的询价表给你看看？`;
-  }
-  // 达人问合作形式/内容要求
-  if (/合作形式|怎么合作|图文|视频|要求|限制|脚本/.test(msg)) {
-    return '合作形式是图文笔记1篇，内容方向很灵活——可以做使用分享、成分科普、或者融入你日常护肤流程都OK。我们不要求硬广，真实分享就好～';
-  }
-  // 达人问产品信息
-  if (/什么产品|具体|介绍|成分|了解/.test(msg)) {
-    return '是一款氨基酸祛痘精华，核心成分是2%水杨酸+烟酰胺+积雪草提取物，零酒精零香精。我可以发一份详细的产品资料给你看看？';
-  }
-  // 达人表示感兴趣
-  if (/感兴趣|可以|没问题|可以的|好呀|好的/.test(msg)) {
-    return '太好了！那我整理一份详细的合作方案发你，包括产品介绍、合作形式、报酬这些都会写清楚，你看完了有什么想法随时跟我说～';
-  }
-  // 达人表达顾虑
-  if (/考虑|再说|不确定|看看再说|犹豫/.test(msg)) {
-    return '完全理解，不着急做决定！你可以先了解一下我们的产品和方案，考虑清楚了再回复我也可以，完全没有压力哈～';
-  }
-
-  // 默认跟进
-  return '收到！感谢你的回复～我整理一下相关资料发给你，你有空了看看，有任何问题随时问我哈';
+// 按阶段组织对话模板，每个阶段聊1-2轮后自然推进到下一阶段
+// phase 0: 初步了解   phase 1: 产品/形式   phase 2: 谈价   phase 3: 确认合作
+interface PhasedExchange extends SimulatedExchange {
+  phase: number;
+  id: string; // 用于去重
 }
 
-// 当客服在聊天窗口发送消息后，达人的自动回复（根据客服消息内容匹配）
+const PHASED_EXCHANGES: PhasedExchange[] = [
+  // === Phase 0: 初步了解 ===
+  { id: 'p0_interest', phase: 0, influencerReply: '你好呀～看了一下你们的产品，挺感兴趣的！具体是什么产品呢？', serviceAutoReply: '是我们自研的氨基酸祛痘精华，主打温和修护，零酒精零香精。我发一份详细资料给你看看？', nextStatus: 'contacting' },
+  { id: 'p0_busy', phase: 0, influencerReply: '嗯嗯看到了！不过我最近手上有两个合作在收尾，可能要下周才能开始新的～', serviceAutoReply: '没关系的，时间不着急！你忙完了随时跟我说，我们先把方案发你，你有空了再看～', nextStatus: 'contacting' },
+  { id: 'p0_budget', phase: 0, influencerReply: '可以了解一下～你们预算大概是多少？我先看看跟我的报价能不能匹配', serviceAutoReply: '我们这次预算范围是1000-5000元/篇，根据达人数据会有不同档位。我先发你一份合作方案看看？', nextStatus: 'contacting' },
+  { id: 'p0_late', phase: 0, influencerReply: '不好意思才看到消息！最近太忙了，可以详细介绍一下吗？', serviceAutoReply: '没关系呀！我们产品是氨基酸祛痘精华，温和不刺激。我整理一份合作方案发你？', nextStatus: 'contacting' },
+  { id: 'p0_case', phase: 0, influencerReply: '你们之前有跟同类型的博主合作过吗？效果怎么样？', serviceAutoReply: '有的！之前合作的几位痘肌方向博主互动率平均5%以上。我可以发案例给你参考～', nextStatus: 'contacting' },
+
+  // === Phase 1: 产品/合作形式 ===
+  { id: 'p1_requirement', phase: 1, influencerReply: '产品看了还不错，你们对内容有什么硬性要求吗？我不太接限制太多的', serviceAutoReply: '没有硬性脚本要求，真实体验分享就好。你按自己风格来，我们提前看一下大纲就行～', nextStatus: 'contacting' },
+  { id: 'p1_diff', phase: 1, influencerReply: '这个品类我之前接过不少，你们跟理肤泉、薇诺娜比有什么差异化的点？', serviceAutoReply: '我们最大的差异化是纯氨基酸体系+零酒精零香精，专门针对敏感痘肌，很多竞品含酒精刺激性大，可以主打这个角度～', nextStatus: 'contacting' },
+  { id: 'p1_publish', phase: 1, influencerReply: '发布时间有硬性要求吗？我一般需要体验一段时间才出内容', serviceAutoReply: '收到产品后7-10天内发就好，不会卡你很紧。正好让你体验一段时间再出内容更有说服力～', nextStatus: 'contacting' },
+  { id: 'p1_delete', phase: 1, influencerReply: '内容发布后要求长期不删帖吗？有些品牌要求保留半年以上我不太接受', serviceAutoReply: '保留3个月就可以了～而且是真实分享内容，留着对你账号也是好内容', nextStatus: 'contacting' },
+  { id: 'p1_format', phase: 1, influencerReply: '合作形式是图文还是视频？图文的话我报价会低一些', serviceAutoReply: '这次主推图文笔记1篇就好，内容方向灵活，使用分享、成分科普或融入日常护肤流程都OK～', nextStatus: 'contacting' },
+
+  // === Phase 2: 谈价 ===
+  { id: 'p2_quote', phase: 2, influencerReply: '方案看了没问题，费用方面我目前图文报价是{price}元/篇，你们能接受吗？', serviceAutoReply: '了解你的报价～我们可以额外提供正装寄样+小样礼盒做粉丝福利，{counter}元可以考虑吗？', nextStatus: 'contacting' },
+  { id: 'p2_welfare', phase: 2, influencerReply: '价格方面我再想想，你们能提供额外的产品福利吗？比如多寄小样给我做粉丝抽奖', serviceAutoReply: '当然可以！正装试用之外还可以提供粉丝福利礼盒（3份小样套装），做抽奖互动数据会更好看～', nextStatus: 'contacting' },
+  { id: 'p2_longterm', phase: 2, influencerReply: '如果是长期合作的话价格我可以让步，单次合作就按我的标准来', serviceAutoReply: '我们确实有长期合作计划！如果这次效果好，后面还有3-4期，价格逐步上调，你觉得怎么样？', nextStatus: 'contacting' },
+
+  // === Phase 3: 确认合作 ===
+  { id: 'p3_accept', phase: 3, influencerReply: '行，那就{finalPrice}元成交吧！什么时候寄产品？', serviceAutoReply: '太好了！我今天就安排寄出，预计2-3天到。到了之后先体验几天，出内容之前我们可以先沟通大纲～你方便发一下收货地址吗？', nextStatus: 'accepted' },
+  { id: 'p3_accept2', phase: 3, influencerReply: '可以的，那就按这个方案来吧。地址我发你，尽快安排寄样哈', serviceAutoReply: '收到！马上安排寄出。到了之后先体验，有使用感受随时跟我分享，合作愉快！', nextStatus: 'accepted' },
+  { id: 'p3_decline', phase: 3, influencerReply: '不好意思，我最近档期实在排不开了，这次先不合作了，以后有合适的再聊吧', serviceAutoReply: '完全理解！那我们先保持联系，以后有合适的项目第一时间联系你。继续关注你的内容啦～', nextStatus: 'declined' },
+  { id: 'p3_human', phase: 3, influencerReply: '价格方面差距还是有点大，你们能再提高一些吗？不然我这边不太好接', serviceAutoReply: '了解了，这个价格超出我这边的审批范围了，我跟品牌方再确认一下尽快回复你～', nextStatus: 'need_human' },
+];
+
+// 生成根据达人最后一条消息内容匹配的客服跟进回复（避免重复、推进沟通）
+function generateContextualServiceReply(lastInfluencerMsg: string, record: ContactRecord): string {
+  const msg = lastInfluencerMsg;
+  const phase = getConversationPhase(record.messages);
+  const existingContent = record.messages.filter(m => m.sender === 'service').map(m => m.content);
+  const price = record.influencer.price;
+  const range = price > 3000 ? '3000-5000' : '1000-3000';
+
+  // 选择未说过的回复
+  const pickUnused = (candidates: string[]): string => {
+    const unused = candidates.filter(r => !existingContent.some(c => c.includes(r.slice(0, 15))));
+    return unused.length > 0 ? unused[Math.floor(Math.random() * unused.length)] : candidates[0];
+  };
+
+  // 达人已经在推进/同意 → 直接推进
+  if (/成交|定了|没问题|安排寄|地址|可以的/.test(msg) && phase >= 2) {
+    return pickUnused([
+      '太好了！我今天就安排寄出产品，你方便发一下收货地址吗？',
+      '收到！马上安排寄样，预计2-3天到。到了之后你先体验，有想法随时跟我说～',
+    ]);
+  }
+  // 达人提到价格/报价 → 回应价格
+  if (/价格|费用|报价|预算|多少钱|稿费|元/.test(msg)) {
+    return pickUnused([
+      `我们预算${range}元/篇，当然可以根据你的报价商量。你觉得多少合适？`,
+      `预算方面${range}元，另外可以加正装+小样礼盒做粉丝福利，你看行吗？`,
+    ]);
+  }
+  // 达人档期忙 → 简短回应后推进
+  if (/档期|排满|下个月|下周|在忙|收尾/.test(msg)) {
+    return pickUnused([
+      '没关系，时间配合你！那趁现在先把费用和合作细节定下来？',
+      '不着急的！你忙完随时开始，我们先确认一下合作方案和价格？',
+    ]);
+  }
+  // 达人问合作形式/要求
+  if (/合作形式|怎么合作|图文|视频|要求|限制|脚本/.test(msg)) {
+    return pickUnused([
+      '图文笔记1篇，真实体验分享就好，不要求硬广。费用方面你的报价是多少？',
+      '形式灵活，使用分享或成分科普都OK。我发份方案你看看，顺便聊下费用？',
+    ]);
+  }
+  // 达人问产品
+  if (/什么产品|具体|介绍|成分|了解/.test(msg)) {
+    return pickUnused([
+      '氨基酸祛痘精华，2%水杨酸+烟酰胺，零酒精零香精。我发份合作方案给你看看？',
+      '是款温和祛痘精华，敏感痘肌也能用。产品可以先免费寄给你试，觉得好再合作～',
+    ]);
+  }
+  // 达人让步/接受
+  if (/让步|让一步|可以接受|行吧/.test(msg)) {
+    return pickUnused([
+      '那就这么定了！我安排寄产品，你发一下收货地址？',
+      '太好了，合作愉快！我今天就安排寄出，地址方便发一下吗？',
+    ]);
+  }
+
+  // 按阶段给推进性回复
+  if (phase <= 1) {
+    return pickUnused([
+      '那我发一份合作方案给你，包括产品、形式和费用，你看完我们再聊细节？',
+      '好的！我整理一下合作细节发你，费用方面也一起说明，你看看合不合适～',
+    ]);
+  }
+  return pickUnused([
+    '了解了！那费用方面我们再确认一下，你觉得怎么定比较合适？',
+    '收到，那我们把最后的细节敲定一下？价格和档期确认好就可以安排了～',
+  ]);
+}
+
+// 当客服在聊天窗口发送消息后，达人的自动回复（根据客服消息内容 + 对话阶段匹配）
 function generateInfluencerAutoReply(serviceMsg: string, record: ContactRecord): string {
-  const msgCount = record.messages.filter(m => m.sender === 'influencer').length;
+  const phase = getConversationPhase(record.messages);
+  const existingContent = record.messages.map(m => m.content);
+  const price = record.influencer.price;
+  const budgetHigh = price > 3000;
 
-  // 根据客服消息内容匹配达人回复
-  if (/询价表|合作方案|方案|brief/.test(serviceMsg)) {
-    const replies = [
-      '收到！我仔细看一下方案，有问题再跟你说～',
-      '好的，我看看方案细节。费用方面到时候我们再聊',
-      '方案收到了！内容要求看起来还行，不过价格方面我想再商量一下',
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-  if (/产品资料|产品信息|成分|水杨酸|氨基酸/.test(serviceMsg)) {
-    const replies = [
-      '成分看了一下还不错，无酒精这点我比较看重。不过我想确认一下敏感肌用了会不会有刺痛感？',
-      '了解了！这个产品定位挺清晰的。我之前也用过类似的，你们跟市面上其他品牌比优势在哪？',
-      '嗯嗯，产品信息我看了。有没有用户的真实反馈可以参考一下？',
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-  if (/预算|价格|费用|报价|元\/篇/.test(serviceMsg)) {
-    const price = record.influencer.price;
-    const replies = [
-      `嗯…说实话你们的预算跟我的报价有点差距。我目前图文报价是${price > 3000 ? '5000' : '2500'}元，能接受吗？`,
-      '价格方面我再考虑考虑，你们能提供额外的产品福利吗？比如多寄一些给我做粉丝活动',
-      '预算了解了。如果可以长期合作的话，价格方面我可以适当让步，单次的话就按我的标准来',
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-  if (/收货地址|寄|发货|快递/.test(serviceMsg)) {
-    const replies = [
-      '好的！地址我等下私信发你。大概几天能到呀？',
-      '地址发你了，寄顺丰吧到得快一些。收到了我会跟你说的！',
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-  if (/不着急|不急|随时|配合你|时间.*灵活/.test(serviceMsg)) {
-    const replies = [
-      '好的谢谢理解！我这边大概这周能忙完，到时候找你聊～',
-      '嗯嗯，那我先看看你发的资料，有想法了回复你',
-      '好的！等我这两天理一下档期跟你确认',
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-  if (/内容.*灵活|不限制|真实.*分享|自己.*风格/.test(serviceMsg)) {
-    const replies = [
-      '那还行，不限制太多的合作我比较喜欢。我一般都是拍自己真实使用的过程',
-      '嗯这个态度我很认可！我最怕那种要求必须按脚本拍的。那内容方向我大概有个想法了',
-      '好的，那我按自己的风格来。不过出稿之前我还是会给你们过一下大纲的',
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-
-  // 根据对话轮数给出不同阶段的通用回复
-  if (msgCount <= 1) {
-    const replies = [
-      '嗯嗯了解了，我再考虑一下。有什么疑问我再问你哈',
-      '好的收到！我先看看，晚点回复你',
-      '知道了～那具体合作细节你发我看看？',
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-  if (msgCount <= 3) {
-    const replies = [
-      '嗯嗯好的！那你把详细的信息发我，我认真看一下',
-      '了解了，我对这个方向还是挺有兴趣的。费用方面我们再聊聊？',
-      '可以的～不过我还想了解一下，你们对发布时间有要求吗？',
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-  // 多轮之后
-  const replies = [
-    '嗯嗯好的，那就先这样，有什么进展你跟我说～',
-    '行吧，我基本OK了，你整理一下合作细节发我确认？',
-    '好的好的！那我们就按这个方向来吧',
+  // 按话题分组的候选回复，每组多条避免重复
+  const topicReplies: { pattern: RegExp; replies: string[] }[] = [
+    { pattern: /询价表|合作方案|方案|brief/, replies: [
+      '方案收到了，内容要求没问题。费用方面我的报价是' + (budgetHigh ? '5000' : '2500') + '元/篇，可以吗？',
+      '看了方案，合作形式OK。价格方面我们再商量一下？',
+      '方案整体没问题，那就按这个方向来，细节我们再对一下',
+    ]},
+    { pattern: /产品资料|产品信息|成分|水杨酸|氨基酸/, replies: [
+      '成分不错，无酒精这点我很看重。敏感肌用了会刺痛吗？',
+      '了解了，产品定位挺清晰的。你们有用户的真实反馈吗？',
+      '嗯嗯看了，这个产品方向挺好的，那合作细节怎么安排？',
+    ]},
+    { pattern: /预算|价格|费用|报价|元\/篇/, replies: [
+      '预算了解了，我报价是' + (budgetHigh ? '5000' : '2500') + '元，如果能加产品福利的话可以让一步',
+      '价格方面如果能长期合作我可以让步，先按' + (budgetHigh ? '4500' : '2300') + '元来？',
+      '嗯…价格差距有点大，你们最高能到多少？',
+    ]},
+    { pattern: /收货地址|寄|发货|快递/, replies: [
+      '好的！地址我私信发你，寄顺丰吧到得快一些',
+      '地址：' + (budgetHigh ? '上海市静安区南京西路1266号' : '广州市天河区体育西路103号') + '，收件人写我名字就好',
+    ]},
+    { pattern: /不着急|不急|随时|配合你|时间.*灵活/, replies: [
+      '谢谢理解！那我们直接聊合作细节吧，产品和形式我都没问题',
+      '好的，那我确认一下费用方面，你们预算具体是多少？',
+    ]},
+    { pattern: /内容.*灵活|不限制|真实.*分享|自己.*风格/, replies: [
+      '不限制太多就好，那我们聊聊费用方面？',
+      '嗯这个态度我认可，内容方向我有想法了。价格方面怎么定？',
+    ]},
+    { pattern: /安排寄出|安排打款|合作愉快|确认/, replies: [
+      '好嘞，合作愉快！收到货了我跟你说',
+      '没问题！等产品到了我就开始准备内容',
+    ]},
+    { pattern: /福利|小样|礼盒|抽奖/, replies: [
+      '福利挺好的，可以提升互动。那价格方面就' + (budgetHigh ? '4500' : '2300') + '元成交？',
+      '粉丝福利可以，那合作就定了吧，你安排寄产品？',
+    ]},
+    { pattern: /长期|后续|3-4期|逐步/, replies: [
+      '长期合作的话我很感兴趣！那这次先按' + (budgetHigh ? '4500' : '2300') + '元来？',
+      '有长期计划的话价格我可以让步，先合作一次看看效果',
+    ]},
   ];
-  return replies[Math.floor(Math.random() * replies.length)];
+
+  // 找匹配的话题，过滤掉已说过的回复
+  for (const topic of topicReplies) {
+    if (topic.pattern.test(serviceMsg)) {
+      const unused = topic.replies.filter(r => !existingContent.some(c => c.includes(r.slice(0, 12))));
+      if (unused.length > 0) return unused[Math.floor(Math.random() * unused.length)];
+      // 都说过了，跳过这个话题
+    }
+  }
+
+  // 按对话阶段给进展性回复（不废话）
+  if (phase <= 1) {
+    const replies = [
+      '了解了，那费用方面怎么定？发个报价看看',
+      '嗯嗯可以的，你把合作方案发我看看吧',
+    ];
+    const unused = replies.filter(r => !existingContent.some(c => c.includes(r.slice(0, 10))));
+    return unused.length > 0 ? unused[Math.floor(Math.random() * unused.length)] : replies[0];
+  }
+  if (phase === 2) {
+    const replies = [
+      '价格方面差不多了，那就' + (budgetHigh ? '4500' : '2300') + '元定了？你安排寄产品吧',
+      '行吧我让一步，' + (budgetHigh ? '4500' : '2300') + '元可以，什么时候寄产品？',
+    ];
+    const unused = replies.filter(r => !existingContent.some(c => c.includes(r.slice(0, 10))));
+    return unused.length > 0 ? unused[Math.floor(Math.random() * unused.length)] : replies[0];
+  }
+  // phase 3+
+  return '好的没问题，那就这么定了，合作愉快！';
+}
+
+// 判断当前对话处于哪个阶段（根据已有消息轮数）
+function getConversationPhase(messages: ChatMessage[]): number {
+  const influencerCount = messages.filter(m => m.sender === 'influencer').length;
+  if (influencerCount <= 1) return 0; // 初步了解
+  if (influencerCount <= 3) return 1; // 产品/形式
+  if (influencerCount <= 5) return 2; // 谈价
+  return 3; // 确认合作
+}
+
+// 提取已说过的对话模板 id（避免重复）
+function getUsedExchangeIds(messages: ChatMessage[]): Set<string> {
+  const used = new Set<string>();
+  const allContent = messages.map(m => m.content);
+  for (const ex of PHASED_EXCHANGES) {
+    // 只要达人说过的内容（去掉变量部分）匹配就算用过
+    const key = ex.influencerReply.replace(/\{[^}]+\}/g, '').slice(0, 15);
+    if (allContent.some(c => c.includes(key))) used.add(ex.id);
+  }
+  return used;
 }
 
 function simulateReplies(records: ContactRecord[]): { records: ContactRecord[]; repliedIds: Set<string> } {
   const repliedIds = new Set<string>();
-  // 找出可以收到回复的记录（contacting、no_reply），need_human 交由人工处理不自动生成
   const candidates = records.filter(r => ['contacting', 'no_reply'].includes(r.status));
   if (candidates.length === 0) return { records, repliedIds };
 
-  // 随机选 1-2 个
+  // 随机选 2-4 个达人推进对话
   const shuffled = [...candidates].sort(() => Math.random() - 0.5);
-  const count = Math.min(1 + Math.floor(Math.random() * 2), shuffled.length);
+  const count = Math.min(2 + Math.floor(Math.random() * 3), shuffled.length);
   const toReply = shuffled.slice(0, count);
 
   const now = new Date();
-  const time = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-  const replyTime = new Date(now.getTime() + 60000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 
   const updated = records.map(r => {
     const match = toReply.find(c => c.id === r.id);
     if (!match) return r;
 
-    const pool = SIMULATED_EXCHANGES[r.status] || SIMULATED_EXCHANGES['contacting'];
-    const pick = pool[Math.floor(Math.random() * pool.length)];
+    const currentPhase = getConversationPhase(r.messages);
+    const usedIds = getUsedExchangeIds(r.messages);
+    let newMsgs = [...r.messages];
+    let newStatus: ContactStatus = r.status;
+
+    // 每次进入添加 1-2 轮对话，按阶段推进
+    const roundCount = 1 + Math.floor(Math.random() * 2);
+    let phase = currentPhase;
+
+    for (let round = 0; round < roundCount; round++) {
+      // 从当前阶段找未用过的模板
+      let pool = PHASED_EXCHANGES.filter(e => e.phase === phase && !usedIds.has(e.id));
+      // 当前阶段用完了，推进到下一阶段
+      if (pool.length === 0 && phase < 3) {
+        phase++;
+        pool = PHASED_EXCHANGES.filter(e => e.phase === phase && !usedIds.has(e.id));
+      }
+      if (pool.length === 0) break; // 所有模板都用过了
+
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      usedIds.add(pick.id);
+
+      // 替换价格变量
+      const price = r.influencer.price;
+      const budgetHigh = price > 3000;
+      let infReply = pick.influencerReply
+        .replace('{price}', budgetHigh ? '5000' : '2500')
+        .replace('{finalPrice}', budgetHigh ? '4500' : '2300');
+      let svcReply = pick.serviceAutoReply
+        .replace('{counter}', budgetHigh ? '4500' : '2300');
+
+      const msgTime = new Date(now.getTime() + (round * 2 + 1) * 60000);
+      const replyTime = new Date(now.getTime() + (round * 2 + 2) * 60000);
+
+      newMsgs.push(
+        { sender: 'influencer' as const, content: infReply, time: msgTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) },
+        { sender: 'service' as const, content: svcReply, time: replyTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) },
+      );
+
+      newStatus = pick.nextStatus;
+
+      // 如果已经到终态就不再继续
+      if (['accepted', 'declined', 'need_human'].includes(newStatus)) {
+        if (newStatus === 'accepted') {
+          newMsgs.push({ sender: 'system' as const, content: '💡 AI 判断：达人已同意合作', time: replyTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) });
+        } else if (newStatus === 'declined') {
+          newMsgs.push({ sender: 'system' as const, content: '💡 AI 判断：达人已拒绝合作', time: replyTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) });
+        } else if (newStatus === 'need_human') {
+          newMsgs.push({ sender: 'system' as const, content: '💡 AI 判断：当前沟通需人工介入', time: replyTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) });
+        }
+        break;
+      }
+    }
 
     repliedIds.add(r.id);
-    const newMsgs: ChatMessage[] = [
-      ...r.messages,
-      { sender: 'influencer' as const, content: pick.influencerReply, time },
-      { sender: 'service' as const, content: pick.serviceAutoReply, time: replyTime },
-    ];
-
-    return { ...r, status: pick.nextStatus, messages: newMsgs };
+    return { ...r, status: newStatus, messages: newMsgs };
   });
 
   return { records: updated, repliedIds };
@@ -1005,18 +1091,22 @@ const ContactPage = ({ projects, onBack, newInfluencers }: {
   // 未读回复的记录 ID
   const [unreadIds, setUnreadIds] = useState<Set<string>>(new Set());
 
+  const initDone = useRef(false);
   useEffect(() => {
+    // 防止 React 18 StrictMode 重复执行
+    if (initDone.current) return;
+    initDone.current = true;
+
     let saved = loadRecords();
 
-    // 旧数据迁移：如果没有 accepted/declined 状态，重新推断
+    // 旧数据迁移
     saved = saved.map(r => {
-      if (r.status === 'need_human' || r.status === 'completed') {
-        // 保持原样
-      } else if (!['accepted', 'declined'].includes(r.status)) {
-        const inferred = inferStatus(r.messages);
-        if (inferred === 'accepted' || inferred === 'declined') {
-          return { ...r, status: inferred };
-        }
+      if (['waiting_follow', 'contacting', 'need_human', 'completed', 'accepted', 'declined'].includes(r.status)) {
+        return r;
+      }
+      const inferred = inferStatus(r.messages);
+      if (inferred === 'accepted' || inferred === 'declined') {
+        return { ...r, status: inferred };
       }
       return r;
     });
@@ -1028,31 +1118,31 @@ const ContactPage = ({ projects, onBack, newInfluencers }: {
     if (newInfs.length > 0) {
       const newRecords = generateInitialRecords(newInfs);
       const merged = [...saved, ...newRecords];
-      // 模拟达人回复：从新建联的达人中选1-2个模拟收到回复
-      const { records: withReplies, repliedIds } = simulateReplies(merged);
-      setRecords(withReplies);
-      saveRecords(withReplies);
-      setUnreadIds(repliedIds);
+      setRecords(merged);
+      saveRecords(merged);
       setIsAnimating(true);
       setAnimatedCount(saved.length);
       let count = saved.length;
       const interval = setInterval(() => {
         count++;
         setAnimatedCount(count);
-        if (count >= withReplies.length) {
+        if (count >= merged.length) {
           clearInterval(interval);
           setTimeout(() => setIsAnimating(false), 300);
         }
       }, 120);
       return () => clearInterval(interval);
     } else if (saved.length > 0) {
-      // 每次进入页面，模拟1-2个达人新回复
+      // 每次进入页面，模拟达人新回复
       const { records: withReplies, repliedIds } = simulateReplies(saved);
       setRecords(withReplies);
       saveRecords(withReplies);
       setUnreadIds(repliedIds);
+    } else {
+      // 没有新增也没有历史记录，确保状态同步
+      setRecords(saved);
     }
-  }, []);
+  }, [newInfluencers]);
 
   const handleFinish = (recordId: string) => {
     setRecords(prev => {

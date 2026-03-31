@@ -112,66 +112,134 @@ function generateInitialRecords(influencers: { inf: Influencer; projectName: str
 function buildMessages(inf: Influencer, projectName: string, status: ContactStatus): ChatMessage[] {
   const msgs: ChatMessage[] = [];
   const t = (h: number, m: number) => `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+  const budgetHigh = inf.price > 3000;
+  const budgetRange = budgetHigh ? '3000-5000' : '1000-3000';
 
   if (status === 'waiting_follow') {
     msgs.push({ sender: 'system', content: '对方尚未关注你，无法发送私信', time: t(9, 0) });
     return msgs;
   }
 
+  // ===== Day 1 上午：问候 + 自我介绍 =====
   msgs.push({ sender: 'system', content: '对方已关注你', time: t(9, 0) });
-  msgs.push({ sender: 'service', content: `宝子你好~我们是「${projectName}」项目方，看了你分享的祛痘内容觉得特别真实！我们有一款祛痘精华想找达人合作推广，你的粉丝画像和我们产品很匹配，想聊聊合作吗？`, time: t(9, 2) });
+  msgs.push({ sender: 'service', content: `嗨～你好呀！关注你好久了，你分享的祛痘内容真的超真实，每次看完都忍不住点赞👍`, time: t(9, 2) });
+  msgs.push({ sender: 'service', content: `我是「${projectName}」的品牌合作负责人小鱼，我们正在找和痘肌护理方向契合的博主合作，觉得你特别合适，想跟你聊聊～方便吗？`, time: t(9, 3) });
 
   if (status === 'contacting') return msgs;
 
   if (status === 'no_reply') {
-    msgs.push({ sender: 'system', content: '对方超过24小时未回复', time: t(9, 2) });
+    msgs.push({ sender: 'system', content: '对方超过24小时未回复', time: t(9, 3) });
     return msgs;
   }
 
   const seed = inf.id.charCodeAt(inf.id.length - 1) % 6;
 
   if (seed === 0) {
-    // 已同意场景：询问合作细节后同意
-    msgs.push({ sender: 'influencer', content: '你好呀～可以的，具体是什么产品呀？合作形式是图文还是视频？', time: t(10, 15) });
-    msgs.push({ sender: 'service', content: '是一款氨基酸祛痘精华，主打温和不刺激。合作形式是图文笔记1篇，需要展示产品和使用感受～', time: t(10, 20) });
-    msgs.push({ sender: 'influencer', content: '了解了～那合作费用是多少呢？', time: t(10, 30) });
-    msgs.push({ sender: 'service', content: `我们的预算范围是${inf.price > 3000 ? '3000-5000' : '1000-3000'}元/篇，包含一次修改。你看这个范围可以吗？`, time: t(10, 35) });
-    msgs.push({ sender: 'influencer', content: '可以的没问题！那什么时候寄产品呀？我下周可以开始拍', time: t(10, 40) });
-    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已同意合作', time: t(10, 41) });
+    // ===== 场景A：详细询单→发报价表→谈价→成交 =====
+    msgs.push({ sender: 'influencer', content: '你好呀～谢谢关注！可以的，你们具体是什么产品呀？', time: t(10, 15) });
+    msgs.push({ sender: 'service', content: '是我们自研的一款氨基酸祛痘精华，主打温和修护，不含激素和酒精，敏感痘肌也能用。上市3个月口碑还不错～', time: t(10, 18) });
+    msgs.push({ sender: 'influencer', content: '听起来挺好的，氨基酸类的我之前也用过几款。合作形式是怎样的？图文还是视频？', time: t(10, 25) });
+    msgs.push({ sender: 'service', content: '我们这次主推图文笔记，1篇就好。内容方向比较灵活，可以是使用分享、成分科普、或者融入你的日常护肤流程都OK～不会限制太多', time: t(10, 28) });
+    msgs.push({ sender: 'influencer', content: '嗯嗯了解了。那费用方面呢？可以发一下你们的报价表看看吗', time: t(10, 35) });
+    // 发询价表
+    msgs.push({ sender: 'service', content: `当然～以下是我们这次的合作方案：\n\n📋【${projectName}·达人合作询价单】\n产品：氨基酸祛痘精华 30ml 正装\n合作形式：小红书图文笔记 × 1篇\n内容方向：真实体验分享 / 产品测评\n寄样：正装1瓶 + 旅行装2支\n稿费预算：${budgetRange}元/篇\n修改次数：含1次小幅调整\n发布时间：产品到手后7-10天内\n\n你看看这个方案OK吗？费用可以根据你的报价再商量～`, time: t(10, 40) });
+    msgs.push({ sender: 'influencer', content: '收到！我看了一下，产品和形式都没问题。不过费用方面，我目前图文笔记的报价是' + (budgetHigh ? '5500' : '2800') + '元/篇，你们这个预算能接受吗？', time: t(11, 5) });
+    msgs.push({ sender: 'service', content: '了解你的报价～我们这边预算确实有限，但是可以给你额外的福利：除了正装寄样，还可以提供小样礼盒给你做粉丝福利，增加互动数据。价格方面' + (budgetHigh ? '4500' : '2500') + '元可以考虑吗？', time: t(11, 12) });
+    msgs.push({ sender: 'influencer', content: '嗯…粉丝福利这个可以的，确实能提升互动。那' + (budgetHigh ? '5000' : '2600') + '元行不行？我这边也让一步', time: t(11, 20) });
+    msgs.push({ sender: 'service', content: '好的！' + (budgetHigh ? '5000' : '2600') + '元成交💪 那我确认一下合作细节哈：\n✅ 图文笔记1篇，' + (budgetHigh ? '5000' : '2600') + '元\n✅ 寄正装+小样礼盒\n✅ 收到产品后7天内发布\n\n你方便发一下收货地址吗？我这边尽快安排寄出～', time: t(11, 25) });
+    msgs.push({ sender: 'influencer', content: '没问题！地址：' + (budgetHigh ? '上海市静安区南京西路1266号恒隆广场' : '广州市天河区体育西路103号') + '，收件人写我本名就好，电话我私信发你', time: t(11, 30) });
+    msgs.push({ sender: 'service', content: '收到地址！我今天下午就安排寄出，预计2-3天到。到了之后先体验几天，有任何使用感受随时跟我分享～出内容之前我们可以先沟通一下大纲', time: t(11, 33) });
+    msgs.push({ sender: 'influencer', content: '好的好的！等收到货我就开始用，有什么想法我随时跟你说～合作愉快呀', time: t(11, 38) });
+    msgs.push({ sender: 'service', content: '合作愉快！有任何问题随时找我，我微信也可以加一下方便沟通📱', time: t(11, 40) });
+    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已同意合作', time: t(11, 41) });
   } else if (seed === 1) {
-    // 已同意场景：直接答应寄样
-    msgs.push({ sender: 'influencer', content: '你好！这个产品挺适合我的，我最近正好在分享祛痘过程！', time: t(11, 0) });
-    msgs.push({ sender: 'service', content: '太好了！那我发一下详细的合作brief给你看看～', time: t(11, 5) });
-    msgs.push({ sender: 'service', content: '【合作详情】\n产品：氨基酸祛痘精华 30ml\n形式：图文笔记1篇\n要求：真实使用7天后分享体验\n费用：到手价+稿费\n档期：本月内发布', time: t(11, 6) });
-    msgs.push({ sender: 'influencer', content: '没问题！我这周可以开始用，下周出内容可以吗？地址我私信发你', time: t(11, 20) });
-    msgs.push({ sender: 'service', content: '完全OK！我把产品寄给你，麻烦发一下收货地址～', time: t(11, 22) });
-    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已同意合作', time: t(11, 23) });
+    // ===== 场景B：兴趣浓厚→发询价表→快速成交→确认档期 =====
+    msgs.push({ sender: 'influencer', content: '你好～看到你们的消息了！我最近正好在分享战痘过程，挺感兴趣的', time: t(11, 0) });
+    msgs.push({ sender: 'service', content: '太好了！你最近那篇"烂脸到光滑"的对比帖数据好好呀，我们品牌方都看到了！', time: t(11, 3) });
+    msgs.push({ sender: 'influencer', content: '哈哈谢谢！那篇确实反响不错。你们产品具体是什么呢？我先了解一下', time: t(11, 8) });
+    msgs.push({ sender: 'service', content: '是一款氨基酸祛痘精华，核心成分是2%水杨酸+烟酰胺，温和配方不刺激。我发个详细方案你看看？', time: t(11, 10) });
+    msgs.push({ sender: 'influencer', content: '好的发来看看～', time: t(11, 12) });
+    msgs.push({ sender: 'service', content: `📋【${projectName}·合作方案】\n\n🧴 产品：氨基酸祛痘精华 30ml\n📝 形式：图文笔记1篇\n🎯 方向：真实使用体验（可融入你的战痘日记系列）\n📦 寄样：正装1瓶 + 旅行装小样2支\n💰 稿费：${budgetRange}元/篇（可商议）\n📅 档期：收到产品后7-10天内发布\n✏️ 修改：含1次小调整\n\n你觉得怎么样？`, time: t(11, 15) });
+    msgs.push({ sender: 'influencer', content: '方案挺清晰的！融入我的战痘日记系列这个想法很好。费用方面，我现在图文报价是' + (budgetHigh ? '4800' : '2200') + '元，你们能接受吗？', time: t(11, 25) });
+    msgs.push({ sender: 'service', content: (budgetHigh ? '4800没问题！' : '2200可以的！') + '这个价格我们OK。那档期方面，你这边什么时候方便开始呢？', time: t(11, 28) });
+    msgs.push({ sender: 'influencer', content: '我这周手上还有一个合作在收尾，产品寄过来的话下周就可以开始用了。大概下周五之前能出初稿给你看', time: t(11, 35) });
+    msgs.push({ sender: 'service', content: '时间刚刚好！那我今天安排寄出。你方便给一下收货地址吗？另外你的微信号可以加一下吗，后面沟通brief比较方便～', time: t(11, 38) });
+    msgs.push({ sender: 'influencer', content: '地址：' + (budgetHigh ? '杭州市余杭区文一西路969号' : '成都市锦江区红星路三段99号') + '，微信号 ' + inf.name.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, '').slice(0, 4) + '_xhs，备注「' + projectName + '」就好', time: t(11, 42) });
+    msgs.push({ sender: 'service', content: '收到！马上加你微信，产品今天下午发出。等你收到之后我们再详细对一下内容方向，不着急哈～', time: t(11, 45) });
+    msgs.push({ sender: 'influencer', content: '好嘞～期待合作！', time: t(11, 48) });
+    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已同意合作', time: t(11, 49) });
   } else if (seed === 2) {
-    // 已拒绝场景
-    msgs.push({ sender: 'influencer', content: '谢谢邀请～但是我最近档期比较满，暂时接不了新的合作了', time: t(14, 0) });
-    msgs.push({ sender: 'service', content: '好的没关系！后续有空档期欢迎随时联系我们～', time: t(14, 10) });
-    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已拒绝合作', time: t(14, 11) });
+    // ===== 场景C：有兴趣→多轮沟通→最终婉拒 =====
+    msgs.push({ sender: 'influencer', content: '嗨你好～收到消息了，谢谢你们的关注！可以先了解一下', time: t(14, 0) });
+    msgs.push({ sender: 'service', content: '好的！简单介绍一下，我们是做祛痘护肤的品牌，产品是一款氨基酸祛痘精华。看你之前分享的内容风格特别真实接地气，和我们品牌调性很匹配～', time: t(14, 5) });
+    msgs.push({ sender: 'influencer', content: '嗯嗯，祛痘类的我之前也接过一些合作。你们具体的合作形式和预算是怎样的？', time: t(14, 12) });
+    msgs.push({ sender: 'service', content: `合作形式是图文笔记1篇，预算${budgetRange}元/篇。产品免费寄给你正装试用，内容方向也比较灵活～`, time: t(14, 15) });
+    msgs.push({ sender: 'influencer', content: '了解了。不过说实话，我最近档期排得比较满，手上还有三个合作在做，可能短时间内腾不出来', time: t(14, 22) });
+    msgs.push({ sender: 'service', content: '没关系呀！档期不着急，我们可以预约到下个月。你觉得下个月的话有空吗？', time: t(14, 25) });
+    msgs.push({ sender: 'influencer', content: '下个月的话…其实我4月也有好几个合作签了，而且我最近在调整自己的接单方向，想多做一些非广告的内容', time: t(14, 30) });
+    msgs.push({ sender: 'service', content: '理解你的想法！其实我们也不希望做得太广告化，可以完全融入你日常护肤的内容里，就像你平时分享那样自然。或者如果你觉得纯体验不够适合，我们也可以做成分科普的角度？', time: t(14, 35) });
+    msgs.push({ sender: 'influencer', content: '谢谢你的理解～角度确实可以考虑，但我还是想先把手头的做完再说吧。而且说实话我现在皮肤状态还不错，再接祛痘类的可能不太适合发真实体验了哈哈', time: t(14, 42) });
+    msgs.push({ sender: 'service', content: '哈哈那说明你之前战痘成功了呀！好的完全理解，那我们先保持联系，以后有别的适合你的项目我再找你聊～', time: t(14, 45) });
+    msgs.push({ sender: 'influencer', content: '好的好的～谢谢你的耐心！以后有合适的随时联系我，先互关着哈', time: t(14, 48) });
+    msgs.push({ sender: 'service', content: '一定一定！期待以后合作的机会～继续关注你的内容啦', time: t(14, 50) });
+    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已拒绝合作', time: t(14, 51) });
   } else if (seed === 3) {
-    // 已同意场景：先试用再合作
-    msgs.push({ sender: 'influencer', content: '产品我有兴趣，但需要先试用觉得好用才能推荐，可以先寄样吗？', time: t(13, 0) });
-    msgs.push({ sender: 'service', content: '当然！先寄一瓶正装给你试用，觉得OK再聊合作细节～', time: t(13, 10) });
-    msgs.push({ sender: 'influencer', content: '好的没问题！地址我私信发你', time: t(13, 15) });
-    msgs.push({ sender: 'service', content: '收到～预计3天内寄出，到了之后随时跟我反馈哈', time: t(13, 20) });
-    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已同意合作（先试用）', time: t(13, 21) });
+    // ===== 场景D：感兴趣→要求先试用→寄样→同意合作 =====
+    msgs.push({ sender: 'influencer', content: '你好！看到消息了。祛痘精华呀，我有兴趣了解一下。不过我有个原则，就是自己觉得好用的产品才会推荐给粉丝', time: t(13, 0) });
+    msgs.push({ sender: 'service', content: '完全理解！我们也最看重真实体验，不要求硬广。可以先免费寄一瓶正装给你试用，你用着觉得好再聊合作细节，没有任何压力～', time: t(13, 5) });
+    msgs.push({ sender: 'influencer', content: '这样最好了！我之前也拒绝过一些产品不行但非要我说好的品牌哈哈。你们这个态度我很喜欢', time: t(13, 10) });
+    msgs.push({ sender: 'service', content: '哈哈我们对自己产品还是很有信心的～那我先发一下产品信息给你看看？', time: t(13, 12) });
+    msgs.push({ sender: 'influencer', content: '好的发来看看', time: t(13, 14) });
+    msgs.push({ sender: 'service', content: `🧴 产品信息：\n名称：${projectName}·氨基酸祛痘精华\n规格：30ml 正装\n核心成分：2%水杨酸 + 烟酰胺 + 积雪草提取物\n适用肤质：油痘肌 / 敏感痘肌\n功效：祛痘消炎 + 淡化痘印 + 控油\n使用方法：洁面后取2-3滴涂抹患处\n\n已通过国家药监局备案，无激素无酒精～`, time: t(13, 16) });
+    msgs.push({ sender: 'influencer', content: '成分看起来不错！水杨酸浓度2%比较温和，配合烟酰胺淡印也合理。我最在意的就是有没有添加酒精和香精', time: t(13, 22) });
+    msgs.push({ sender: 'service', content: '零酒精零香精的！而且我们做过敏感肌测试，刺激指数很低。你试用之后如果觉得OK，我们再聊合作方案', time: t(13, 25) });
+    msgs.push({ sender: 'influencer', content: '好的可以！那你寄过来我先用一周看看效果。地址我发你：' + (budgetHigh ? '北京市朝阳区建外SOHO东区A座' : '武汉市武昌区中北路109号') + '，收件人写昵称就行', time: t(13, 30) });
+    msgs.push({ sender: 'service', content: '收到！今天下班前寄出，顺丰预计后天到。到了之后你先体验，有任何使用感受都可以随时跟我说～', time: t(13, 33) });
+    // Day 2: 收到产品
+    msgs.push({ sender: 'system', content: '—— 2天后 ——', time: t(15, 0) });
+    msgs.push({ sender: 'influencer', content: '产品收到了！包装挺精致的，我今晚开始用', time: t(15, 10) });
+    msgs.push({ sender: 'service', content: '太好了！第一次用建议少量涂在痘痘处试一下，确认不过敏再全脸用哈～', time: t(15, 15) });
+    // Day 3: 使用反馈
+    msgs.push({ sender: 'system', content: '—— 5天后 ——', time: t(10, 0) });
+    msgs.push({ sender: 'influencer', content: '用了几天了跟你反馈一下，控油效果挺明显的，有两颗红肿痘消下去了。质地是精华液不粘腻，我觉得可以合作！', time: t(10, 20) });
+    msgs.push({ sender: 'service', content: '太棒了！你真实体验觉得好我们就更有信心了。那我发一下合作方案？', time: t(10, 25) });
+    msgs.push({ sender: 'influencer', content: '好的发来吧～', time: t(10, 28) });
+    msgs.push({ sender: 'service', content: `📋 合作方案：\n形式：图文笔记1篇\n稿费：${budgetRange}元/篇\n额外：正装1瓶 + 旅行装小样 + 粉丝福利赠品\n发布时间：3天内\n修改：含1次微调\n\n价格根据你的报价可以再商量～`, time: t(10, 30) });
+    msgs.push({ sender: 'influencer', content: '方案OK！稿费的话' + (budgetHigh ? '4000' : '2000') + '元可以吗？毕竟我也是真心觉得好用才愿意推荐', time: t(10, 38) });
+    msgs.push({ sender: 'service', content: (budgetHigh ? '4000' : '2000') + '元没问题！你确认产品好用再合作，这个态度我们特别认可。那就这么定了？', time: t(10, 42) });
+    msgs.push({ sender: 'influencer', content: '定了定了！我今天晚上就开始准备内容，预计后天可以给你看初稿', time: t(10, 45) });
+    msgs.push({ sender: 'service', content: '完美！不着急慢慢来，内容质量最重要。有想法随时沟通～', time: t(10, 48) });
+    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已同意合作', time: t(10, 49) });
   } else if (seed === 4) {
-    // 需人工介入场景：价格谈判
-    msgs.push({ sender: 'influencer', content: '可以聊聊，不过我报价有调整，图文笔记需要5000元起', time: t(15, 0) });
-    msgs.push({ sender: 'service', content: '了解～我们预算上限是3000，可以额外提供产品正装+小样礼盒。价格上有空间吗？', time: t(15, 10) });
-    msgs.push({ sender: 'influencer', content: '嗯...那4000行不行？我可以多加一条story', time: t(15, 20) });
-    msgs.push({ sender: 'system', content: '💡 AI 判断：当前沟通涉及价格谈判，建议人工介入', time: t(16, 0) });
+    // ===== 场景E：询价→多轮谈价→僵持→需人工介入 =====
+    msgs.push({ sender: 'influencer', content: '可以聊聊看。先说一下，我这边图文报价最近有调整', time: t(15, 0) });
+    msgs.push({ sender: 'service', content: '好的没问题，你现在的报价是多少呢？', time: t(15, 3) });
+    msgs.push({ sender: 'influencer', content: '图文笔记6000元/篇，视频8000元/篇。这是我目前的统一报价', time: t(15, 8) });
+    msgs.push({ sender: 'service', content: '了解了～我先介绍一下我们的产品和合作方案哈', time: t(15, 10) });
+    msgs.push({ sender: 'service', content: `📋【${projectName}·合作询价单】\n产品：氨基酸祛痘精华 30ml\n形式：图文笔记1篇\n寄样：正装+小样礼盒+粉丝福利品\n我方预算：${budgetRange}元/篇\n要求：真实体验分享，不硬广\n修改：含1次调整\n发布时间：7-10天内`, time: t(15, 12) });
+    msgs.push({ sender: 'influencer', content: '产品看了挺好的，但你们的预算和我的报价差距有点大呀…我这个报价是综合了粉丝量和平均互动数据定的', time: t(15, 20) });
+    msgs.push({ sender: 'service', content: '理解的！你的数据确实很好。这样，我们可以在产品福利上加码：额外提供价值500元的正装礼盒，你可以自用也可以做粉丝抽奖。价格方面能到' + (budgetHigh ? '4500' : '3500') + '吗？', time: t(15, 25) });
+    msgs.push({ sender: 'influencer', content: '礼盒可以，但价格方面我不太好低于5000。你看这样行不行——5000元，我多给你加一条story，相当于两条内容了', time: t(15, 32) });
+    msgs.push({ sender: 'service', content: '加story的话确实很有诚意！不过5000超出我这边能审批的范围了😅 我需要跟品牌方再确认一下，你稍等我可以吗？', time: t(15, 38) });
+    msgs.push({ sender: 'influencer', content: '行，你确认完告诉我。不过我这边最近询单比较多，名额有限哈', time: t(15, 42) });
+    msgs.push({ sender: 'system', content: '💡 AI 判断：当前沟通涉及价格谈判，超出预算范围，建议人工介入', time: t(16, 0) });
   } else {
-    // 已拒绝场景：产品不适合
-    msgs.push({ sender: 'influencer', content: '你好～谢谢你的邀请！不过我目前主要接护肤科普类的合作，纯产品推广暂时不太适合我的内容方向', time: t(12, 0) });
-    msgs.push({ sender: 'service', content: '理解的！我们这个产品其实也可以结合科普角度来做，比如氨基酸成分解析+使用体验，你觉得呢？', time: t(12, 10) });
-    msgs.push({ sender: 'influencer', content: '嗯这个角度可以考虑...但我近期档期真的排满了，可能要等下个月了', time: t(12, 20) });
-    msgs.push({ sender: 'service', content: '没关系的！下个月也完全OK，我们可以提前预留名额给你～', time: t(12, 25) });
-    msgs.push({ sender: 'influencer', content: '那还是算了吧，下个月也不一定有空。谢谢你们的耐心～', time: t(12, 35) });
-    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已拒绝合作', time: t(12, 36) });
+    // ===== 场景F：聊了很多→内容方向分歧→最终拒绝 =====
+    msgs.push({ sender: 'influencer', content: '你好～谢谢邀请！我看了一下你们的产品，想先了解一下合作的具体要求', time: t(12, 0) });
+    msgs.push({ sender: 'service', content: '好的！我们对内容不会做太多限制，主要是希望达人能够真实分享使用体验。你一般喜欢什么风格的合作呢？', time: t(12, 5) });
+    msgs.push({ sender: 'influencer', content: '我主要做护肤科普和成分分析，不太接纯种草类的合作。如果是科普向的内容我可以考虑', time: t(12, 10) });
+    msgs.push({ sender: 'service', content: '科普完全可以！比如做一期"氨基酸成分在祛痘中的作用"这种角度？我们产品的核心成分是2%水杨酸+烟酰胺+积雪草提取物，素材很丰富的', time: t(12, 15) });
+    msgs.push({ sender: 'influencer', content: '这个角度可以。不过我看了一下你们的产品备案信息，有一个问题想确认——你们的水杨酸来源是合成还是天然的？因为我做科普需要确保信息准确', time: t(12, 22) });
+    msgs.push({ sender: 'service', content: '这个我帮你确认一下哈，应该是合成水杨酸。我让研发那边给你一份详细的成分报告？', time: t(12, 25) });
+    msgs.push({ sender: 'influencer', content: '好的，有成分报告的话方便我写内容。另外我还想问一下，你们有临床测试数据吗？祛痘功效如果有数据支撑的话内容会更有说服力', time: t(12, 30) });
+    msgs.push({ sender: 'service', content: '临床数据正在做第三方检测中，目前有内部测试数据和用户反馈。我可以先发一些用户使用前后的对比案例给你参考？', time: t(12, 33) });
+    msgs.push({ sender: 'influencer', content: '嗯…没有第三方检测报告的话我做科普不太好引用数据，怕被粉丝质疑。这样吧，等你们的检测报告出来之后再联系我？', time: t(12, 38) });
+    msgs.push({ sender: 'service', content: '理解你的顾虑！报告大概下个月中能出。那到时候我带着报告再来找你聊？', time: t(12, 42) });
+    msgs.push({ sender: 'influencer', content: '嗯可以，不过我不保证到时候还有档期哈。最近找我合作的品牌挺多的，我都要排队', time: t(12, 45) });
+    msgs.push({ sender: 'service', content: '没问题！我先给你留着名额。到时候报告出来第一时间发给你看', time: t(12, 48) });
+    msgs.push({ sender: 'influencer', content: '好的吧～那就先这样，后续保持联系', time: t(12, 50) });
+    msgs.push({ sender: 'service', content: '好的谢谢！也一直会关注你的内容，期待以后合作💪', time: t(12, 52) });
+    msgs.push({ sender: 'system', content: '💡 AI 判断：达人已拒绝合作（等待条件成熟）', time: t(12, 53) });
   }
 
   // 自动判断 accepted / declined
@@ -179,15 +247,22 @@ function buildMessages(inf: Influencer, projectName: string, status: ContactStat
 
   if (status === 'need_human') {
     msgs.push({ sender: 'system', content: '——— 以下为人工客服沟通 ———', time: t(16, 30) });
-    msgs.push({ sender: 'service', content: '你好～我是项目运营小美，价格方面我们可以再商量。你觉得多少合适？', time: t(16, 35) });
-    msgs.push({ sender: 'influencer', content: '如果能给到4000我这边没问题，可以多加一条story', time: t(16, 40) });
+    msgs.push({ sender: 'service', content: '你好～我是项目运营负责人小美，关于价格方面我跟品牌方沟通了一下，想再和你商量商量', time: t(16, 35) });
+    msgs.push({ sender: 'influencer', content: '好的你说', time: t(16, 38) });
+    msgs.push({ sender: 'service', content: '这样，图文笔记+story打包5000元，我们可以接受。另外如果这次合作效果好的话，后续我们还有3-4期长线合作计划，价格可以再往上走', time: t(16, 42) });
+    msgs.push({ sender: 'influencer', content: '长线合作的话那还挺有吸引力的。5000元图文+story我接受，那后续合作的价格大概是多少？', time: t(16, 48) });
+    msgs.push({ sender: 'service', content: '后续每期在这个基础上+10%，而且可以优先选择内容方向。你觉得怎么样？', time: t(16, 52) });
+    msgs.push({ sender: 'influencer', content: '这个方案可以的。那就先从这次开始合作吧！具体细节你整理一份合作确认单发我', time: t(16, 55) });
     return msgs;
   }
 
   if (status === 'completed') {
     msgs.push({ sender: 'system', content: '——— 以下为人工客服确认 ———', time: t(16, 30) });
-    msgs.push({ sender: 'service', content: '合作细节已确认完毕，我整理一下发你合作确认单～', time: t(16, 35) });
-    msgs.push({ sender: 'influencer', content: '好的！', time: t(16, 40) });
+    msgs.push({ sender: 'service', content: '合作细节全部确认完毕！我整理一份合作确认单发你，麻烦确认一下～', time: t(16, 35) });
+    msgs.push({ sender: 'service', content: `📄【合作确认单】\n达人：${inf.name}\n项目：${projectName}\n形式：图文笔记1篇\n稿费：${inf.price}元\n产品：正装1瓶+旅行装+粉丝福利\n发布时间：收到产品后7天内\n修改：含1次微调\n\n确认无误请回复"确认"～`, time: t(16, 38) });
+    msgs.push({ sender: 'influencer', content: '确认！没问题的，等产品到了就开始准备', time: t(16, 42) });
+    msgs.push({ sender: 'service', content: '完美！那我这边走流程安排打款和寄样。合作愉快，有什么需要随时联系我哈～', time: t(16, 45) });
+    msgs.push({ sender: 'influencer', content: '好嘞合作愉快！', time: t(16, 48) });
     msgs.push({ sender: 'system', content: '✅ 建联完成', time: t(17, 0) });
   }
 
@@ -722,8 +797,8 @@ const SIMULATED_REPLIES: Record<string, { reply: string; status: ContactStatus }
 
 function simulateReplies(records: ContactRecord[]): { records: ContactRecord[]; repliedIds: Set<string> } {
   const repliedIds = new Set<string>();
-  // 找出可以收到回复的记录（contacting、no_reply、need_human）
-  const candidates = records.filter(r => ['contacting', 'no_reply', 'need_human'].includes(r.status));
+  // 找出可以收到回复的记录（contacting、no_reply），need_human 交由人工处理不自动生成
+  const candidates = records.filter(r => ['contacting', 'no_reply'].includes(r.status));
   if (candidates.length === 0) return { records, repliedIds };
 
   // 随机选 1-2 个

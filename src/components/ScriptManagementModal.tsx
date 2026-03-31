@@ -348,7 +348,7 @@ const ScriptManagementModal = ({
                     className="w-full h-full min-h-[280px] bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white/90 text-sm leading-relaxed focus:border-tech-blue/40 outline-none transition-colors resize-none custom-scrollbar"
                     placeholder={`请输入${categories[activeCategory]}话术...`}
                   />
-                  <div className="absolute bottom-3 right-3 text-[10px] text-white/20">
+                  <div className="absolute bottom-3 right-3 text-xs text-white/20">
                     {scripts[activeCategory].length} 字
                   </div>
                 </div>

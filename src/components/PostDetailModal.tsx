@@ -224,20 +224,20 @@ const PostDetailModal = ({ influencer, post, onClose, showAI, matchReason, myCom
                               <div className="bg-white/[0.03] rounded-xl px-3 py-2 space-y-2">
                                 {(expandedReplies.has(comment.commentId) ? comment.replies : comment.replies.slice(0, 1)).map((reply) => (
                                   <div key={reply.commentId} className="flex gap-2">
-                                    <div className={`w-5 h-5 rounded-full ${getAvatarColor(reply.userId)} flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5`}>
+                                    <div className={`w-5 h-5 rounded-full ${getAvatarColor(reply.userId)} flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5`}>
                                       {getInitial(reply.nickName)}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-2 mb-0.5">
                                         <span className="text-xs font-medium text-white/60">{reply.nickName}</span>
                                         {reply.location && (
-                                          <span className="text-[10px] text-white/25 flex items-center gap-0.5">
+                                          <span className="text-xs text-white/25 flex items-center gap-0.5">
                                             <MapPin size={8} />{reply.location}
                                           </span>
                                         )}
                                       </div>
                                       <p className="text-xs text-white/70 leading-relaxed">{reply.content}</p>
-                                      <div className="flex items-center gap-3 text-[10px] text-white/25 mt-1">
+                                      <div className="flex items-center gap-3 text-xs text-white/25 mt-1">
                                         <span>{reply.date}</span>
                                         {reply.likeCount && reply.likeCount !== '0' && (
                                           <span className="flex items-center gap-0.5">
@@ -280,7 +280,7 @@ const PostDetailModal = ({ influencer, post, onClose, showAI, matchReason, myCom
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-medium text-orange-400">我的评论</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/30">已发送</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/30">已发送</span>
                         </div>
                         <p className="text-sm text-white/80 leading-relaxed">{myComment}</p>
                       </div>
@@ -305,7 +305,7 @@ const PostDetailModal = ({ influencer, post, onClose, showAI, matchReason, myCom
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium text-orange-400">我的评论</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/30">已发送</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/30">已发送</span>
                       </div>
                       <p className="text-sm text-white/80 leading-relaxed">{myComment}</p>
                     </div>

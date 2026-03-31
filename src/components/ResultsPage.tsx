@@ -429,7 +429,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             <div className="space-y-2">
               {TAG_TREE.map(group => (
                 <div key={group.label}>
-                  <div className="text-[10px] text-white/25 mb-1">{group.label}</div>
+                  <div className="text-xs text-white/25 mb-1">{group.label}</div>
                   <div className="flex flex-wrap gap-1">
                     {group.children.filter(c => c.checked).map(child => {
                       const isSelected = filters.tags.includes(child.label);
@@ -608,34 +608,34 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                   {selectedIds.length === currentItems.length && <Plus size={14} className="rotate-45" />}
                 </button>
               </th>
-              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[140px]" onClick={() => handleSort('name')}>
+              <th className="px-2 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('name')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.info}
                   {sortBy === 'name' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-3 py-4 font-bold w-[100px]">{CONTENT.resultsPage.table.tags}</th>
-              <th className="px-3 py-4 font-bold w-[60px]">{CONTENT.resultsPage.table.region}</th>
-              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[70px]" onClick={() => handleSort('followers')}>
+              <th className="px-2 py-4 font-bold w-[100px]">{CONTENT.resultsPage.table.tags}</th>
+              <th className="px-2 py-4 font-bold w-[56px]">{CONTENT.resultsPage.table.region}</th>
+              <th className="px-2 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[64px]" onClick={() => handleSort('followers')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.followers}
                   {sortBy === 'followers' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-3 py-4 font-bold">{CONTENT.resultsPage.table.recentPosts}</th>
-              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[60px]" onClick={() => handleSort('posts')}>
+              <th className="px-2 py-4 font-bold w-[340px]">{CONTENT.resultsPage.table.recentPosts}</th>
+              <th className="px-2 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[56px]" onClick={() => handleSort('posts')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.postCount}
                   {sortBy === 'posts' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-3 py-4 font-bold text-right cursor-pointer hover:bg-tech-blue/10 transition-colors w-[80px]" onClick={() => handleSort('price')}>
+              <th className="px-2 py-4 font-bold text-right cursor-pointer hover:bg-tech-blue/10 transition-colors w-[72px]" onClick={() => handleSort('price')}>
                 <div className="flex items-center justify-end gap-2">
                   {CONTENT.resultsPage.table.price}
                   {sortBy === 'price' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-3 py-4 font-bold text-center w-[80px]">{CONTENT.resultsPage.table.action}</th>
+              <th className="px-2 py-4 font-bold text-center w-[72px]">{CONTENT.resultsPage.table.action}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-tech-blue/30">
@@ -685,7 +685,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                             {inf.name}
                           </div>
                           {isScanningThis && (
-                            <div className="flex items-center gap-1 text-tech-blue text-[10px] mt-1">
+                            <div className="flex items-center gap-1 text-tech-blue text-xs mt-1">
                               <Loader2 className="animate-spin" size={10} />
                               <span>扫描中</span>
                             </div>
@@ -724,16 +724,16 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                             const restTags = allTags.filter(t => !hitTags.includes(t));
                             return (
                               <div className="mt-1.5">
-                                <div className="flex items-center gap-1 text-green-400 text-[10px] font-bold mb-1">
+                                <div className="flex items-center gap-1 text-green-400 text-xs font-bold mb-1">
                                   <CheckCircle2 size={9} />
                                   <span>{ia ? CONTENT.resultsPage.precisionSearch.matchImage : CONTENT.resultsPage.precisionSearch.matchContent}</span>
                                 </div>
                                 <div className="flex flex-wrap gap-0.5">
                                   {hitTags.map((tag, idx) => (
-                                    <span key={`hit-${idx}`} className="text-[10px] px-1 py-0.5 rounded bg-green-500/15 text-green-400 border border-green-500/30 font-bold">#{tag}</span>
+                                    <span key={`hit-${idx}`} className="text-xs px-1 py-0.5 rounded bg-green-500/15 text-green-400 border border-green-500/30 font-bold">#{tag}</span>
                                   ))}
                                   {restTags.slice(0, 2).map((tag, idx) => (
-                                    <span key={`rest-${idx}`} className="text-[10px] px-1 py-0.5 rounded text-white/25">#{tag}</span>
+                                    <span key={`rest-${idx}`} className="text-xs px-1 py-0.5 rounded text-white/25">#{tag}</span>
                                   ))}
                                 </div>
                               </div>
@@ -742,11 +742,17 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-4">
+                    <td className="px-2 py-4">
                       <div className="flex flex-wrap gap-1">
-                        {inf.tags.slice(0, 3).map((tag: string) => (
-                          <span key={tag} className="text-[11px] px-1.5 py-0.5 bg-tech-blue/10 text-tech-blue rounded whitespace-nowrap">#{tag}</span>
-                        ))}
+                        {(() => {
+                          const filterTags: string[] = filters.tags || [];
+                          const matched = filterTags.filter((ft: string) =>
+                            inf.tags.some((t: string) => t.includes(ft) || ft.includes(t))
+                          );
+                          return matched.slice(0, 3).map((tag: string) => (
+                            <span key={tag} className="text-xs px-1.5 py-0.5 bg-tech-blue/10 text-tech-blue rounded whitespace-nowrap">#{tag}</span>
+                          ));
+                        })()}
                       </div>
                     </td>
                     <td className="px-3 py-4 text-sm text-white/60 whitespace-nowrap">
@@ -758,12 +764,12 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                     <td className="px-3 py-4">
                       <div className="flex items-start">
                         <div className="flex -space-x-1.5">
-                          {inf.posts.slice(0, 3).map((post: Post) => (
+                          {inf.posts.slice(0, 4).map((post: Post) => (
                             <motion.div
                               key={post.id}
                               whileHover={{ scale: 1.08, zIndex: 10 }}
                               onClick={() => onSelectPost(inf, post)}
-                              className="w-[100px] h-[100px] rounded-lg border-2 border-tech-dark overflow-hidden cursor-pointer shadow-lg"
+                              className="w-20 h-20 rounded-lg border-2 border-tech-dark overflow-hidden cursor-pointer shadow-lg"
                             >
                               <img src={post.images[0]} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             </motion.div>

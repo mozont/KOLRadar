@@ -164,7 +164,7 @@ const SmartDMPage = ({
                   <img src={record.influencer.avatar} className="w-10 h-10 rounded-full border border-tech-blue/20 flex-shrink-0" referrerPolicy="no-referrer" />
                   <div className="min-w-0 flex-1">
                     <div className="font-bold text-sm truncate">{record.influencer.name}</div>
-                    <div className="text-[11px] text-white/30 flex gap-1.5">
+                    <div className="text-xs text-white/30 flex gap-1.5">
                       <span>{record.influencer.region}</span>
                       <span>{record.influencer.followers >= 10000 ? (record.influencer.followers / 10000).toFixed(1) + 'W' : record.influencer.followers}</span>
                     </div>

@@ -292,7 +292,7 @@ const ProgressBar = ({ status }: { status: ContactStatus }) => {
                     : 'bg-white/8'
               }`} />
             </div>
-            <span className={`text-[9px] mt-0.5 whitespace-nowrap transition-all ${
+            <span className={`text-xs mt-0.5 whitespace-nowrap transition-all ${
               isCurrent ? `${STATUS_CONFIG[status].color} font-bold` : isPassed ? 'text-white/40' : 'text-white/15'
             }`}>
               {isCurrent ? STATUS_CONFIG[status].label : stepCfg.label}
@@ -332,7 +332,7 @@ const DealSidebar = ({ record }: { record: ContactRecord }) => {
           {/* 聊天中提到新报价时才做对比 */}
           {chatPrices.length > 0 && (
             <div className="mt-3 pt-2 border-t border-white/10 space-y-2">
-              <div className="text-[10px] text-amber-400/70 mb-1">对话中达人新报价</div>
+              <div className="text-xs text-amber-400/70 mb-1">对话中达人新报价</div>
               {chatPrices.map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="text-base font-bold text-amber-400">¥{p.amount.toLocaleString()}</span>
@@ -340,7 +340,7 @@ const DealSidebar = ({ record }: { record: ContactRecord }) => {
                     const diff = p.amount - originalPrice;
                     if (diff === 0) return null;
                     return (
-                      <span className={`text-[10px] ${diff > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      <span className={`text-xs ${diff > 0 ? 'text-red-400' : 'text-green-400'}`}>
                         {diff > 0 ? `↑ 高出 ¥${diff.toLocaleString()}` : `↓ 低于 ¥${Math.abs(diff).toLocaleString()}`}
                       </span>
                     );
@@ -353,11 +353,11 @@ const DealSidebar = ({ record }: { record: ContactRecord }) => {
           {/* 我方出价 */}
           {ourPrices.length > 0 && (
             <div className="mt-3 pt-2 border-t border-white/10 space-y-1">
-              <div className="text-[10px] text-tech-blue/70 mb-1">我方出价</div>
+              <div className="text-xs text-tech-blue/70 mb-1">我方出价</div>
               {ourPrices.map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="text-sm font-bold text-tech-blue">¥{p.amount.toLocaleString()}</span>
-                  <span className="text-[10px] text-white/30">{p.context}</span>
+                  <span className="text-xs text-white/30">{p.context}</span>
                 </div>
               ))}
             </div>
@@ -504,7 +504,7 @@ const ChatModal = ({ record, onClose, onFinish, onSendMessage }: {
                   ) : msg.sender === 'service' ? (
                     <div className="flex gap-3 justify-end">
                       <div className="max-w-[75%]">
-                        <div className="text-[10px] text-white/30 text-right mb-1">{msg.time} 客服</div>
+                        <div className="text-xs text-white/30 text-right mb-1">{msg.time} 客服</div>
                         <div className="bg-tech-blue/20 border border-tech-blue/20 rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-white/90 leading-relaxed whitespace-pre-wrap">{msg.content}</div>
                       </div>
                       <div className="w-8 h-8 rounded-full bg-tech-blue/20 border border-tech-blue/30 flex items-center justify-center flex-shrink-0 mt-5">
@@ -515,7 +515,7 @@ const ChatModal = ({ record, onClose, onFinish, onSendMessage }: {
                     <div className="flex gap-3">
                       <img src={record.influencer.avatar} className="w-8 h-8 rounded-full border border-white/10 flex-shrink-0 mt-5" referrerPolicy="no-referrer" />
                       <div className="max-w-[75%]">
-                        <div className="text-[10px] text-white/30 mb-1">{record.influencer.name} {msg.time}</div>
+                        <div className="text-xs text-white/30 mb-1">{record.influencer.name} {msg.time}</div>
                         <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{msg.content}</div>
                       </div>
                     </div>
@@ -646,7 +646,7 @@ const BatchReplyModal = ({ records, onClose, onConfirm }: {
                       <img src={record.influencer.avatar} className="w-9 h-9 rounded-full border border-tech-blue/20 flex-shrink-0" referrerPolicy="no-referrer" />
                       <div className="flex-1 min-w-0">
                         <div className="font-bold text-sm truncate">{record.influencer.name}</div>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full border ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                       </div>
                     </div>
                     {/* 最近对话记录 */}
@@ -654,10 +654,10 @@ const BatchReplyModal = ({ records, onClose, onConfirm }: {
                       <div className="space-y-1.5 bg-white/[0.02] rounded-xl p-2.5 border border-white/5">
                         {recentMsgs.map((msg, mi) => (
                           <div key={mi} className="flex gap-1.5 items-start">
-                            <span className={`text-[10px] flex-shrink-0 mt-0.5 ${msg.sender === 'service' ? 'text-tech-blue/50' : 'text-orange-400/50'}`}>
+                            <span className={`text-xs flex-shrink-0 mt-0.5 ${msg.sender === 'service' ? 'text-tech-blue/50' : 'text-orange-400/50'}`}>
                               {msg.sender === 'service' ? '客服' : '达人'}:
                             </span>
-                            <span className="text-[11px] text-white/50 line-clamp-2 leading-relaxed">{msg.content}</span>
+                            <span className="text-xs text-white/50 line-clamp-2 leading-relaxed">{msg.content}</span>
                           </div>
                         ))}
                       </div>
@@ -1057,7 +1057,7 @@ const ContactPage = ({ projects, onBack, newInfluencers }: {
                     <img src={record.influencer.avatar} className="w-9 h-9 rounded-full border border-tech-blue/20 flex-shrink-0" referrerPolicy="no-referrer" />
                     <div className="min-w-0">
                       <div className="font-bold text-sm truncate">{record.influencer.name}</div>
-                      <div className="text-[11px] text-white/30 flex gap-1.5">
+                      <div className="text-xs text-white/30 flex gap-1.5">
                         <span>{record.influencer.region}</span>
                         <span>{record.influencer.followers >= 10000 ? (record.influencer.followers / 10000).toFixed(1) + 'W' : record.influencer.followers}</span>
                       </div>

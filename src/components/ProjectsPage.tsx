@@ -298,7 +298,7 @@ const ProjectsPage = ({
                           {/* 状态标签 — 右上角 */}
                           <div className="absolute top-3 right-3 flex gap-1.5">
                             {contactStatus && (
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
                                 contactStatus === 'completed' ? 'bg-green-500/15 border-green-500/30 text-green-400'
                                 : contactStatus === 'need_human' ? 'bg-red-400/15 border-red-400/30 text-red-400'
                                 : contactStatus === 'contacting' ? 'bg-blue-400/15 border-blue-400/30 text-blue-400'
@@ -313,7 +313,7 @@ const ProjectsPage = ({
                               </span>
                             )}
                             {hasDM && (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-orange-400/15 border-orange-400/30 text-orange-400">
+                              <span className="text-xs font-bold px-2 py-0.5 rounded-full border bg-orange-400/15 border-orange-400/30 text-orange-400">
                                 已评论
                               </span>
                             )}

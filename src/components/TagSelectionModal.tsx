@@ -55,7 +55,7 @@ const TagSelectionModal = ({ selectedTags, onClose, onConfirm }: any) => {
                     className={`text-tech-blue transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                   />
                   <span className="text-sm font-bold text-white/90">{group.label}</span>
-                  <span className="text-[10px] text-white/30 ml-auto">{group.children.length}个标签</span>
+                  <span className="text-xs text-white/30 ml-auto">{group.children.length}个标签</span>
                 </div>
 
                 {isExpanded && (

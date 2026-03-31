@@ -238,7 +238,7 @@ const BatchCommentModal = ({ influencers, onClose, onConfirm, onViewPost }: Batc
                     <img src={inf.avatar} className="w-10 h-10 rounded-full border border-tech-blue/20 flex-shrink-0" referrerPolicy="no-referrer" />
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-sm truncate">{inf.name}</div>
-                      <div className="text-[11px] text-white/30 flex gap-1.5">
+                      <div className="text-xs text-white/30 flex gap-1.5">
                         <span>{inf.region}</span>
                         <span>{inf.followers >= 10000 ? (inf.followers / 10000).toFixed(1) + 'W' : inf.followers} 粉</span>
                       </div>

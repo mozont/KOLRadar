@@ -14,6 +14,7 @@ export interface Influencer {
   matchingFilters: string[];
   posts: Post[];
   avgViews: string;
+  noteCount: number;
 }
 
 export interface ImageAnalysis {

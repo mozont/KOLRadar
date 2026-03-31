@@ -608,7 +608,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                   {selectedIds.length === currentItems.length && <Plus size={14} className="rotate-45" />}
                 </button>
               </th>
-              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[180px]" onClick={() => handleSort('name')}>
+              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors " onClick={() => handleSort('name')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.info}
                   {sortBy === 'name' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
@@ -778,7 +778,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                       </div>
                     </td>
                     <td className="px-3 py-4">
-                      <div className="text-sm font-bold text-white">{inf.posts.length}</div>
+                      <div className="text-sm font-bold text-white">{inf.noteCount}</div>
                     </td>
                     <td className="px-3 py-4 text-right">
                       <div className="text-sm font-bold text-tech-blue whitespace-nowrap">¥{inf.price.toLocaleString()}</div>

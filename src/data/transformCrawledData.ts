@@ -437,6 +437,7 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
         matchingFilters: calcMatchingFilters(userInfo, notes),
         posts,
         avgViews: calcAvgViews(notes),
+        noteCount: (userInfo.noteCount && userInfo.noteCount > 0) ? userInfo.noteCount : notes.length,
       };
 
       return influencer;

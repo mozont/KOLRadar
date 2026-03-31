@@ -97,7 +97,7 @@ const InfluencerDetailModal = ({ influencer, onClose, onSelectPost, onApprove, o
               <FileText size={20} /> {CONTENT.influencerDetail.recentPosts}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {influencer.posts.map((post: Post) => (
+              {[...influencer.posts].sort((a: Post, b: Post) => (b.date || '').localeCompare(a.date || '')).slice(0, 3).map((post: Post) => (
                 <motion.div
                   key={post.id}
                   whileHover={{ y: -5 }}

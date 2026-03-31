@@ -293,48 +293,40 @@ function inferStatus(messages: ChatMessage[]): ContactStatus {
   return 'need_human';
 }
 
-// --- 批量回复话术池 ---
-const BATCH_REPLY_POOL: Record<string, string[]> = {
-  no_reply: [
-    '宝子～之前给你发的合作消息不知道有没有看到？产品可以先免费寄给你试用哦～',
-    '嗨～怕你没看到之前的消息再提醒一下，名额有限呢，有兴趣回复我呀～',
-    '姐妹～之前跟你说的合作机会还在，方便的话回复我一下哈～不感兴趣也没关系的！',
-    '不好意思再打扰一下～品牌方对你的内容很认可，特意让我再联系你一次～',
-    '最后跟进一次～这期合作达人快确定了，想优先给你留个位置，有兴趣吗？',
-    '嗨～可能你最近比较忙。简单说就是有个品牌合作机会，感兴趣回我一下就行～',
-  ],
-  accepted: [
-    '太好啦！那我这边马上安排寄样，你收到后先体验几天，然后我们确定内容方向～',
-    '合作愉快！我先把详细的brief和产品资料发你，你看看有什么想调整的随时跟我说～',
-    '耶！那我们先确定一下时间线——产品预计3天到，你体验一周后出内容，OK吗？',
-    '开心！你方便发一下收货地址吗？我这边最快明天就能安排寄出～',
-    '太好了！合作协议我整理好发你确认细节，有任何问题随时沟通～',
-    '确认合作！关于内容方向你有什么想法吗？我们这边不限制太多，主要看你的风格～',
-  ],
-  declined: [
-    '完全理解的！如果以后有合适的机会，还是很希望能合作，先关注你啦～',
-    '没关系的～我们后续还会有不同类型的项目，到时候再看有没有更适合你的，保持联系哈～',
-    '好的没问题！你的内容我会继续关注的，说不定以后有更合适的机会～',
-    '收到！完全尊重你的决定。我们下个月还有新项目，到时候可以再考虑一下～',
-    '理解！合作讲究缘分嘛。先互关着，后面有合适的再看～',
-    'OK的！谢谢你认真回复。以后有想法随时联系我～',
-  ],
-  need_human: [
-    '你好～我是项目运营小美，价格方面我们可以再商量。你期望的合作费用是多少呢？',
-    '你提的要求我都记下了！我跟品牌方再沟通一下，争取给你一个更合适的方案～',
-    '理解你的考虑！我们可以灵活调整合作形式，你看哪种方式最舒服？',
-    '收到你的反馈了！我这边整理一下给你一个新的方案，大概明天回复你～',
-    '你说的很有道理，我跟团队讨论了一下，有个新的合作思路想跟你分享～',
-    '价格方面我跟品牌方又争取了一下，可以给你一个更有诚意的报价，你看看可以吗？',
-  ],
-  contacting: [
-    '不知道你有没有看到之前的消息？如果方便的话回复我一下哈，我们有个不错的合作机会～',
-    '嗨～跟进一下之前的合作邀请，不知道你有没有兴趣了解一下？完全不勉强的！',
-  ],
-};
+// --- 批量回复：根据达人最后一条消息内容智能生成回复 ---
+function getBatchReply(status: ContactStatus, record?: ContactRecord): string {
+  // 如果有记录，优先根据达人最后一条消息内容匹配回复
+  if (record) {
+    const lastInfluencerMsg = [...record.messages].reverse().find(m => m.sender === 'influencer');
+    if (lastInfluencerMsg) {
+      return generateContextualServiceReply(lastInfluencerMsg.content, record);
+    }
+  }
 
-function getBatchReply(status: ContactStatus): string {
-  const pool = BATCH_REPLY_POOL[status] || BATCH_REPLY_POOL['contacting'];
+  // fallback: 无达人消息时按状态生成
+  const FALLBACK_POOL: Record<string, string[]> = {
+    no_reply: [
+      '宝子～之前给你发的合作消息不知道有没有看到？产品可以先免费寄给你试用哦，有兴趣回我一下呀～',
+      '嗨～怕你没看到之前的消息再提醒一下。简单说就是有个品牌合作机会，感兴趣回我一下就行，不感兴趣也没关系的！',
+      '不好意思再打扰一下～品牌方对你的内容很认可，特意让我再联系你一次。方便的话回复我一下哈～',
+    ],
+    contacting: [
+      '不知道你有没有看到之前的消息？如果方便的话回复我一下哈，我们有个不错的合作机会～',
+      '嗨～跟进一下之前的合作邀请，有兴趣了解一下吗？完全不勉强的！',
+    ],
+    need_human: [
+      '你好～我是项目运营小美，关于你提的要求我跟品牌方沟通了一下，想再和你商量商量～',
+      '你提的要求我都记下了！我整理了一个新的方案想跟你聊聊，你看方便吗？',
+    ],
+    accepted: [
+      '太好了！那我整理一份详细的合作方案发你，你看完了有什么想法随时跟我说～',
+    ],
+    declined: [
+      '完全理解的！如果以后有合适的机会，还是很希望能合作，先关注你啦～',
+    ],
+  };
+
+  const pool = FALLBACK_POOL[status] || FALLBACK_POOL['contacting'];
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -654,13 +646,14 @@ const BatchReplyModal = ({ records, onClose, onConfirm }: {
   const [replies, setReplies] = useState<Record<string, string>>(() => {
     const map: Record<string, string> = {};
     records.forEach(r => {
-      map[r.id] = getBatchReply(r.status);
+      map[r.id] = getBatchReply(r.status, r);
     });
     return map;
   });
 
   const handleRegenerate = (recordId: string, status: ContactStatus) => {
-    setReplies(prev => ({ ...prev, [recordId]: getBatchReply(status) }));
+    const record = records.find(r => r.id === recordId);
+    setReplies(prev => ({ ...prev, [recordId]: getBatchReply(status, record) }));
   };
 
   const handleConfirm = () => {
@@ -779,21 +772,175 @@ const BatchReplyModal = ({ records, onClose, onConfirm }: {
 };
 
 // --- 模拟达人新回复（每次进入页面时触发） ---
-const SIMULATED_REPLIES: Record<string, { reply: string; status: ContactStatus }[]> = {
+// 多轮渐进式对话：达人不会一上来就同意/拒绝，需要多次沟通
+interface SimulatedExchange {
+  influencerReply: string;
+  serviceAutoReply: string; // 客服自动跟进
+  nextStatus: ContactStatus; // 状态保持 contacting 直到真正谈妥
+}
+
+const SIMULATED_EXCHANGES: Record<string, SimulatedExchange[]> = {
   contacting: [
-    { reply: '你好呀～看了一下你们的产品，挺感兴趣的！具体怎么合作呀？', status: 'accepted' },
-    { reply: '嗯嗯我看到了！不过我最近手上有几个合作在做，可能要下个月才有空～', status: 'accepted' },
+    {
+      influencerReply: '你好呀～看了一下你们的产品，挺感兴趣的！具体是什么产品呢？合作形式是怎样的？',
+      serviceAutoReply: '是我们自研的氨基酸祛痘精华，主打温和修护。合作形式是图文笔记1篇，内容方向很灵活，可以融入你日常的内容风格～我发一份详细方案给你看看？',
+      nextStatus: 'contacting',
+    },
+    {
+      influencerReply: '嗯嗯看到了！不过我最近手上有两个合作在收尾，可能要下周才能开始新的～',
+      serviceAutoReply: '没关系的，时间不着急！你手上的忙完了随时跟我说，我们可以先把方案和产品信息发你，你有空了再看～',
+      nextStatus: 'contacting',
+    },
+    {
+      influencerReply: '可以了解一下～你们预算大概是多少？我先看看跟我的报价能不能匹配',
+      serviceAutoReply: '我们这次的预算范围是1000-5000元/篇，根据达人的粉丝量和数据表现会有不同档位。我可以先发你一份询价表，你看看合不合适？',
+      nextStatus: 'contacting',
+    },
+    {
+      influencerReply: '你好～产品看了一下还不错，不过我想先确认下，你们对内容有什么硬性要求吗？我不太接限制太多的合作',
+      serviceAutoReply: '完全理解！我们没有硬性脚本要求，主要就是真实体验分享。你可以按自己的风格来创作，我们只需要提前看一下大纲就好～',
+      nextStatus: 'contacting',
+    },
+    {
+      influencerReply: '这个品类我之前接过不少，你们跟XX品牌比有什么差异化的点吗？不然我粉丝看了会觉得内容雷同',
+      serviceAutoReply: '这个问题问得好！我们最大的差异化是纯氨基酸体系+零酒精零香精，专门针对敏感痘肌。很多竞品含酒精刺激性大，我们可以主打这个角度～',
+      nextStatus: 'contacting',
+    },
   ],
   no_reply: [
-    { reply: '不好意思才看到消息！你们产品我有兴趣，可以详细聊聊吗？', status: 'accepted' },
-    { reply: '你好～刚看到！我目前档期比较满，暂时不太方便，谢谢你们的邀请～', status: 'declined' },
-    { reply: '看到啦！正好我最近也在做祛痘内容，可以聊聊合作细节吗？', status: 'accepted' },
-  ],
-  need_human: [
-    { reply: '那就4000吧，我可以多拍几张图，你看行不行？', status: 'need_human' },
-    { reply: '考虑了一下，3500我也可以接，但需要你们提供产品正装+2瓶小样', status: 'need_human' },
+    {
+      influencerReply: '不好意思才看到消息！最近太忙了。你们产品我大概看了一下，可以详细介绍一下吗？',
+      serviceAutoReply: '没关系呀！我们是做祛痘护肤的品牌，产品是氨基酸祛痘精华，温和不刺激。我整理一份合作方案发你，你有空了看看？',
+      nextStatus: 'contacting',
+    },
+    {
+      influencerReply: '嗨～刚看到，最近私信太多没来得及一一回复。你们产品具体是什么类型的呀？',
+      serviceAutoReply: '理解理解！我们产品是氨基酸祛痘精华，主打温和修护敏感痘肌。看你之前的内容方向很匹配，想跟你聊聊合作的可能性～',
+      nextStatus: 'contacting',
+    },
+    {
+      influencerReply: '看到了看到了！我最近在忙期末/搬家，过几天回你可以吗？',
+      serviceAutoReply: '当然可以！完全不着急，你忙完了随时找我就行。我先把产品资料发你，你有空了翻一下～',
+      nextStatus: 'contacting',
+    },
   ],
 };
+
+// 生成根据达人最后一条消息内容匹配的客服跟进回复
+function generateContextualServiceReply(lastInfluencerMsg: string, record: ContactRecord): string {
+  const msg = lastInfluencerMsg;
+  const name = record.influencer.name;
+
+  // 达人提到档期忙/下个月
+  if (/档期|排满|下个月|下周|在忙|忙不过来|收尾/.test(msg)) {
+    return '没关系呀，时间方面完全配合你！你忙完手上的项目随时跟我说，我们先把产品信息和方案留给你参考，不着急～';
+  }
+  // 达人问价格/费用/报价
+  if (/价格|费用|报价|预算|多少钱|稿费/.test(msg)) {
+    const price = record.influencer.price;
+    const range = price > 3000 ? '3000-5000' : '1000-3000';
+    return `我们这次的预算范围是${range}元/篇，当然具体可以根据你的报价和合作内容再商量。我发一份详细的询价表给你看看？`;
+  }
+  // 达人问合作形式/内容要求
+  if (/合作形式|怎么合作|图文|视频|要求|限制|脚本/.test(msg)) {
+    return '合作形式是图文笔记1篇，内容方向很灵活——可以做使用分享、成分科普、或者融入你日常护肤流程都OK。我们不要求硬广，真实分享就好～';
+  }
+  // 达人问产品信息
+  if (/什么产品|具体|介绍|成分|了解/.test(msg)) {
+    return '是一款氨基酸祛痘精华，核心成分是2%水杨酸+烟酰胺+积雪草提取物，零酒精零香精。我可以发一份详细的产品资料给你看看？';
+  }
+  // 达人表示感兴趣
+  if (/感兴趣|可以|没问题|可以的|好呀|好的/.test(msg)) {
+    return '太好了！那我整理一份详细的合作方案发你，包括产品介绍、合作形式、报酬这些都会写清楚，你看完了有什么想法随时跟我说～';
+  }
+  // 达人表达顾虑
+  if (/考虑|再说|不确定|看看再说|犹豫/.test(msg)) {
+    return '完全理解，不着急做决定！你可以先了解一下我们的产品和方案，考虑清楚了再回复我也可以，完全没有压力哈～';
+  }
+
+  // 默认跟进
+  return '收到！感谢你的回复～我整理一下相关资料发给你，你有空了看看，有任何问题随时问我哈';
+}
+
+// 当客服在聊天窗口发送消息后，达人的自动回复（根据客服消息内容匹配）
+function generateInfluencerAutoReply(serviceMsg: string, record: ContactRecord): string {
+  const msgCount = record.messages.filter(m => m.sender === 'influencer').length;
+
+  // 根据客服消息内容匹配达人回复
+  if (/询价表|合作方案|方案|brief/.test(serviceMsg)) {
+    const replies = [
+      '收到！我仔细看一下方案，有问题再跟你说～',
+      '好的，我看看方案细节。费用方面到时候我们再聊',
+      '方案收到了！内容要求看起来还行，不过价格方面我想再商量一下',
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+  if (/产品资料|产品信息|成分|水杨酸|氨基酸/.test(serviceMsg)) {
+    const replies = [
+      '成分看了一下还不错，无酒精这点我比较看重。不过我想确认一下敏感肌用了会不会有刺痛感？',
+      '了解了！这个产品定位挺清晰的。我之前也用过类似的，你们跟市面上其他品牌比优势在哪？',
+      '嗯嗯，产品信息我看了。有没有用户的真实反馈可以参考一下？',
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+  if (/预算|价格|费用|报价|元\/篇/.test(serviceMsg)) {
+    const price = record.influencer.price;
+    const replies = [
+      `嗯…说实话你们的预算跟我的报价有点差距。我目前图文报价是${price > 3000 ? '5000' : '2500'}元，能接受吗？`,
+      '价格方面我再考虑考虑，你们能提供额外的产品福利吗？比如多寄一些给我做粉丝活动',
+      '预算了解了。如果可以长期合作的话，价格方面我可以适当让步，单次的话就按我的标准来',
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+  if (/收货地址|寄|发货|快递/.test(serviceMsg)) {
+    const replies = [
+      '好的！地址我等下私信发你。大概几天能到呀？',
+      '地址发你了，寄顺丰吧到得快一些。收到了我会跟你说的！',
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+  if (/不着急|不急|随时|配合你|时间.*灵活/.test(serviceMsg)) {
+    const replies = [
+      '好的谢谢理解！我这边大概这周能忙完，到时候找你聊～',
+      '嗯嗯，那我先看看你发的资料，有想法了回复你',
+      '好的！等我这两天理一下档期跟你确认',
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+  if (/内容.*灵活|不限制|真实.*分享|自己.*风格/.test(serviceMsg)) {
+    const replies = [
+      '那还行，不限制太多的合作我比较喜欢。我一般都是拍自己真实使用的过程',
+      '嗯这个态度我很认可！我最怕那种要求必须按脚本拍的。那内容方向我大概有个想法了',
+      '好的，那我按自己的风格来。不过出稿之前我还是会给你们过一下大纲的',
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+
+  // 根据对话轮数给出不同阶段的通用回复
+  if (msgCount <= 1) {
+    const replies = [
+      '嗯嗯了解了，我再考虑一下。有什么疑问我再问你哈',
+      '好的收到！我先看看，晚点回复你',
+      '知道了～那具体合作细节你发我看看？',
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+  if (msgCount <= 3) {
+    const replies = [
+      '嗯嗯好的！那你把详细的信息发我，我认真看一下',
+      '了解了，我对这个方向还是挺有兴趣的。费用方面我们再聊聊？',
+      '可以的～不过我还想了解一下，你们对发布时间有要求吗？',
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+  // 多轮之后
+  const replies = [
+    '嗯嗯好的，那就先这样，有什么进展你跟我说～',
+    '行吧，我基本OK了，你整理一下合作细节发我确认？',
+    '好的好的！那我们就按这个方向来吧',
+  ];
+  return replies[Math.floor(Math.random() * replies.length)];
+}
 
 function simulateReplies(records: ContactRecord[]): { records: ContactRecord[]; repliedIds: Set<string> } {
   const repliedIds = new Set<string>();
@@ -806,23 +953,25 @@ function simulateReplies(records: ContactRecord[]): { records: ContactRecord[]; 
   const count = Math.min(1 + Math.floor(Math.random() * 2), shuffled.length);
   const toReply = shuffled.slice(0, count);
 
-  const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  const now = new Date();
+  const time = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  const replyTime = new Date(now.getTime() + 60000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 
   const updated = records.map(r => {
     const match = toReply.find(c => c.id === r.id);
     if (!match) return r;
 
-    const pool = SIMULATED_REPLIES[r.status] || SIMULATED_REPLIES['contacting'];
+    const pool = SIMULATED_EXCHANGES[r.status] || SIMULATED_EXCHANGES['contacting'];
     const pick = pool[Math.floor(Math.random() * pool.length)];
 
     repliedIds.add(r.id);
     const newMsgs: ChatMessage[] = [
       ...r.messages,
-      { sender: 'influencer' as const, content: pick.reply, time },
-      { sender: 'system' as const, content: pick.status === 'accepted' ? '💡 AI 判断：达人已同意合作' : pick.status === 'declined' ? '💡 AI 判断：达人已拒绝合作' : '💡 AI 判断：需要继续协商', time },
+      { sender: 'influencer' as const, content: pick.influencerReply, time },
+      { sender: 'service' as const, content: pick.serviceAutoReply, time: replyTime },
     ];
 
-    return { ...r, status: pick.status, messages: newMsgs };
+    return { ...r, status: pick.nextStatus, messages: newMsgs };
   });
 
   return { records: updated, repliedIds };
@@ -928,6 +1077,24 @@ const ContactPage = ({ projects, onBack, newInfluencers }: {
       saveRecords(updated);
       return updated;
     });
+
+    // 模拟达人自动回复（2-4秒延迟），仅对 contacting 状态生效
+    const record = records.find(r => r.id === recordId);
+    if (record && ['contacting'].includes(record.status)) {
+      const delay = 2000 + Math.random() * 2000;
+      setTimeout(() => {
+        const replyTime = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        const autoReply = generateInfluencerAutoReply(content, record);
+        setRecords(prev => {
+          const updated = prev.map(r => r.id === recordId ? {
+            ...r,
+            messages: [...r.messages, { sender: 'influencer' as const, content: autoReply, time: replyTime }]
+          } : r);
+          saveRecords(updated);
+          return updated;
+        });
+      }, delay);
+    }
   };
 
   const handleBatchReplyConfirm = (replies: { recordId: string; content: string }[]) => {

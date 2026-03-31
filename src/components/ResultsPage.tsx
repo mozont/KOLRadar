@@ -41,11 +41,16 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
     }
   }, [skipLoading]);
 
-  // 筛选变化时自动触发搜索
+  // 筛选变化时自动触发搜索（含首次加载）
   const filterRef = React.useRef(false);
   useEffect(() => {
-    if (!filterRef.current) { filterRef.current = true; return; }
-    setIsLoading(true);
+    const isFirst = !filterRef.current;
+    if (isFirst) filterRef.current = true;
+    // 首次加载且有筛选条件时也需要执行筛选
+    const hasFilters = filters.tags.length > 0 || filters.region.length > 0 || filters.type.length > 0
+      || filters.price !== CONTENT.common.unlimited || filters.followers !== CONTENT.common.unlimited;
+    if (isFirst && !hasFilters) return;
+    if (!isFirst) setIsLoading(true);
     const timer = setTimeout(() => {
       const filtered = MOCK_INFLUENCERS.filter(inf => {
         if (filters.region.length > 0) {

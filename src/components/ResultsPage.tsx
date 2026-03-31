@@ -608,34 +608,34 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                   {selectedIds.length === currentItems.length && <Plus size={14} className="rotate-45" />}
                 </button>
               </th>
-              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[120px]" onClick={() => handleSort('name')}>
+              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[130px]" onClick={() => handleSort('name')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.info}
                   {sortBy === 'name' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
               <th className="px-3 py-4 font-bold w-[100px]">{CONTENT.resultsPage.table.tags}</th>
-              <th className="px-3 py-4 font-bold w-[64px]">{CONTENT.resultsPage.table.region}</th>
-              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[72px]" onClick={() => handleSort('followers')}>
+              <th className="px-3 py-4 font-bold w-[100px]">{CONTENT.resultsPage.table.region}</th>
+              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[100px]" onClick={() => handleSort('followers')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.followers}
                   {sortBy === 'followers' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
               <th className="px-3 py-4 font-bold">{CONTENT.resultsPage.table.recentPosts}</th>
-              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[64px]" onClick={() => handleSort('posts')}>
+              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[100px]" onClick={() => handleSort('posts')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.postCount}
                   {sortBy === 'posts' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-3 py-4 font-bold text-right cursor-pointer hover:bg-tech-blue/10 transition-colors w-[80px]" onClick={() => handleSort('price')}>
+              <th className="px-3 py-4 font-bold text-right cursor-pointer hover:bg-tech-blue/10 transition-colors w-[100px]" onClick={() => handleSort('price')}>
                 <div className="flex items-center justify-end gap-2">
                   {CONTENT.resultsPage.table.price}
                   {sortBy === 'price' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-3 py-4 font-bold text-center w-[80px]">{CONTENT.resultsPage.table.action}</th>
+              <th className="px-3 py-4 font-bold text-center w-[100px]">{CONTENT.resultsPage.table.action}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-tech-blue/30">
@@ -666,7 +666,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                         }
                       }}>
                         <div className="relative flex-shrink-0">
-                          <img src={inf.avatar} className="w-8 h-8 rounded-full border border-tech-blue/30 group-hover:border-tech-blue transition-colors" referrerPolicy="no-referrer" />
+                          <img src={inf.avatar} className="w-20 h-20 rounded-full border border-tech-blue/30 group-hover:border-tech-blue transition-colors" referrerPolicy="no-referrer" />
                           {isScanningThis && (
                             <motion.div
                               animate={{ rotate: 360 }}

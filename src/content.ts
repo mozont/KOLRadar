@@ -82,7 +82,8 @@ export const CONTENT = {
     "unit": "位达人",
     "table": {
       "info": "达人信息",
-      "regionType": "地区/类型",
+      "tags": "标签",
+      "region": "地区",
       "followers": "粉丝数",
       "recentPosts": "匹配笔记",
       "postCount": "笔记数",

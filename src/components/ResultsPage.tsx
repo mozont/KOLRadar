@@ -603,38 +603,39 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
         <table className="w-full text-left border-collapse border-none">
           <thead className="bg-tech-blue/5 text-tech-blue text-xs uppercase tracking-wider select-none border-b-0">
             <tr>
-              <th className="px-6 py-4 w-10">
+              <th className="px-4 py-4 w-10">
                 <button onClick={toggleSelectAll} className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedIds.length === currentItems.length ? 'bg-tech-blue border-tech-blue text-black' : 'border-tech-blue/30 hover:border-tech-blue'}`}>
                   {selectedIds.length === currentItems.length && <Plus size={14} className="rotate-45" />}
                 </button>
               </th>
-              <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('name')}>
+              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[140px]" onClick={() => handleSort('name')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.info}
                   {sortBy === 'name' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-6 py-4 font-bold">{CONTENT.resultsPage.table.regionType}</th>
-              <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('followers')}>
+              <th className="px-3 py-4 font-bold w-[100px]">{CONTENT.resultsPage.table.tags}</th>
+              <th className="px-3 py-4 font-bold w-[60px]">{CONTENT.resultsPage.table.region}</th>
+              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[70px]" onClick={() => handleSort('followers')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.followers}
                   {sortBy === 'followers' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-6 py-4 font-bold">{CONTENT.resultsPage.table.recentPosts}</th>
-              <th className="px-6 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('posts')}>
+              <th className="px-3 py-4 font-bold">{CONTENT.resultsPage.table.recentPosts}</th>
+              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[60px]" onClick={() => handleSort('posts')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.postCount}
                   {sortBy === 'posts' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-6 py-4 font-bold text-right cursor-pointer hover:bg-tech-blue/10 transition-colors" onClick={() => handleSort('price')}>
+              <th className="px-3 py-4 font-bold text-right cursor-pointer hover:bg-tech-blue/10 transition-colors w-[80px]" onClick={() => handleSort('price')}>
                 <div className="flex items-center justify-end gap-2">
                   {CONTENT.resultsPage.table.price}
                   {sortBy === 'price' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
                 </div>
               </th>
-              <th className="px-6 py-4 font-bold text-center">{CONTENT.resultsPage.table.action}</th>
+              <th className="px-3 py-4 font-bold text-center w-[80px]">{CONTENT.resultsPage.table.action}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-tech-blue/30">
@@ -651,21 +652,21 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                     transition={{ delay: i * 0.05 }}
                     className={`hover:bg-white/5 transition-all group ${selectedIds.includes(inf.id) ? 'bg-tech-blue/5' : ''} ${isScanningThis ? 'bg-tech-blue/10' : ''} ${isMatched ? 'bg-tech-blue/5' : ''}`}
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <button onClick={() => toggleSelect(inf.id)} className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedIds.includes(inf.id) ? 'bg-tech-blue border-tech-blue text-black' : 'border-tech-blue/30 hover:border-tech-blue'}`}>
                         {selectedIds.includes(inf.id) && <Plus size={14} className="rotate-45" />}
                       </button>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4 cursor-pointer" onClick={() => {
+                    <td className="px-3 py-4">
+                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => {
                         if (isMatched) {
                           onSelectPrecisionInfluencer(inf);
                         } else {
                           onSelectInfluencer(inf);
                         }
                       }}>
-                        <div className="relative">
-                          <img src={inf.avatar} className="w-12 h-12 rounded-full border border-tech-blue/30 group-hover:border-tech-blue transition-colors" referrerPolicy="no-referrer" />
+                        <div className="relative flex-shrink-0">
+                          <img src={inf.avatar} className="w-10 h-10 rounded-full border border-tech-blue/30 group-hover:border-tech-blue transition-colors" referrerPolicy="no-referrer" />
                           {isScanningThis && (
                             <motion.div
                               animate={{ rotate: 360 }}
@@ -679,115 +680,72 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                             </div>
                           )}
                         </div>
-                        <div>
-                          <div className="font-bold text-white group-hover:text-tech-blue transition-colors flex items-center gap-2">
+                        <div className="min-w-0">
+                          <div className="font-bold text-sm text-white group-hover:text-tech-blue transition-colors truncate">
                             {inf.name}
-                            {isMatched && <span className="text-xs px-1.5 py-0.5 bg-tech-blue/20 text-tech-blue rounded-full font-normal">MATCHED</span>}
                           </div>
-                          <div className="flex gap-1 mt-1">
-                            {inf.tags.slice(0, 2).map((tag: string) => (
-                              <span key={tag} className="text-xs px-1.5 py-0.5 bg-tech-blue/10 text-tech-blue rounded">#{tag}</span>
-                            ))}
-                          </div>
-
-                          {(isScanningThis || isMatched) && (
-                            <div className="mt-2 pt-2 border-t border-tech-blue/10">
-                              {isScanningThis ? (
-                                <div className="flex items-center gap-2 text-tech-blue text-xs">
-                                  <Loader2 className="animate-spin" size={10} />
-                                  <span>{CONTENT.resultsPage.precisionSearch.scanning}</span>
-                                </div>
-                              ) : (() => {
-                                const matchedPost = inf.posts.find((p: Post) => p.imageAnalysis);
-                                const ia = matchedPost?.imageAnalysis;
-                                // Build full tag pool: labels + structured fields
-                                const allTags = ia
-                                  ? [...new Set([...ia.labels, ia.skinCondition, ia.face, ia.contentForm, ia.visualStyle].filter(Boolean))]
-                                  : [];
-                                const negPrefixes = ['不', '没有', '没', '无', '非'];
-                                const isTagHit = (tag: string) =>
-                                  standardizedConditions.some(c => {
-                                    const cl = c.toLowerCase(), tl = tag.toLowerCase();
-                                    // Skip negated conditions for tag highlighting (negation = absence, not a tag to highlight)
-                                    for (const neg of negPrefixes) {
-                                      if (cl.startsWith(neg) && cl.length > neg.length) return false;
-                                    }
-                                    // Exact match
-                                    if (tl === cl) return true;
-                                    const synMap: Record<string, string[]> = {
-                                      '露脸': ['正脸', '侧脸', '露脸', '真人出镜'], '痘肌': ['痘痘', '痘肌', '长痘', '爆痘'],
-                                      '素颜': ['素颜', '无滤镜', '原相机'], '产品': ['产品展示', '有产品', '产品图'],
-                                      '对比': ['前后对比', '对比图', '效果展示'], '干货': ['干货分享', '攻略', '教程'],
-                                      '真实': ['原相机真实', '接地气', '真实'], '特写': ['局部特写', '特写'],
-                                      '油皮': ['油皮', '油性'], '敏感': ['敏感肌', '过敏', '泛红'],
-                                      '痘印': ['痘印肌', '痘印'], '日记': ['日记打卡', '打卡', '记录'],
-                                      '原相机': ['原相机', '原相机真实'], '接地气': ['接地气', '真实'],
-                                    };
-                                    // Synonym match: condition key → check if tag is one of its synonyms
-                                    const entry = synMap[cl];
-                                    if (entry) return entry.some(s => s.toLowerCase() === tl);
-                                    // Reverse: tag might be a synonym key, check if condition is in its list
-                                    for (const [key, syns] of Object.entries(synMap)) {
-                                      if (syns.some(s => s.toLowerCase() === cl) && (key === tl || syns.some(s => s.toLowerCase() === tl))) return true;
-                                    }
-                                    return false;
-                                  });
-                                const hitTags = allTags.filter(isTagHit);
-                                const restTags = allTags.filter(t => !hitTags.includes(t));
-                                return (
-                                  <div className="flex flex-col gap-1.5">
-                                    <div className="flex items-center gap-1 text-green-400 text-xs font-bold">
-                                      <CheckCircle2 size={10} />
-                                      <span>{ia ? CONTENT.resultsPage.precisionSearch.matchImage : CONTENT.resultsPage.precisionSearch.matchContent}</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                      {hitTags.map((tag, idx) => (
-                                        <span key={`hit-${idx}`} className="text-xs px-1.5 py-0.5 rounded bg-green-500/15 text-green-400 border border-green-500/30 font-bold">#{tag}</span>
-                                      ))}
-                                      {restTags.slice(0, 3).map((tag, idx) => (
-                                        <span key={`rest-${idx}`} className="text-xs px-1.5 py-0.5 rounded text-white/30">#{tag}</span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                );
-                              })()}
+                          {isMatched && <span className="text-[10px] px-1 py-0.5 bg-tech-blue/20 text-tech-blue rounded font-normal">MATCHED</span>}
+                          {isScanningThis && (
+                            <div className="flex items-center gap-1 text-tech-blue text-[10px] mt-1">
+                              <Loader2 className="animate-spin" size={10} />
+                              <span>扫描中</span>
                             </div>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-white/60">
-                      {inf.region} · {inf.type}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-bold text-white">{(inf.followers / 10000).toFixed(1)}W</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex -space-x-2 overflow-hidden">
-                        {inf.posts.slice(0, 3).map((post: Post) => (
-                          <motion.div
-                            key={post.id}
-                            whileHover={{ scale: 1.1, zIndex: 10 }}
-                            onClick={() => onSelectPost(inf, post)}
-                            className="w-10 h-10 rounded-lg border-2 border-tech-dark overflow-hidden cursor-pointer shadow-lg"
-                          >
-                            <img src={post.images[0]} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                          </motion.div>
+                    <td className="px-3 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {inf.tags.slice(0, 3).map((tag: string) => (
+                          <span key={tag} className="text-[11px] px-1.5 py-0.5 bg-tech-blue/10 text-tech-blue rounded whitespace-nowrap">#{tag}</span>
                         ))}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 text-sm text-white/60 whitespace-nowrap">
+                      {inf.region}
+                    </td>
+                    <td className="px-3 py-4">
+                      <div className="text-sm font-bold text-white whitespace-nowrap">{inf.followers >= 10000 ? (inf.followers / 10000).toFixed(1) + 'W' : inf.followers}</div>
+                    </td>
+                    <td className="px-3 py-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex -space-x-1.5 flex-shrink-0">
+                          {inf.posts.slice(0, 3).map((post: Post) => (
+                            <motion.div
+                              key={post.id}
+                              whileHover={{ scale: 1.08, zIndex: 10 }}
+                              onClick={() => onSelectPost(inf, post)}
+                              className="w-[100px] h-[100px] rounded-lg border-2 border-tech-dark overflow-hidden cursor-pointer shadow-lg"
+                            >
+                              <img src={post.images[0]} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            </motion.div>
+                          ))}
+                        </div>
+                        <div className="min-w-0 flex-1 pt-1">
+                          <p className="text-xs text-white/50 line-clamp-4 leading-relaxed">
+                            {(() => {
+                              const topPost = inf.posts[0];
+                              if (!topPost) return '';
+                              const title = topPost.title || '';
+                              const analysis = topPost.matchAnalysis || '';
+                              return title ? `「${title.slice(0, 20)}${title.length > 20 ? '...' : ''}」${analysis.slice(0, 60)}` : analysis.slice(0, 80);
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-4">
                       <div className="text-sm font-bold text-white">{inf.posts.length}</div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="text-sm font-bold text-tech-blue">¥{inf.price.toLocaleString()}</div>
+                    <td className="px-3 py-4 text-right">
+                      <div className="text-sm font-bold text-tech-blue whitespace-nowrap">¥{inf.price.toLocaleString()}</div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-center gap-2">
+                    <td className="px-3 py-4">
+                      <div className="flex justify-center gap-1">
                         {isApproved ? (
                           <button
                             onClick={() => onRemoveFromProject(inf.id)}
-                            className="px-3 py-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all text-xs font-bold"
+                            className="px-2 py-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all text-xs font-bold"
                           >
                             {CONTENT.project.cancelApprove}
                           </button>
@@ -795,17 +753,17 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                           <>
                             <button
                               onClick={() => onApprove([inf])}
-                              className="p-2 bg-green-500/10 text-green-500 rounded-lg hover:bg-green-500 hover:text-white transition-all"
+                              className="p-1.5 bg-green-500/10 text-green-500 rounded-lg hover:bg-green-500 hover:text-white transition-all"
                               title={CONTENT.project.approve}
                             >
-                              <Plus size={18} />
+                              <Plus size={16} />
                             </button>
                             <button
                               onClick={() => onReject([inf])}
-                              className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                              className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
                               title={CONTENT.project.reject}
                             >
-                              <X size={18} />
+                              <X size={16} />
                             </button>
                           </>
                         )}

@@ -134,21 +134,29 @@ function extractTags(user: RawUserInfo): string[] {
   return [...new Set(tags)].slice(0, 5);
 }
 
-/** 推断内容类型（匹配 config.contentTypes） */
+/** 推断达人类型（匹配 config.influencerTypes） */
 function inferType(user: RawUserInfo, notes: RawNote[]): string {
   const tags = extractTags(user);
-  // 直接匹配已知博主类型
-  const knownTypes = ['护肤博主', '美妆博主', '时尚博主', '情感博主', '音乐博主', '美容师', '品牌主理人', '模特'];
-  for (const tag of tags) {
-    const match = knownTypes.find(t => tag.includes(t.replace('博主', '')) || tag === t);
-    if (match) return match;
+  const allText = notes.map(n => n.title + (n.content || '')).join(' ') + ' ' + tags.join(' ');
+  const bio = user.bio || '';
+
+  // 痘痘肌 - 核心标签
+  if (/痘痘肌|油痘肌|痘肌/.test(allText + bio)) return '痘痘肌';
+  // 油痘肌肤
+  if (/油痘|油皮.*痘|出油.*痘|痘.*出油/.test(allText + bio)) return '油痘肌肤';
+  // 护肤 - 护肤相关但不专门痘痘
+  if (/护肤|美白|皮肤管理|敏感肌|屏障|精华|水乳|面膜/.test(allText)) {
+    // 如果内容大量涉及痘痘，归为痘痘肌
+    const acneCount = (allText.match(/痘|闭口|粉刺|烂脸|祛痘|战痘/g) || []).length;
+    if (acneCount >= 3) return '痘痘肌';
+    return '护肤';
   }
-  // 从笔记内容推断
-  const allText = notes.map(n => n.title + (n.content || '')).join(' ');
-  if (/痘|护肤|美白|皮肤|祛|敏感肌|屏障/.test(allText)) return '护肤博主';
-  if (/美妆|彩妆|化妆|口红/.test(allText)) return '美妆博主';
-  if (/穿搭|时尚|衣服|ootd/i.test(allText)) return '时尚博主';
-  return '日常生活';
+  // 学生党
+  if (/学生|大学|高中|校园|宿舍|平价/.test(allText + bio)) return '学生党';
+  // 羊毛党
+  if (/薅羊毛|白嫖|免费|0元|零元|羊毛|白菜价/.test(allText + bio)) return '羊毛党';
+  // 生活记录
+  return '生活记录';
 }
 
 /** 估算报价 */
@@ -378,13 +386,41 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
         if (!tags.includes(kw)) tags.push(kw);
       }
 
+      // 从笔记内容匹配新标签体系
+      const allNoteText = notes.map(n => n.title + ' ' + (n.content || '')).join(' ');
+      const tagMatchers: [string, RegExp][] = [
+        ['闭口', /闭口|粉刺|黑头/],
+        ['小疙瘩', /小疙瘩|疙瘩/],
+        ['逆光疹', /逆光疹/],
+        ['脂肪粒', /脂肪粒/],
+        ['红肿大痘', /红肿.*痘|大红痘|又红又肿/],
+        ['石头痘', /石头痘|硬结/],
+        ['闷头痘', /闷头痘|闷痘/],
+        ['肿包', /肿包|肿块/],
+        ['姨妈痘', /姨妈痘|经期.*痘|生理期.*痘/],
+        ['压力痘', /压力痘|压力.*长痘|焦虑.*痘/],
+        ['熬夜痘', /熬夜痘|熬夜.*痘|晚睡.*痘/],
+        ['内调祛痘', /内调|忌口|饮食.*痘/],
+        ['沉浸式祛痘', /沉浸式.*祛痘|沉浸式.*护肤/],
+        ['挤痘实录', /挤痘/],
+        ['战痘日记', /战痘|祛痘日记|祛痘记录/],
+        ['烂脸', /烂脸|爆痘|毁脸/],
+        ['反复长痘', /反复.*痘|总是.*痘|又.*长痘/],
+        ['冒白尖', /白尖|冒头/],
+      ];
+      const matchedNewTags: string[] = [];
+      for (const [tag, regex] of tagMatchers) {
+        if (regex.test(allNoteText)) matchedNewTags.push(tag);
+      }
+      // 将匹配到的新标签加入（不重复）
+      for (const t of matchedNewTags) {
+        if (!tags.includes(t)) tags.push(t);
+      }
       // 如果标签仍为空，从笔记标题推断
       if (!tags.length) {
-        const allTitles = notes.map(n => n.title).join(' ');
-        if (/痘|护肤|皮肤/.test(allTitles)) tags.push('护肤');
-        if (/美白|祛斑/.test(allTitles)) tags.push('美白');
-        if (/祛痘|战痘|爆痘/.test(allTitles)) tags.push('祛痘');
-        if (!tags.length) tags.push('生活分享');
+        if (/痘|护肤|皮肤/.test(allNoteText)) tags.push('护肤');
+        if (/祛痘|战痘|爆痘/.test(allNoteText)) tags.push('战痘日记');
+        if (!tags.length) tags.push('生活记录');
       }
 
       const influencer: Influencer = {

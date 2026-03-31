@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Background } from './components/Background';
-import { MOCK_INFLUENCERS, Influencer, Post, CITIES, CONTENT_TYPES, TAG_TREE, TagNode, Project, RejectionRecord, DMRecord } from './types';
+import { MOCK_INFLUENCERS, Influencer, Post, CITIES, INFLUENCER_TYPES, TAG_TREE, TagGroup, Project, RejectionRecord, DMRecord } from './types';
 import { CONTENT } from './content';
 import RadarPage from './components/RadarPage';
 import ResultsPage from './components/ResultsPage';
@@ -199,18 +199,23 @@ export default function App() {
       const query = searchQuery;
       const autoTags: string[] = [];
       const tagKeywords: Record<string, string[]> = {
-        '战痘日记': ['战痘', '祛痘', '痘痘', '长痘'],
-        '烂脸自救': ['烂脸', '爆痘', '过敏', '泛红'],
-        '闭口粉刺': ['闭口', '粉刺', '黑头'],
-        '沉浸式祛痘': ['沉浸', '护肤vlog', '护肤流程'],
-        '护肤红黑榜': ['红黑榜', '测评', '好用', '踩雷'],
-        '爆痘记录': ['爆痘', '记录', '打卡'],
+        '闭口': ['闭口', '粉刺', '黑头'],
+        '小疙瘩': ['小疙瘩', '疙瘩'],
+        '逆光疹': ['逆光疹'],
+        '脂肪粒': ['脂肪粒'],
+        '红肿大痘': ['红肿', '大痘'],
+        '石头痘': ['石头痘', '硬结'],
+        '闷头痘': ['闷头痘', '闷痘'],
         '姨妈痘': ['姨妈', '经期', '生理期'],
-        '熬夜烂脸': ['熬夜', '晚睡'],
-        '反复长痘': ['反复', '总是长痘'],
-        '下巴长痘': ['下巴', '嘴周'],
+        '压力痘': ['压力', '焦虑'],
+        '熬夜痘': ['熬夜', '晚睡'],
         '内调祛痘': ['内调', '饮食', '忌口'],
-        '学生党战痘': ['学生', '平价', '便宜'],
+        '沉浸式祛痘': ['沉浸', '护肤vlog', '护肤流程'],
+        '挤痘实录': ['挤痘'],
+        '战痘日记': ['战痘', '祛痘', '痘痘', '长痘'],
+        '烂脸': ['烂脸', '爆痘', '过敏', '泛红'],
+        '反复长痘': ['反复', '总是长痘'],
+        '冒白尖': ['白尖', '冒头'],
       };
       for (const [tag, keywords] of Object.entries(tagKeywords)) {
         if (keywords.some(kw => query.includes(kw))) {
@@ -219,7 +224,7 @@ export default function App() {
       }
       // 默认推荐标签
       if (!autoTags.length) {
-        autoTags.push('战痘日记', '烂脸自救');
+        autoTags.push('战痘日记', '烂脸');
       }
       // 根据搜索词推荐价格区间
       let autoPrice = CONTENT.common.unlimited;
@@ -237,7 +242,7 @@ export default function App() {
         ...prev,
         tags: autoTags.slice(0, 4),
         price: autoPrice,
-        type: query.includes('护肤') || query.includes('祛痘') || query.includes('痘') ? ['护肤博主'] : prev.type,
+        type: query.includes('护肤') || query.includes('祛痘') || query.includes('痘') ? ['痘痘肌', '护肤'] : prev.type,
       }));
       setIsAnalyzingSearch(false);
       setIsSearching(true);

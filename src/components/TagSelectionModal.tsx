@@ -1,65 +1,22 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronRight, X, Tag } from 'lucide-react';
-import { TAG_TREE, TagNode } from '../types';
+import { ChevronRight, X, Tag, AlertTriangle } from 'lucide-react';
+import { TAG_TREE, TagGroup } from '../types';
 import { CONTENT } from '../content';
 
-// --- Detail Modal ---
 const TagSelectionModal = ({ selectedTags, onClose, onConfirm }: any) => {
   const [tempTags, setTempTags] = useState<string[]>(selectedTags);
-  const [expandedNodes, setExpandedNodes] = useState<string[]>(['1', '2', '3']); // Default expand first level
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(TAG_TREE.map(g => g.label));
 
-  const toggleNode = (id: string) => {
-    setExpandedNodes(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+  const toggleGroup = (label: string) => {
+    setExpandedGroups(prev =>
+      prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
     );
   };
 
-  const toggleTag = (name: string) => {
+  const toggleTag = (label: string) => {
     setTempTags(prev =>
-      prev.includes(name) ? prev.filter(t => t !== name) : [...prev, name]
-    );
-  };
-
-  const renderNode = (node: TagNode, level = 0) => {
-    const isExpanded = expandedNodes.includes(node.id);
-    const hasChildren = node.children && node.children.length > 0;
-    const isSelected = tempTags.includes(node.name);
-
-    return (
-      <div key={node.id} className="select-none">
-        <div
-          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${level === 0 ? 'bg-white/5 mb-1' : 'hover:bg-white/5'}`}
-          style={{ paddingLeft: `${level * 20 + 12}px` }}
-          onClick={() => {
-            if (hasChildren) {
-              toggleNode(node.id);
-            } else {
-              toggleTag(node.name);
-            }
-          }}
-        >
-          {hasChildren ? (
-            <ChevronRight
-              size={16}
-              className={`text-tech-blue transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-            />
-          ) : (
-            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-tech-blue border-tech-blue' : 'border-white/20'}`}>
-              {isSelected && <X size={10} className="text-black" />}
-            </div>
-          )}
-          <span className={`${isSelected ? 'text-tech-blue font-bold' : 'text-white/80'} ${hasChildren ? 'text-sm font-bold' : 'text-sm'}`}>
-            {node.name}
-          </span>
-        </div>
-
-        {hasChildren && isExpanded && (
-          <div className="mt-1">
-            {node.children!.map(child => renderNode(child, level + 1))}
-          </div>
-        )}
-      </div>
+      prev.includes(label) ? prev.filter(t => t !== label) : [...prev, label]
     );
   };
 
@@ -84,10 +41,55 @@ const TagSelectionModal = ({ selectedTags, onClose, onConfirm }: any) => {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-4">
-          <div className="grid grid-cols-1 gap-2">
-            {TAG_TREE.map(node => renderNode(node))}
-          </div>
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-3">
+          {TAG_TREE.map((group: TagGroup) => {
+            const isExpanded = expandedGroups.includes(group.label);
+            return (
+              <div key={group.label} className="select-none">
+                <div
+                  className="flex items-center gap-2 py-2.5 px-3 rounded-lg bg-white/5 cursor-pointer hover:bg-white/8 transition-colors"
+                  onClick={() => toggleGroup(group.label)}
+                >
+                  <ChevronRight
+                    size={16}
+                    className={`text-tech-blue transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                  />
+                  <span className="text-sm font-bold text-white/90">{group.label}</span>
+                  <span className="text-[10px] text-white/30 ml-auto">{group.children.length}个标签</span>
+                </div>
+
+                {isExpanded && (
+                  <div className="mt-1 pl-6 flex flex-wrap gap-2 py-2">
+                    {group.children.map(child => {
+                      const isSelected = tempTags.includes(child.label);
+                      const isDisabled = !child.checked;
+                      return (
+                        <button
+                          key={child.label}
+                          onClick={() => {
+                            if (!isDisabled) toggleTag(child.label);
+                          }}
+                          className={`relative px-3 py-1.5 rounded-lg text-sm border transition-all flex items-center gap-1.5 ${
+                            isDisabled
+                              ? 'border-white/5 text-white/25 cursor-not-allowed bg-white/[0.02]'
+                              : isSelected
+                                ? 'bg-tech-blue text-black border-tech-blue font-bold'
+                                : 'border-white/15 hover:border-tech-blue/50 text-white/70'
+                          }`}
+                          title={child.prompt || undefined}
+                        >
+                          {child.label}
+                          {isDisabled && child.prompt && (
+                            <AlertTriangle size={11} className="text-amber-500/60" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="p-6 border-t border-white/10 bg-tech-blue/5 flex justify-between items-center">

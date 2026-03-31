@@ -12,44 +12,56 @@
       { "name": "海外", "cities": ["新加坡", "韩国", "美国", "澳大利亚"] }
     ]
   },
-  "contentTypes": [
-    "不限", "护肤博主", "美妆博主", "时尚博主", "情感博主", "音乐博主", "美容师", "品牌主理人", "模特", "日常生活"
+  "influencerTypes": [
+    "不限", "护肤", "痘痘肌", "油痘肌肤", "生活记录", "学生党", "羊毛党"
   ],
   "tagTree": [
     {
-      "id": "1",
-      "name": "核心行动与状态词",
+      "label": "闭口/粉刺类",
       "children": [
-        { "id": "1-1", "name": "战痘日记" },
-        { "id": "1-2", "name": "沉浸式祛痘" },
-        { "id": "1-3", "name": "长痘打卡" },
-        { "id": "1-4", "name": "烂脸自救" },
-        { "id": "1-5", "name": "护肤红黑榜" },
-        { "id": "1-6", "name": "爆痘记录" }
+        { "label": "闭口", "checked": true },
+        { "label": "小疙瘩", "checked": true },
+        { "label": "逆光疹", "checked": true },
+        { "label": "脂肪粒", "checked": true },
+        { "label": "摸起来刺刺的", "checked": true, "prompt": "" },
+        { "label": "颗粒感", "checked": false, "prompt": "ai推荐但大数据判定数据不足" }
       ]
     },
     {
-      "id": "2",
-      "name": "症状与诱因词",
+      "label": "红肿/发炎类",
       "children": [
-        { "id": "2-1", "name": "姨妈痘" },
-        { "id": "2-2", "name": "熬夜烂脸" },
-        { "id": "2-3", "name": "闭口粉刺" },
-        { "id": "2-4", "name": "红肿大痘" },
-        { "id": "2-5", "name": "反复长痘" },
-        { "id": "2-6", "name": "下巴长痘" }
+        { "label": "红肿大痘", "checked": true },
+        { "label": "石头痘", "checked": true },
+        { "label": "闷头痘", "checked": true },
+        { "label": "肿包", "checked": true, "prompt": "" },
+        { "label": "红灯区", "checked": false, "prompt": "ai推荐但向量模型判定语义跑偏" }
       ]
     },
     {
-      "id": "3",
-      "name": "生活方式与调理词",
+      "label": "周期/状态类",
       "children": [
-        { "id": "3-1", "name": "戒糖打卡" },
-        { "id": "3-2", "name": "内调祛痘" },
-        { "id": "3-3", "name": "极简护肤" },
-        { "id": "3-4", "name": "独居生活长痘" },
-        { "id": "3-5", "name": "学生党战痘" },
-        { "id": "3-6", "name": "原相机皮肤" }
+        { "label": "姨妈痘", "checked": true },
+        { "label": "压力痘", "checked": true },
+        { "label": "熬夜痘", "checked": true }
+      ]
+    },
+    {
+      "label": "护肤/护理类",
+      "children": [
+        { "label": "内调祛痘", "checked": true },
+        { "label": "沉浸式祛痘", "checked": true }
+      ]
+    },
+    {
+      "label": "真实记录类",
+      "children": [
+        { "label": "挤痘实录", "checked": true },
+        { "label": "战痘日记", "checked": true },
+        { "label": "烂脸", "checked": true },
+        { "label": "反复长痘", "checked": true },
+        { "label": "冒白尖", "checked": true },
+        { "label": "熟透了", "checked": false, "prompt": "ai推荐但向量模型判定语义跑偏" },
+        { "label": "呼之欲出", "checked": false, "prompt": "ai推荐但大数据判定数据不足" }
       ]
     }
   ]

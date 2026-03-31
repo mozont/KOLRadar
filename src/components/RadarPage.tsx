@@ -3,7 +3,7 @@ import {
   Search, Mic, Filter, Plus,
   BarChart3, Info, Layers, Sparkles, MessageSquare, Send
 } from 'lucide-react';
-import { CITIES, CONTENT_TYPES } from '../types';
+import { CITIES, INFLUENCER_TYPES, TAG_TREE } from '../types';
 import { CONTENT } from '../content';
 import SearchInput from './SearchInput';
 import FilterRow from './FilterRow';
@@ -205,18 +205,30 @@ const RadarPage = ({
                       <Plus size={12} /> {CONTENT.radarPage.filters.moreTags}
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {filters.tags.map((tag: string) => (
-                      <button
-                        key={tag}
-                        onClick={() => {
-                          const next = filters.tags.filter((t: string) => t !== tag);
-                          setFilters({...filters, tags: next});
-                        }}
-                        className="px-3 py-1 rounded-lg text-sm border border-tech-blue bg-tech-blue text-black transition-all"
-                      >
-                        {tag}
-                      </button>
+                  <div className="space-y-3">
+                    {TAG_TREE.map(group => (
+                      <div key={group.label}>
+                        <div className="text-xs text-white/30 mb-1.5">{group.label}</div>
+                        <div className="flex flex-wrap gap-2">
+                          {group.children.filter(c => c.checked).map(child => {
+                            const isSelected = filters.tags.includes(child.label);
+                            return (
+                              <button
+                                key={child.label}
+                                onClick={() => {
+                                  const next = isSelected
+                                    ? filters.tags.filter((t: string) => t !== child.label)
+                                    : [...filters.tags, child.label];
+                                  setFilters({...filters, tags: next});
+                                }}
+                                className={`px-3 py-1 rounded-lg text-sm border transition-all ${isSelected ? 'bg-tech-blue text-black border-tech-blue' : 'border-white/10 hover:border-tech-blue/50'}`}
+                              >
+                                {child.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -267,7 +279,7 @@ const RadarPage = ({
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-white/50">{CONTENT.radarPage.filters.contentType} {CONTENT.common.multiSelect}</span>
                   <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto pr-2 custom-scrollbar">
-                    {CONTENT_TYPES.map(type => {
+                    {INFLUENCER_TYPES.map(type => {
                       const isSelected = filters.type.includes(type);
                       return (
                         <button

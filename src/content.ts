@@ -56,7 +56,7 @@ export const CONTENT = {
       "followers": "粉丝数",
       "region": "地区",
       "moreRegions": "更多地址",
-      "contentType": "内容类型",
+      "contentType": "达人类型",
       "startSearch": "开始搜寻",
       "priceOptions": ["不限", "500以下", "500-1500", "1500-3000", "3000-8000", "8000-2.5W", "2.5W以上"],
       "followerOptions": ["不限", "1000以下", "1000-5000", "5000-1W", "1W-5W", "5W-10W", "10W以上"],

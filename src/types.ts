@@ -125,15 +125,20 @@ export const CITIES = config.cities as {
   hot: string[];
   provinces: { name: string; cities: string[] }[];
 };
-export const CONTENT_TYPES = config.contentTypes;
+export const INFLUENCER_TYPES = (config as any).influencerTypes as string[];
 
-export interface TagNode {
-  id: string;
-  name: string;
-  children?: TagNode[];
+export interface TagChild {
+  label: string;
+  checked: boolean;
+  prompt?: string;
 }
 
-export const TAG_TREE: TagNode[] = config.tagTree;
+export interface TagGroup {
+  label: string;
+  children: TagChild[];
+}
+
+export const TAG_TREE: TagGroup[] = (config as any).tagTree;
 
 // 真实数据（从爬取的小红书数据转换）
 export { REAL_INFLUENCERS } from './data/realInfluencers';

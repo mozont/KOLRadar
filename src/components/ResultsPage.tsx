@@ -769,16 +769,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                     <td className="px-3 py-4">
                       <div className="flex items-start">
                         <div className="flex gap-1.5">
-                          {(() => {
-                            const filterTags: string[] = filters.tags || [];
-                            if (filterTags.length === 0) return inf.posts.slice(0, 4);
-                            const matched = inf.posts.filter((p: Post) => {
-                              const text = ((p as any).keyword || '') + ' ' + (p.title || '') + ' ' + (p.text || '');
-                              const lower = text.toLowerCase();
-                              return filterTags.some((tag: string) => lower.includes(tag.toLowerCase()));
-                            });
-                            return matched.length > 0 ? matched.slice(0, 4) : inf.posts.slice(0, 4);
-                          })().map((post: Post) => (
+                          {inf.posts.slice(0, 4).map((post: Post) => (
                             <motion.div
                               key={post.id}
                               whileHover={{ scale: 1.08, zIndex: 10 }}

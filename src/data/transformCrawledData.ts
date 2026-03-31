@@ -350,27 +350,8 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
       const { userInfo, notes } = item;
       const tags = extractTags(userInfo);
 
-      // 合并 userNotes（用户主页笔记列表）与 notes（搜索抓取的详情笔记）
-      // userNotes 只有基本信息，notes 有完整详情
-      const detailedNoteIds = new Set(notes.map(n => n.noteId));
-
-      // 从 userNotes 补充未在 notes 中出现的笔记
-      const extraNotes: RawNote[] = (userInfo.userNotes || [])
-        .filter(un => !detailedNoteIds.has(un.noteId) && un.cover)
-        .map(un => ({
-          noteId: un.noteId,
-          title: un.title,
-          cover: un.cover,
-          likedCount: 0,
-          likeText: un.likeText,
-          images: [un.cover],
-        } as unknown as RawNote));
-
-      const allNotes = [...notes, ...extraNotes];
-
-      // 按互动量排序笔记（兼容 likeText 字段）
-      // 优先保留有封面图的笔记
-      const sortedNotes = [...allNotes]
+      // posts: 只保留搜索匹配到的笔记（有详情的）
+      const sortedNotes = [...notes]
         .map(n => ({
           ...n,
           likedCount: n.likedCount ?? n.likeText ?? 0,
@@ -441,6 +422,22 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
         if (!tags.length) tags.push('生活记录');
       }
 
+      // recentPosts: 从 userNotes 取最近的笔记（给详情页用）
+      const userNotesList = (userInfo.userNotes || []).filter(un => un.cover);
+      const recentPosts: Post[] = userNotesList.slice(0, 3).map((un, idx) => ({
+        id: un.noteId || `recent-${userInfo.userId}-${idx}`,
+        images: [un.cover],
+        image: un.cover,
+        title: un.title,
+        text: un.title || '',
+        content: un.title || '',
+        features: [],
+        views: parseCount(un.likeText) * 10,
+        comments: 0,
+        likes: parseCount(un.likeText),
+        matchAnalysis: '',
+      }));
+
       const influencer: Influencer = {
         id: userInfo.userId,
         name: userInfo.nickName || userInfo.name || '未知达人',
@@ -454,8 +451,9 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
         fitScore: calcFitScore(userInfo, notes),
         matchingFilters: calcMatchingFilters(userInfo, notes),
         posts,
+        recentPosts,
         avgViews: calcAvgViews(notes),
-        noteCount: (userInfo.noteCount && userInfo.noteCount > 0) ? userInfo.noteCount : allNotes.length,
+        noteCount: (userInfo.noteCount && userInfo.noteCount > 0) ? userInfo.noteCount : userNotesList.length || notes.length,
       };
 
       return influencer;

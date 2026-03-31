@@ -13,6 +13,7 @@ export interface Influencer {
   fitScore: number;
   matchingFilters: string[];
   posts: Post[];
+  recentPosts: Post[];
   avgViews: string;
   noteCount: number;
 }

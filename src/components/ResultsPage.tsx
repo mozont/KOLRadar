@@ -684,13 +684,61 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                           <div className="font-bold text-sm text-white group-hover:text-tech-blue transition-colors truncate">
                             {inf.name}
                           </div>
-                          {isMatched && <span className="text-[10px] px-1 py-0.5 bg-tech-blue/20 text-tech-blue rounded font-normal">MATCHED</span>}
                           {isScanningThis && (
                             <div className="flex items-center gap-1 text-tech-blue text-[10px] mt-1">
                               <Loader2 className="animate-spin" size={10} />
                               <span>扫描中</span>
                             </div>
                           )}
+                          {isMatched && !isScanningThis && (() => {
+                            const matchedPost = inf.posts.find((p: Post) => p.imageAnalysis);
+                            const ia = matchedPost?.imageAnalysis;
+                            const allTags = ia
+                              ? [...new Set([...ia.labels, ia.skinCondition, ia.face, ia.contentForm, ia.visualStyle].filter(Boolean))]
+                              : [];
+                            const negPrefixes = ['不', '没有', '没', '无', '非'];
+                            const isTagHit = (tag: string) =>
+                              standardizedConditions.some(c => {
+                                const cl = c.toLowerCase(), tl = tag.toLowerCase();
+                                for (const neg of negPrefixes) {
+                                  if (cl.startsWith(neg) && cl.length > neg.length) return false;
+                                }
+                                if (tl === cl) return true;
+                                const synMap: Record<string, string[]> = {
+                                  '露脸': ['正脸', '侧脸', '露脸', '真人出镜'], '痘肌': ['痘痘', '痘肌', '长痘', '爆痘'],
+                                  '素颜': ['素颜', '无滤镜', '原相机'], '产品': ['产品展示', '有产品', '产品图'],
+                                  '对比': ['前后对比', '对比图', '效果展示'], '干货': ['干货分享', '攻略', '教程'],
+                                  '真实': ['原相机真实', '接地气', '真实'], '特写': ['局部特写', '特写'],
+                                  '油皮': ['油皮', '油性'], '敏感': ['敏感肌', '过敏', '泛红'],
+                                  '痘印': ['痘印肌', '痘印'], '日记': ['日记打卡', '打卡', '记录'],
+                                  '原相机': ['原相机', '原相机真实'], '接地气': ['接地气', '真实'],
+                                };
+                                const entry = synMap[cl];
+                                if (entry) return entry.some(s => s.toLowerCase() === tl);
+                                for (const [key, syns] of Object.entries(synMap)) {
+                                  if (syns.some(s => s.toLowerCase() === cl) && (key === tl || syns.some(s => s.toLowerCase() === tl))) return true;
+                                }
+                                return false;
+                              });
+                            const hitTags = allTags.filter(isTagHit);
+                            const restTags = allTags.filter(t => !hitTags.includes(t));
+                            return (
+                              <div className="mt-1.5">
+                                <div className="flex items-center gap-1 text-green-400 text-[10px] font-bold mb-1">
+                                  <CheckCircle2 size={9} />
+                                  <span>{ia ? CONTENT.resultsPage.precisionSearch.matchImage : CONTENT.resultsPage.precisionSearch.matchContent}</span>
+                                </div>
+                                <div className="flex flex-wrap gap-0.5">
+                                  {hitTags.map((tag, idx) => (
+                                    <span key={`hit-${idx}`} className="text-[10px] px-1 py-0.5 rounded bg-green-500/15 text-green-400 border border-green-500/30 font-bold">#{tag}</span>
+                                  ))}
+                                  {restTags.slice(0, 2).map((tag, idx) => (
+                                    <span key={`rest-${idx}`} className="text-[10px] px-1 py-0.5 rounded text-white/25">#{tag}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </td>
@@ -708,8 +756,8 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                       <div className="text-sm font-bold text-white whitespace-nowrap">{inf.followers >= 10000 ? (inf.followers / 10000).toFixed(1) + 'W' : inf.followers}</div>
                     </td>
                     <td className="px-3 py-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex -space-x-1.5 flex-shrink-0">
+                      <div className="flex items-start">
+                        <div className="flex -space-x-1.5">
                           {inf.posts.slice(0, 3).map((post: Post) => (
                             <motion.div
                               key={post.id}
@@ -720,17 +768,6 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                               <img src={post.images[0]} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             </motion.div>
                           ))}
-                        </div>
-                        <div className="min-w-0 flex-1 pt-1">
-                          <p className="text-xs text-white/50 line-clamp-4 leading-relaxed">
-                            {(() => {
-                              const topPost = inf.posts[0];
-                              if (!topPost) return '';
-                              const title = topPost.title || '';
-                              const analysis = topPost.matchAnalysis || '';
-                              return title ? `「${title.slice(0, 20)}${title.length > 20 ? '...' : ''}」${analysis.slice(0, 60)}` : analysis.slice(0, 80);
-                            })()}
-                          </p>
                         </div>
                       </div>
                     </td>

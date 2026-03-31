@@ -608,7 +608,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                   {selectedIds.length === currentItems.length && <Plus size={14} className="rotate-45" />}
                 </button>
               </th>
-              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[130px]" onClick={() => handleSort('name')}>
+              <th className="px-3 py-4 font-bold cursor-pointer hover:bg-tech-blue/10 transition-colors w-[180px]" onClick={() => handleSort('name')}>
                 <div className="flex items-center gap-2">
                   {CONTENT.resultsPage.table.info}
                   {sortBy === 'name' && (sortOrder === 'desc' ? <ChevronRight className="rotate-90" size={14} /> : <ChevronRight className="-rotate-90" size={14} />)}
@@ -666,7 +666,7 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                         }
                       }}>
                         <div className="relative flex-shrink-0">
-                          <img src={inf.avatar} className="w-20 h-20 rounded-full border border-tech-blue/30 group-hover:border-tech-blue transition-colors" referrerPolicy="no-referrer" />
+                          <img src={inf.avatar} className="w-[54px] h-[54px] rounded-full border border-tech-blue/30 group-hover:border-tech-blue transition-colors" referrerPolicy="no-referrer" />
                           {isScanningThis && (
                             <motion.div
                               animate={{ rotate: 360 }}

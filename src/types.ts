@@ -83,7 +83,7 @@ export interface RejectionRecord {
   timestamp: string;
 }
 
-export type ContactStatus = 'waiting_follow' | 'contacting' | 'no_reply' | 'need_human' | 'completed';
+export type ContactStatus = 'waiting_follow' | 'contacting' | 'no_reply' | 'accepted' | 'declined' | 'need_human' | 'completed';
 
 export interface ChatMessage {
   sender: 'service' | 'influencer' | 'system';

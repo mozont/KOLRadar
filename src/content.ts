@@ -171,6 +171,8 @@ export const CONTENT = {
       "waiting_follow": "等待关注",
       "contacting": "建联中",
       "no_reply": "评论未回复",
+      "accepted": "已同意",
+      "declined": "已拒绝",
       "need_human": "需人工介入",
       "completed": "完成建联"
     },

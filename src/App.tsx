@@ -197,10 +197,10 @@ export default function App() {
     setTimeout(() => {
       const query = searchQuery;
 
-      // === 1. 标签匹配 ===
+      // === 1. 标签匹配：一个搜索词可以同时命中多个标签 ===
       const autoTags: string[] = [];
       const tagKeywords: Record<string, string[]> = {
-        '闭口': ['闭口', '粉刺', '黑头', '闷'],
+        '闭口': ['闭口', '粉刺', '黑头'],
         '小疙瘩': ['小疙瘩', '疙瘩'],
         '逆光疹': ['逆光疹'],
         '脂肪粒': ['脂肪粒'],
@@ -209,19 +209,30 @@ export default function App() {
         '闷头痘': ['闷头痘', '闷痘'],
         '肿包': ['肿包', '肿块'],
         '姨妈痘': ['姨妈', '经期', '生理期', '月经'],
-        '压力痘': ['压力', '焦虑', '压力大'],
+        '压力痘': ['压力痘', '焦虑'],
         '熬夜痘': ['熬夜', '晚睡', '通宵'],
-        '内调祛痘': ['内调', '饮食', '忌口', '戒糖', '喝水'],
-        '沉浸式祛痘': ['沉浸', '护肤vlog', '护肤流程', '护肤步骤'],
-        '挤痘实录': ['挤痘', '挤痘痘', '挤掉'],
-        '战痘日记': ['战痘', '祛痘', '痘痘', '长痘', '去痘', '痤疮'],
-        '烂脸': ['烂脸', '爆痘', '过敏', '泛红', '烂脸自救'],
-        '反复长痘': ['反复', '总是长痘', '又长痘'],
+        '内调祛痘': ['内调', '忌口', '戒糖'],
+        '沉浸式祛痘': ['沉浸', '护肤vlog', '护肤流程'],
+        '挤痘实录': ['挤痘'],
+        '战痘日记': ['战痘', '祛痘', '长痘', '去痘'],
+        '烂脸': ['烂脸', '爆痘', '烂脸自救'],
+        '反复长痘': ['反复长痘', '总是长痘', '又长痘'],
         '冒白尖': ['白尖', '冒头', '白头', '冒白'],
       };
       for (const [tag, keywords] of Object.entries(tagKeywords)) {
         if (keywords.some(kw => query.includes(kw))) {
           autoTags.push(tag);
+        }
+      }
+      // 通用痘痘相关词：同时推荐多个高覆盖率标签
+      if (/痘痘|痘|痤疮/.test(query) && !autoTags.includes('战痘日记')) {
+        autoTags.push('战痘日记');
+      }
+      if (/痘|痤疮|护肤|精华|祛/.test(query)) {
+        // 补充关联标签，增大召回量
+        const relatedTags = ['闭口', '挤痘实录', '烂脸', '冒白尖', '沉浸式祛痘'];
+        for (const rt of relatedTags) {
+          if (!autoTags.includes(rt) && autoTags.length < 6) autoTags.push(rt);
         }
       }
 
@@ -233,14 +244,10 @@ export default function App() {
       if (/学生|平价|大学|校园|宿舍/.test(query)) autoTypes.push('学生党');
       if (/薅羊毛|白嫖|免费|白菜/.test(query)) autoTypes.push('羊毛党');
       if (/日常|日记|记录|生活/.test(query)) autoTypes.push('生活记录');
-      // 通用痘痘相关搜索默认推荐痘痘肌+护肤
-      if (!autoTypes.length && /痘|祛|痤疮|闭口|烂脸|爆痘/.test(query)) {
-        autoTypes.push('痘痘肌', '护肤');
-      }
 
-      // === 3. 价格匹配 ===
+      // === 3. 价格匹配（仅明确提到价格数字时才设置） ===
       let autoPrice = CONTENT.common.unlimited;
-      const priceMatch = query.match(/(\d+)\s*(以内|以下|元|块)/);
+      const priceMatch = query.match(/预算?\s*(\d+)\s*(以内|以下|元|块)/);
       if (priceMatch) {
         const budget = parseInt(priceMatch[1]);
         if (budget <= 500) autoPrice = '500以下';
@@ -249,16 +256,14 @@ export default function App() {
         else if (budget <= 8000) autoPrice = '3000-8000';
         else autoPrice = '8000-2.5W';
       }
-      if (/低预算|平价|便宜|省钱/.test(query)) autoPrice = '500以下';
-      if (/预算有限|小预算/.test(query)) autoPrice = '500-1500';
+      if (/低预算|便宜|省钱/.test(query)) autoPrice = '500以下';
 
-      // === 4. 粉丝量匹配 ===
+      // === 4. 粉丝量匹配（仅明确提到粉丝相关词时才设置） ===
       let autoFollowers = CONTENT.common.unlimited;
-      if (/素人|普通人|小号|真实/.test(query)) autoFollowers = '1000以下';
+      if (/素人|普通人|小号/.test(query)) autoFollowers = '1000以下';
       if (/KOC|小博主|小达人/.test(query)) autoFollowers = '1000-5000';
-      if (/腰部|中等/.test(query)) autoFollowers = '1W-5W';
+      if (/腰部达人|中等博主/.test(query)) autoFollowers = '1W-5W';
       if (/头部|大博主|大V|KOL/.test(query)) autoFollowers = '10W以上';
-      if (/粉丝粘性|互动高/.test(query) && autoFollowers === CONTENT.common.unlimited) autoFollowers = '5000-1W';
       const fansMatch = query.match(/(\d+)\s*[万wW]\s*(粉|以上|以下)/);
       if (fansMatch) {
         const wan = parseInt(fansMatch[1]);
@@ -275,24 +280,19 @@ export default function App() {
         if (query.includes(r)) autoRegions.push(r);
       }
 
-      // === 6. 默认策略：没有匹配到任何标签时的智能推荐 ===
-      if (!autoTags.length && !autoTypes.length) {
-        // 基于数据量最大的关键词推荐
-        autoTags.push('战痘日记', '闭口', '烂脸');
-        autoTypes.push('痘痘肌', '护肤');
-      } else if (!autoTags.length) {
-        // 有类型但没标签，推荐与类型相关的高数据量标签
-        if (autoTypes.includes('学生党')) autoTags.push('战痘日记', '内调祛痘');
-        else if (autoTypes.includes('护肤')) autoTags.push('沉浸式祛痘', '闭口');
-        else autoTags.push('战痘日记', '烂脸');
+      // === 6. 默认策略 ===
+      if (!autoTags.length) {
+        // 没匹配到任何标签，推荐覆盖面最广的标签组合
+        autoTags.push('战痘日记', '闭口', '挤痘实录', '烂脸', '姨妈痘', '沉浸式祛痘');
       }
+      // 不强制设置 type，让更多达人出现
 
       setFilters(prev => ({
         ...prev,
-        tags: autoTags.slice(0, 5),
+        tags: autoTags.slice(0, 6),
         price: autoPrice,
         followers: autoFollowers,
-        type: autoTypes.length ? autoTypes : prev.type,
+        type: autoTypes,
         region: autoRegions.length ? autoRegions : prev.region,
       }));
       setIsAnalyzingSearch(false);

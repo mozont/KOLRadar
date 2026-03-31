@@ -62,6 +62,24 @@ interface RawNote {
   keyword?: string; // 搜索关键词
   detailScraped?: boolean;
   imageAnalysis?: RawImageAnalysis;
+  comments?: {
+    commentId: string;
+    userId: string;
+    nickName: string;
+    content: string;
+    date: string;
+    location: string;
+    likeCount: string;
+    replies: {
+      commentId: string;
+      userId: string;
+      nickName: string;
+      content: string;
+      date: string;
+      location: string;
+      likeCount: string;
+    }[];
+  }[];
 }
 
 interface RawCrawledItem {
@@ -351,6 +369,7 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
         matchAnalysis: generateMatchAnalysis(userInfo, note),
         keyword: note.keyword, // 保留搜索关键词用于筛选
         imageAnalysis: note.imageAnalysis || undefined,
+        noteComments: note.comments?.length ? note.comments : undefined,
       } as Post & { keyword?: string }));
 
       // 添加笔记的搜索关键词作为标签

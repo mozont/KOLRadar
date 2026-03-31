@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Background } from './components/Background';
-import { MOCK_INFLUENCERS, Influencer, Post, CITIES, CONTENT_TYPES, TAG_TREE, TagNode, Project, RejectionRecord } from './types';
+import { MOCK_INFLUENCERS, Influencer, Post, CITIES, CONTENT_TYPES, TAG_TREE, TagNode, Project, RejectionRecord, DMRecord } from './types';
 import { CONTENT } from './content';
 import RadarPage from './components/RadarPage';
 import ResultsPage from './components/ResultsPage';
@@ -14,22 +14,69 @@ import CitySelectionModal from './components/CitySelectionModal';
 import ProjectSelectionModal from './components/ProjectSelectionModal';
 import RejectionReasonModal from './components/RejectionReasonModal';
 import PrecisionMatchModal from './components/PrecisionMatchModal';
+import ContactPage, { loadRecords as loadContactRecords } from './components/ContactPage';
+import ScriptManagementModal, { loadScripts } from './components/ScriptManagementModal';
+import BatchCommentModal from './components/BatchCommentModal';
+import SmartDMPage from './components/SmartDMPage';
 
-type Page = 'radar' | 'results' | 'display' | 'projects';
+/** 从 localStorage 加载 DM 记录，并用最新 MOCK_INFLUENCERS 数据补全 post（确保 noteComments 等新字段可用） */
+function loadDmRecords(): DMRecord[] {
+  try {
+    const raw = localStorage.getItem('rader_dm_records');
+    if (!raw) return [];
+    const records: DMRecord[] = JSON.parse(raw);
+    // Build a lookup: noteId -> latest Post
+    const postMap = new Map<string, Post>();
+    for (const inf of MOCK_INFLUENCERS) {
+      for (const p of inf.posts) {
+        postMap.set(p.id, p);
+      }
+    }
+    // Hydrate each record's post with fresh data
+    return records.map(r => {
+      const freshPost = postMap.get(r.post?.id);
+      return freshPost ? { ...r, post: { ...freshPost, ...({ keyword: (r.post as any).keyword }) } } : r;
+    });
+  } catch {
+    return [];
+  }
+}
+
+type Page = 'radar' | 'results' | 'display' | 'projects' | 'contact' | 'smart-dm';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('radar');
   const [prevPage, setPrevPage] = useState<Page>('radar');
+  const [pageHistory, setPageHistory] = useState<Page[]>(['radar']);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const [projects, setProjects] = useState<Project[]>([
-    { id: 'p1', name: CONTENT.project.defaultProjectName, description: '默认创建的项目', influencers: [], createdAt: new Date().toISOString() }
-  ]);
+  const [projects, setProjects] = useState<Project[]>(() => {
+    try {
+      const raw = localStorage.getItem('rader_projects');
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return [{ id: 'p1', name: CONTENT.project.defaultProjectName, description: '默认创建的项目', influencers: [], createdAt: new Date().toISOString() }];
+  });
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [rejections, setRejections] = useState<RejectionRecord[]>([]);
+  const [rejections, setRejections] = useState<RejectionRecord[]>(() => {
+    try {
+      const raw = localStorage.getItem('rader_rejections');
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return [];
+  });
+
+  // 持久化 projects & rejections
+  useEffect(() => {
+    localStorage.setItem('rader_projects', JSON.stringify(projects));
+  }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem('rader_rejections', JSON.stringify(rejections));
+  }, [rejections]);
 
   const [selectedInfluencer, setSelectedInfluencer] = useState<Influencer | null>(null);
   const [precisionMatchInfluencer, setPrecisionMatchInfluencer] = useState<Influencer | null>(null);
@@ -49,6 +96,11 @@ export default function App() {
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
   const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false);
   const [pendingInfluencers, setPendingInfluencers] = useState<Influencer[]>([]);
+  const [showScriptModalFirst, setShowScriptModalFirst] = useState(false);
+  const [pendingContactInfluencers, setPendingContactInfluencers] = useState<{ inf: Influencer; projectName: string }[]>([]);
+  const [showBatchCommentModal, setShowBatchCommentModal] = useState(false);
+  const [pendingDMInfluencers, setPendingDMInfluencers] = useState<{ inf: Influencer; projectName: string }[]>([]);
+  const [dmRecords, setDmRecords] = useState<DMRecord[]>([]);
 
   useEffect(() => {
     if (currentPage === 'display') {
@@ -66,10 +118,77 @@ export default function App() {
   });
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [contactRecordCount, setContactRecordCount] = useState(() => {
+    try { return loadContactRecords().length; } catch { return 0; }
+  });
+
+  const [dmRecordCount, setDmRecordCount] = useState(() => loadDmRecords().length);
+
+  // 监听 localStorage 变更（建联页面写入后更新）
+  useEffect(() => {
+    const check = () => {
+      try { setContactRecordCount(loadContactRecords().length); } catch {}
+    };
+    window.addEventListener('storage', check);
+    return () => window.removeEventListener('storage', check);
+  }, []);
+
+  // 每次回到非 contact 页时刷新状态
+  useEffect(() => {
+    if (currentPage !== 'contact') {
+      try { setContactRecordCount(loadContactRecords().length); } catch {}
+    }
+    if (currentPage !== 'smart-dm') {
+      setDmRecordCount(loadDmRecords().length);
+    }
+  }, [currentPage]);
 
   const navigateTo = (page: Page) => {
     setPrevPage(currentPage);
+    setPageHistory(prev => [...prev, page]);
     setCurrentPage(page);
+  };
+
+  const navigateBack = () => {
+    setPageHistory(prev => {
+      if (prev.length <= 1) return prev;
+      const newHistory = prev.slice(0, -1);
+      const target = newHistory[newHistory.length - 1];
+      setPrevPage(currentPage);
+      setCurrentPage(target);
+      return newHistory;
+    });
+  };
+
+  // 私信页返回：从项目页进入则跳过项目页
+  const dmGoBack = () => {
+    setPageHistory(prev => {
+      if (prev.length <= 1) return prev;
+      let newHistory = prev.slice(0, -1);
+      if (newHistory[newHistory.length - 1] === 'projects' && newHistory.length > 1) {
+        newHistory = newHistory.slice(0, -1);
+      }
+      const target = newHistory[newHistory.length - 1];
+      setPrevPage(currentPage);
+      setCurrentPage(target);
+      return newHistory;
+    });
+  };
+
+  // 建联页返回：从项目页进入则跳过项目页
+  const contactGoBack = () => {
+    setPageHistory(prev => {
+      if (prev.length <= 1) return prev;
+      // 当前是 contact，上一个如果是 projects，再往上跳一层
+      let newHistory = prev.slice(0, -1); // 去掉 contact
+      if (newHistory[newHistory.length - 1] === 'projects' && newHistory.length > 1) {
+        newHistory = newHistory.slice(0, -1); // 再去掉 projects
+      }
+      const target = newHistory[newHistory.length - 1];
+      setPrevPage(currentPage);
+      setCurrentPage(target);
+      return newHistory;
+    });
   };
 
   const handleSearch = () => {
@@ -229,6 +348,13 @@ export default function App() {
               setIsCityModalOpen={setIsCityModalOpen}
               onOpenProjects={() => navigateTo('projects')}
               projectCount={totalInfluencersCount}
+              contactRecordCount={contactRecordCount}
+              onOpenContact={() => navigateTo('contact')}
+              dmRecordCount={dmRecordCount}
+              onOpenDM={() => {
+                setDmRecords(loadDmRecords());
+                navigateTo('smart-dm');
+              }}
               resetSearch={() => {
                 setIsSearching(false);
                 setShowFilters(false);
@@ -244,6 +370,13 @@ export default function App() {
             onBack={() => navigateTo('radar')}
             onOpenProjects={() => navigateTo('projects')}
             projectCount={totalInfluencersCount}
+            contactRecordCount={contactRecordCount}
+            onOpenContact={() => navigateTo('contact')}
+            dmRecordCount={dmRecordCount}
+            onOpenDM={() => {
+              setDmRecords(loadDmRecords());
+              navigateTo('smart-dm');
+            }}
             onSelectInfluencer={setSelectedInfluencer}
             onSelectPrecisionInfluencer={setPrecisionMatchInfluencer}
             onSelectPost={(inf: Influencer, post: Post) => setSelectedPost({ influencer: inf, post })}
@@ -280,6 +413,13 @@ export default function App() {
             }}
             onOpenProjects={() => navigateTo('projects')}
             projectCount={totalInfluencersCount}
+            contactRecordCount={contactRecordCount}
+            onOpenContact={() => navigateTo('contact')}
+            dmRecordCount={dmRecordCount}
+            onOpenDM={() => {
+              setDmRecords(loadDmRecords());
+              navigateTo('smart-dm');
+            }}
             onSelectInfluencer={setSelectedInfluencer}
             onSelectPost={(inf: Influencer, post: Post) => setSelectedPost({ influencer: inf, post })}
             onStartRadar={() => {
@@ -312,6 +452,37 @@ export default function App() {
             onSelectInfluencer={setSelectedInfluencer}
             onSelectPost={(inf: Influencer, post: Post, matchReason?: string) => setSelectedPost({ influencer: inf, post, matchReason })}
             onRemoveFromProject={handleRemoveFromProject}
+            onBatchContact={(selected: { inf: Influencer; projectName: string }[]) => {
+              setPendingContactInfluencers(selected);
+              const savedScripts = loadScripts();
+              if (!savedScripts) {
+                setShowScriptModalFirst(true);
+              } else {
+                navigateTo('contact');
+              }
+            }}
+            onBatchDM={(selected: { inf: Influencer; projectName: string }[]) => {
+              setPendingDMInfluencers(selected);
+              setShowBatchCommentModal(true);
+            }}
+          />
+        )}
+
+        {currentPage === 'contact' && (
+          <ContactPage
+            key="contact"
+            projects={projects}
+            onBack={contactGoBack}
+            newInfluencers={pendingContactInfluencers}
+          />
+        )}
+
+        {currentPage === 'smart-dm' && (
+          <SmartDMPage
+            key="smart-dm"
+            initialRecords={dmRecords}
+            onBack={dmGoBack}
+            onViewPost={(inf: Influencer, post: Post) => setSelectedPost({ influencer: inf, post })}
           />
         )}
       </AnimatePresence>
@@ -347,6 +518,7 @@ export default function App() {
             onClose={() => setSelectedPost(null)}
             showAI={currentPage === 'display'}
             matchReason={selectedPost.matchReason}
+            myComment={loadDmRecords().find(r => r.post?.id === selectedPost.post.id && (r.status === 'sent' || r.status === 'replied'))?.comment}
           />
         )}
       </AnimatePresence>
@@ -405,6 +577,34 @@ export default function App() {
           <RejectionReasonModal
             onClose={() => setIsRejectionModalOpen(false)}
             onConfirm={addRejection}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showBatchCommentModal && (
+          <BatchCommentModal
+            influencers={pendingDMInfluencers}
+            onClose={() => setShowBatchCommentModal(false)}
+            onConfirm={(records: DMRecord[]) => {
+              setDmRecords(records);
+              setShowBatchCommentModal(false);
+              navigateTo('smart-dm');
+            }}
+            onViewPost={(inf: Influencer, post: Post) => setSelectedPost({ influencer: inf, post })}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showScriptModalFirst && (
+          <ScriptManagementModal
+            onClose={() => setShowScriptModalFirst(false)}
+            onConfirm={() => {
+              setShowScriptModalFirst(false);
+              navigateTo('contact');
+            }}
+            projectName={projects.find(p => p.id === selectedProjectId)?.name}
           />
         )}
       </AnimatePresence>

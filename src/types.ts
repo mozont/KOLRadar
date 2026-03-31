@@ -29,6 +29,27 @@ export interface ImageAnalysis {
   visualStyle: string;
 }
 
+export interface CommentReply {
+  commentId: string;
+  userId: string;
+  nickName: string;
+  content: string;
+  date: string;
+  location: string;
+  likeCount: string;
+}
+
+export interface NoteComment {
+  commentId: string;
+  userId: string;
+  nickName: string;
+  content: string;
+  date: string;
+  location: string;
+  likeCount: string;
+  replies: CommentReply[];
+}
+
 export interface Post {
   id: string;
   images: string[];
@@ -43,6 +64,7 @@ export interface Post {
   likes: number;
   matchAnalysis: string;
   imageAnalysis?: ImageAnalysis;
+  noteComments?: NoteComment[];
 }
 
 export interface Project {
@@ -59,6 +81,44 @@ export interface RejectionRecord {
   influencer: Influencer;
   reason: string;
   timestamp: string;
+}
+
+export type ContactStatus = 'waiting_follow' | 'contacting' | 'no_reply' | 'need_human' | 'completed';
+
+export interface ChatMessage {
+  sender: 'service' | 'influencer' | 'system';
+  content: string;
+  time: string;
+}
+
+export interface ContactRecord {
+  id: string;
+  influencer: Influencer;
+  projectName: string;
+  status: ContactStatus;
+  messages: ChatMessage[];
+}
+
+export type DMStatus = 'pending' | 'sending' | 'sent' | 'replied' | 'no_reply';
+
+export interface DMRecord {
+  id: string;
+  influencer: Influencer;
+  projectName: string;
+  post: Post;
+  comment: string;
+  status: DMStatus;
+}
+
+export type ScriptCategory = 'greeting' | 'project_intro' | 'no_reply_followup' | 'declined' | 'accepted' | 'price_rejected';
+
+export interface ScriptTemplates {
+  greeting: string;
+  project_intro: string;
+  no_reply_followup: string;
+  declined: string;
+  accepted: string;
+  price_rejected: string;
 }
 
 export const CITIES = config.cities as {

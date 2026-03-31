@@ -84,7 +84,7 @@ export const CONTENT = {
       "info": "达人信息",
       "regionType": "地区/类型",
       "followers": "粉丝数",
-      "recentPosts": "最近笔记",
+      "recentPosts": "匹配笔记",
       "postCount": "笔记数",
       "price": "参考报价",
       "action": "操作"
@@ -115,7 +115,8 @@ export const CONTENT = {
     "rejectReasonPlaceholder": "请填写不通过的原因，以便后续优化匹配...",
     "batchApprove": "批量通过",
     "batchReject": "批量不通过",
-    "batchContact": "批量建联",
+    "batchContact": "智能建联",
+    "batchDM": "批量评论",
     "remove": "移除",
     "approved": "已通过",
     "cancelApprove": "取消通过",
@@ -156,5 +157,55 @@ export const CONTENT = {
     "views": "阅读量",
     "comments": "评论数",
     "likes": "热度值"
+  },
+  "contact": {
+    "title": "智能建联",
+    "subtitle": "跨项目达人建联管理",
+    "info": "达人信息",
+    "project": "所属项目",
+    "status": "建联状态",
+    "action": "对话",
+    "finishContact": "完成建联",
+    "chatTitle": "建联对话记录",
+    "statusMap": {
+      "waiting_follow": "等待关注",
+      "contacting": "建联中",
+      "no_reply": "评论未回复",
+      "need_human": "需人工介入",
+      "completed": "完成建联"
+    },
+    "noRecords": "暂无建联记录",
+    "initHint": "正在初始化建联任务...",
+    "totalCount": "共",
+    "unit": "位达人",
+    "scriptManagement": "话术管理",
+    "scriptTitle": "话术管理",
+    "scriptSubtitle": "配置不同场景下的自动回复话术，AI将根据对话情况自动选择合适的话术",
+    "scriptConfirm": "确认话术",
+    "scriptReset": "恢复默认",
+    "scriptCategories": {
+      "greeting": "打招呼",
+      "project_intro": "发送项目介绍",
+      "no_reply_followup": "长时间未回复",
+      "declined": "对方拒绝",
+      "accepted": "对方同意",
+      "price_rejected": "对方拒绝报价"
+    },
+    "scriptCategoryDescriptions": {
+      "greeting": "首次联系达人时的开场白，要简洁亲切，引起对方兴趣",
+      "project_intro": "达人感兴趣后，发送项目/产品的详细介绍",
+      "no_reply_followup": "达人超过24小时未回复时的跟进话术",
+      "declined": "达人表示暂时无法合作时的礼貌回复",
+      "accepted": "达人同意合作后的确认和后续安排",
+      "price_rejected": "达人对报价不满意时的协商话术"
+    },
+    "scriptDefaults": {
+      "greeting": "宝子你好~看了你分享的内容觉得特别真实有感染力！我们这边有一些品牌合作机会想跟你聊聊，方便吗？😊",
+      "project_intro": "我们是「{projectName}」项目方，目前有一款祛痘精华正在招募达人合作推广。\n\n📦 产品：氨基酸祛痘精华 30ml（国家药监局备案）\n📝 合作形式：图文笔记1篇，真实使用后分享体验\n💰 合作费用：根据粉丝量和内容质量面议\n📅 档期：本月内发布\n\n产品可以先免费寄给你试用，觉得好用再出内容～",
+      "no_reply_followup": "宝子~之前给你发的合作消息看到了吗？如果你感兴趣的话可以回复我哦，产品可以先免费寄给你试用～不感兴趣也没关系，打扰啦🙏",
+      "declined": "好的完全理解！感谢你的回复～后续如果有空档期欢迎随时联系我们，期待下次合作机会！🤝",
+      "accepted": "太好了！非常期待合作！🎉\n接下来我会把合作详情和产品信息整理发给你，确认后尽快安排寄样。\n有任何问题随时找我哦～",
+      "price_rejected": "了解你的报价～我们这边预算可能有限，但可以额外提供：\n✅ 产品正装 + 小样礼盒\n✅ 长期合作优先权\n✅ 数据好的话有额外奖励\n\n价格方面我再跟品牌方沟通看看有没有空间，稍后给你反馈好吗？"
+    }
   }
 };

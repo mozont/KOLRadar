@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Filter, ChevronRight, ChevronLeft,
   ArrowLeft, Plus, X,
-  Tag, Radar, Layers, Loader2, CheckCircle2, Sparkles
+  Tag, Radar, Layers, Loader2, CheckCircle2, Sparkles, MessageSquare, Send
 } from 'lucide-react';
 import { MOCK_INFLUENCERS, Influencer, Post, ImageAnalysis, CITIES, CONTENT_TYPES, Project, RejectionRecord } from '../types';
 import { CONTENT } from '../content';
 import FilterRow from './FilterRow';
 
 // --- Page 2: Results (Table View) ---
-const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount, onSelectInfluencer, onSelectPrecisionInfluencer, onSelectPost, onStartRadar, onApprove, onReject, onRemoveFromProject, onRemoveFromRejections, projects, rejections, setIsTagModalOpen, setIsCityModalOpen, skipLoading, matchedIds, setMatchedIds, standardizedConditions, setStandardizedConditions }: any) => {
+const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount, contactRecordCount, onOpenContact, dmRecordCount, onOpenDM, onSelectInfluencer, onSelectPrecisionInfluencer, onSelectPost, onStartRadar, onApprove, onReject, onRemoveFromProject, onRemoveFromRejections, projects, rejections, setIsTagModalOpen, setIsCityModalOpen, skipLoading, matchedIds, setMatchedIds, standardizedConditions, setStandardizedConditions }: any) => {
   const [isLoading, setIsLoading] = useState(!skipLoading);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
@@ -143,24 +143,30 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
 
   /** 匹配图片分析数据与用户条件 */
   const matchImageAnalysis = (ia: ImageAnalysis, conditions: string[], post: Post): boolean => {
-    // Build a searchable text pool from the image analysis
-    const pool = [
+    // Structured fields: exact-match tokens (each value is one discrete tag)
+    const exactTokens = [
       ...ia.labels,
       ia.skinCondition,
       ia.face,
       ia.contentForm,
       ia.visualStyle,
-      ia.description,
-      ia.productDetail,
       ia.hasBeforeAfter ? '前后对比' : '',
       ia.hasProduct ? '有产品' : '',
+    ].filter(Boolean).map(s => s.toLowerCase());
+
+    // Free-text fields: for substring search, but with negation awareness
+    const freeTexts = [
+      ia.description,
+      ia.productDetail,
       post.text || '',
       post.title || '',
-    ].join(' ').toLowerCase();
+    ].map(s => s.toLowerCase());
+    const freeText = freeTexts.join(' ');
 
-    // Synonym map for fuzzy matching
+    // Synonym map: keyword → all equivalent terms
     const synonyms: Record<string, string[]> = {
-      '露脸': ['正脸', '侧脸', '露脸'],
+      '露脸': ['正脸', '侧脸', '露脸', '真人出镜'],
+      '不露脸': ['不露脸', '无人出镜', '纯产品', '手部特写', '局部特写'],
       '痘肌': ['痘痘', '痘肌', '长痘', '爆痘'],
       '素颜': ['素颜', '无滤镜', '原相机'],
       '产品': ['产品展示', '有产品', '产品图'],
@@ -178,19 +184,79 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
       '洗面奶': ['洗面奶', '洁面'],
     };
 
+    // Negation-aware free text check: "露脸" should NOT match "不露脸" / "无露脸" / "没有露脸"
+    const negChars = ['不', '没', '无', '非', '未'];
+    const freeTextContains = (term: string): boolean => {
+      let idx = 0;
+      while (true) {
+        idx = freeText.indexOf(term, idx);
+        if (idx === -1) return false;
+        // Check character before the match — if it's a negation char, skip this occurrence
+        if (idx > 0 && negChars.includes(freeText[idx - 1])) {
+          idx += term.length;
+          continue;
+        }
+        // Also check for multi-char negation "没有"
+        if (idx > 1 && freeText.slice(idx - 2, idx) === '没有') {
+          idx += term.length;
+          continue;
+        }
+        return true;
+      }
+    };
+
+    // Check if a term exists in structured tokens (exact equal) OR free text (negation-aware)
+    const termExists = (term: string): boolean => {
+      const t = term.toLowerCase();
+      // Structured tokens: strict equality only (e.g., "露脸" must NOT match token "不露脸")
+      if (exactTokens.includes(t)) return true;
+      // Free text: substring search with negation guard
+      return freeTextContains(t);
+    };
+
+    // Negation prefixes for user conditions
+    const negPrefixes = ['不', '没有', '没', '无', '非'];
+
+    const matchesKeyword = (keyword: string): boolean => {
+      const kw = keyword.toLowerCase();
+
+      // Check if this is a negated condition (e.g., "不露脸")
+      let isNegation = false;
+      let positiveForm = kw;
+      for (const neg of negPrefixes) {
+        if (kw.startsWith(neg) && kw.length > neg.length) {
+          // If the full negated term has its own synonym entry, treat as positive lookup
+          if (synonyms[kw]) { isNegation = false; break; }
+          isNegation = true;
+          positiveForm = kw.slice(neg.length);
+          break;
+        }
+      }
+
+      if (isNegation) {
+        // Negated: positive form and its synonyms must NOT exist
+        const posSyns = synonyms[positiveForm];
+        if (posSyns) {
+          return !posSyns.some(s => termExists(s));
+        }
+        return !termExists(positiveForm);
+      }
+
+      // Positive: check synonyms first
+      if (synonyms[kw]) {
+        return synonyms[kw].some(s => termExists(s));
+      }
+
+      // Direct check
+      return termExists(kw);
+    };
+
     let matchCount = 0;
     for (const cond of conditions) {
-      const c = cond.toLowerCase();
-      // Direct match
-      if (pool.includes(c)) { matchCount++; continue; }
-      // Partial match
-      if (pool.split(/\s+/).some(w => w.includes(c) || c.includes(w))) { matchCount++; continue; }
-      // Synonym match
-      const syns = Object.entries(synonyms).find(([key]) => c.includes(key) || key.includes(c));
-      if (syns && syns[1].some(s => pool.includes(s.toLowerCase()))) { matchCount++; continue; }
+      if (matchesKeyword(cond)) matchCount++;
     }
 
-    // Match if at least half of conditions are met (or at least 1)
+    // Match if at least 40% conditions met (minimum 1)
     return matchCount >= Math.max(1, Math.ceil(conditions.length * 0.4));
   };
 
@@ -311,6 +377,28 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             <span className="font-bold">{CONTENT.resultsPage.startRadar}</span>
           </button>
 
+          {dmRecordCount > 0 && (
+            <button
+              onClick={onOpenDM}
+              className="p-3 bg-tech-dark/60 border border-orange-500/30 rounded-full hover:bg-orange-500/20 transition-colors text-orange-400 relative group"
+            >
+              <MessageSquare size={24} className="group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-1 -right-1 bg-orange-500 text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+                {dmRecordCount > 99 ? '99+' : dmRecordCount}
+              </span>
+            </button>
+          )}
+          {contactRecordCount > 0 && (
+            <button
+              onClick={onOpenContact}
+              className="p-3 bg-tech-dark/60 border border-green-500/30 rounded-full hover:bg-green-500/20 transition-colors text-green-400 relative group"
+            >
+              <Send size={24} className="group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-1 -right-1 bg-green-500 text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+                {contactRecordCount > 99 ? '99+' : contactRecordCount}
+              </span>
+            </button>
+          )}
           <button
             onClick={onOpenProjects}
             className="p-3 bg-tech-dark/60 border border-tech-blue/30 rounded-full hover:bg-tech-blue/20 transition-colors text-tech-blue relative group"
@@ -600,14 +688,40 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                               ) : (() => {
                                 const matchedPost = inf.posts.find((p: Post) => p.imageAnalysis);
                                 const ia = matchedPost?.imageAnalysis;
-                                // Split labels into matched (hit conditions) vs rest
-                                const allLabels = ia ? ia.labels : [];
-                                const hitLabels = allLabels.filter(label =>
-                                  standardizedConditions.some(c =>
-                                    label.includes(c) || c.includes(label)
-                                  )
-                                );
-                                const restLabels = allLabels.filter(label => !hitLabels.includes(label));
+                                // Build full tag pool: labels + structured fields
+                                const allTags = ia
+                                  ? [...new Set([...ia.labels, ia.skinCondition, ia.face, ia.contentForm, ia.visualStyle].filter(Boolean))]
+                                  : [];
+                                const negPrefixes = ['不', '没有', '没', '无', '非'];
+                                const isTagHit = (tag: string) =>
+                                  standardizedConditions.some(c => {
+                                    const cl = c.toLowerCase(), tl = tag.toLowerCase();
+                                    // Skip negated conditions for tag highlighting (negation = absence, not a tag to highlight)
+                                    for (const neg of negPrefixes) {
+                                      if (cl.startsWith(neg) && cl.length > neg.length) return false;
+                                    }
+                                    // Exact match
+                                    if (tl === cl) return true;
+                                    const synMap: Record<string, string[]> = {
+                                      '露脸': ['正脸', '侧脸', '露脸', '真人出镜'], '痘肌': ['痘痘', '痘肌', '长痘', '爆痘'],
+                                      '素颜': ['素颜', '无滤镜', '原相机'], '产品': ['产品展示', '有产品', '产品图'],
+                                      '对比': ['前后对比', '对比图', '效果展示'], '干货': ['干货分享', '攻略', '教程'],
+                                      '真实': ['原相机真实', '接地气', '真实'], '特写': ['局部特写', '特写'],
+                                      '油皮': ['油皮', '油性'], '敏感': ['敏感肌', '过敏', '泛红'],
+                                      '痘印': ['痘印肌', '痘印'], '日记': ['日记打卡', '打卡', '记录'],
+                                      '原相机': ['原相机', '原相机真实'], '接地气': ['接地气', '真实'],
+                                    };
+                                    // Synonym match: condition key → check if tag is one of its synonyms
+                                    const entry = synMap[cl];
+                                    if (entry) return entry.some(s => s.toLowerCase() === tl);
+                                    // Reverse: tag might be a synonym key, check if condition is in its list
+                                    for (const [key, syns] of Object.entries(synMap)) {
+                                      if (syns.some(s => s.toLowerCase() === cl) && (key === tl || syns.some(s => s.toLowerCase() === tl))) return true;
+                                    }
+                                    return false;
+                                  });
+                                const hitTags = allTags.filter(isTagHit);
+                                const restTags = allTags.filter(t => !hitTags.includes(t));
                                 return (
                                   <div className="flex flex-col gap-1.5">
                                     <div className="flex items-center gap-1 text-green-400 text-xs font-bold">
@@ -615,11 +729,11 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
                                       <span>{ia ? CONTENT.resultsPage.precisionSearch.matchImage : CONTENT.resultsPage.precisionSearch.matchContent}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-1">
-                                      {hitLabels.map((label, idx) => (
-                                        <span key={`hit-${idx}`} className="text-xs px-1.5 py-0.5 rounded bg-green-500/15 text-green-400 border border-green-500/30 font-bold">#{label}</span>
+                                      {hitTags.map((tag, idx) => (
+                                        <span key={`hit-${idx}`} className="text-xs px-1.5 py-0.5 rounded bg-green-500/15 text-green-400 border border-green-500/30 font-bold">#{tag}</span>
                                       ))}
-                                      {restLabels.slice(0, 3).map((label, idx) => (
-                                        <span key={`rest-${idx}`} className="text-xs px-1.5 py-0.5 rounded text-white/30">#{label}</span>
+                                      {restTags.slice(0, 3).map((tag, idx) => (
+                                        <span key={`rest-${idx}`} className="text-xs px-1.5 py-0.5 rounded text-white/30">#{tag}</span>
                                       ))}
                                     </div>
                                   </div>

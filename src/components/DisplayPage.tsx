@@ -10,7 +10,7 @@ import { MOCK_INFLUENCERS, Influencer, Post } from '../types';
 import { CONTENT } from '../content';
 
 // --- Page 3: Display (Radar Results) ---
-const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, projectCount, onSelectInfluencer, onSelectPost, onStartRadar, onApprove, onReject, searchQuery, setSearchQuery, isVoiceInputActive, setIsVoiceInputActive, isAnalyzingVoice, setIsAnalyzingVoice }: any) => {
+const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, projectCount, contactRecordCount, onOpenContact, dmRecordCount, onOpenDM, onSelectInfluencer, onSelectPost, onStartRadar, onApprove, onReject, searchQuery, setSearchQuery, isVoiceInputActive, setIsVoiceInputActive, isAnalyzingVoice, setIsAnalyzingVoice }: any) => {
   const [page, setPage] = useState(0);
   const [showWall, setShowWall] = useState(!isRadarScanning);
   const [avatarPositions, setAvatarPositions] = useState<any[]>([]);
@@ -136,17 +136,41 @@ const DisplayPage = ({ filters, isRadarScanning, onBack, onOpenProjects, project
           </AnimatePresence>
         </div>
 
-        <button
-          onClick={onOpenProjects}
-          className="p-3 bg-tech-dark/60 border border-tech-blue/30 rounded-full hover:bg-tech-blue/20 transition-colors text-tech-blue relative group"
-        >
-          <Layers size={24} className="group-hover:scale-110 transition-transform" />
-          {projectCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-tech-blue text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
-              {projectCount}
-            </span>
+        <div className="flex items-center gap-3">
+          {dmRecordCount > 0 && (
+            <button
+              onClick={onOpenDM}
+              className="p-3 bg-tech-dark/60 border border-orange-500/30 rounded-full hover:bg-orange-500/20 transition-colors text-orange-400 relative group"
+            >
+              <MessageSquare size={24} className="group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-1 -right-1 bg-orange-500 text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+                {dmRecordCount > 99 ? '99+' : dmRecordCount}
+              </span>
+            </button>
           )}
-        </button>
+          {contactRecordCount > 0 && (
+            <button
+              onClick={onOpenContact}
+              className="p-3 bg-tech-dark/60 border border-green-500/30 rounded-full hover:bg-green-500/20 transition-colors text-green-400 relative group"
+            >
+              <Send size={24} className="group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-1 -right-1 bg-green-500 text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+                {contactRecordCount > 99 ? '99+' : contactRecordCount}
+              </span>
+            </button>
+          )}
+          <button
+            onClick={onOpenProjects}
+            className="p-3 bg-tech-dark/60 border border-tech-blue/30 rounded-full hover:bg-tech-blue/20 transition-colors text-tech-blue relative group"
+          >
+            <Layers size={24} className="group-hover:scale-110 transition-transform" />
+            {projectCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-tech-blue text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+                {projectCount}
+              </span>
+            )}
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 flex items-center justify-center relative">

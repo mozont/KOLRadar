@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, Mic, Filter, Plus,
-  BarChart3, Info, Layers, Sparkles
+  BarChart3, Info, Layers, Sparkles, MessageSquare, Send
 } from 'lucide-react';
 import { CITIES, CONTENT_TYPES } from '../types';
 import { CONTENT } from '../content';
@@ -12,7 +12,7 @@ import FilterRow from './FilterRow';
 const RadarPage = ({
   searchQuery, setSearchQuery, isSearching, showFilters, filters, setFilters, onSearch, onStartSearch,
   isAnalyzingSearch, isVoiceInputActive, setIsVoiceInputActive, isAnalyzingVoice, setIsAnalyzingVoice,
-  setIsTagModalOpen, setIsCityModalOpen, onOpenProjects, projectCount, resetSearch
+  setIsTagModalOpen, setIsCityModalOpen, onOpenProjects, projectCount, contactRecordCount, onOpenContact, dmRecordCount, onOpenDM, resetSearch
 }: any) => {
   const handleVoiceToggle = () => {
     if (isVoiceInputActive) {
@@ -34,7 +34,29 @@ const RadarPage = ({
       exit={{ opacity: 0 }}
       className="container mx-auto px-4 pt-20 pb-10 flex flex-col items-center relative"
     >
-      <div className="absolute top-8 right-8 z-50">
+      <div className="absolute top-8 right-8 z-50 flex items-center gap-3">
+        {dmRecordCount > 0 && (
+          <button
+            onClick={onOpenDM}
+            className="p-3 bg-tech-dark/60 border border-orange-500/30 rounded-full hover:bg-orange-500/20 transition-colors text-orange-400 relative group"
+          >
+            <MessageSquare size={24} className="group-hover:scale-110 transition-transform" />
+            <span className="absolute -top-1 -right-1 bg-orange-500 text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+              {dmRecordCount > 99 ? '99+' : dmRecordCount}
+            </span>
+          </button>
+        )}
+        {contactRecordCount > 0 && (
+          <button
+            onClick={onOpenContact}
+            className="p-3 bg-tech-dark/60 border border-green-500/30 rounded-full hover:bg-green-500/20 transition-colors text-green-400 relative group"
+          >
+            <Send size={24} className="group-hover:scale-110 transition-transform" />
+            <span className="absolute -top-1 -right-1 bg-green-500 text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-tech-dark">
+              {contactRecordCount > 99 ? '99+' : contactRecordCount}
+            </span>
+          </button>
+        )}
         <button
           onClick={onOpenProjects}
           className="p-3 bg-tech-dark/60 border border-tech-blue/30 rounded-full hover:bg-tech-blue/20 transition-colors text-tech-blue relative group"

@@ -39,8 +39,8 @@ const PrecisionMatchModal = ({ influencer, onClose, onSelectPost, onApprove, onR
                 className="w-36 h-36 rounded-full border-4 border-tech-blue/30 group-hover/avatar:border-tech-blue transition-colors object-cover relative z-10 shadow-[0_0_30px_rgba(0,242,255,0.3)]"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 bg-tech-blue text-black text-sm font-bold px-4 py-1.5 rounded-full shadow-xl">
-                {influencer.fitScore}% {CONTENT.displayPage.fitScore}
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 bg-green-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-xl">
+                匹配
               </div>
             </div>
             <h3 className="text-3xl font-bold mb-3 group-hover:text-tech-blue transition-colors">{influencer.name}</h3>

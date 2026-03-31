@@ -838,15 +838,33 @@ const ResultsPage = ({ filters, setFilters, onBack, onOpenProjects, projectCount
             >
               <ChevronLeft size={20} />
             </button>
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i)}
-                className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${page === i ? 'bg-tech-blue text-black' : 'hover:bg-white/5 text-white/40'}`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {(() => {
+              const pages: (number | 'ellipsis')[] = [];
+              if (totalPages <= 7) {
+                for (let i = 0; i < totalPages; i++) pages.push(i);
+              } else {
+                pages.push(0);
+                if (page > 3) pages.push('ellipsis');
+                const start = Math.max(1, page - 1);
+                const end = Math.min(totalPages - 2, page + 1);
+                for (let i = start; i <= end; i++) pages.push(i);
+                if (page < totalPages - 4) pages.push('ellipsis');
+                pages.push(totalPages - 1);
+              }
+              return pages.map((item, idx) =>
+                item === 'ellipsis' ? (
+                  <span key={`e${idx}`} className="w-10 h-10 flex items-center justify-center text-white/30">…</span>
+                ) : (
+                  <button
+                    key={item}
+                    onClick={() => setPage(item)}
+                    className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${page === item ? 'bg-tech-blue text-black' : 'hover:bg-white/5 text-white/40'}`}
+                  >
+                    {item + 1}
+                  </button>
+                )
+              );
+            })()}
             <button
               disabled={page === totalPages - 1}
               onClick={() => setPage(p => p + 1)}

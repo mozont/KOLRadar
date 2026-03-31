@@ -29,6 +29,7 @@ interface RawUserInfo {
   link?: string;
   profileLink?: string;
   profileScraped?: boolean;
+  userNotes?: { noteId: string; title: string; cover: string; likeText: string }[];
 }
 
 interface RawImageAnalysis {
@@ -349,9 +350,27 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
       const { userInfo, notes } = item;
       const tags = extractTags(userInfo);
 
-      // 按互动量排序笔记，取前5条（兼容 likeText 字段）
+      // 合并 userNotes（用户主页笔记列表）与 notes（搜索抓取的详情笔记）
+      // userNotes 只有基本信息，notes 有完整详情
+      const detailedNoteIds = new Set(notes.map(n => n.noteId));
+
+      // 从 userNotes 补充未在 notes 中出现的笔记
+      const extraNotes: RawNote[] = (userInfo.userNotes || [])
+        .filter(un => !detailedNoteIds.has(un.noteId) && un.cover)
+        .map(un => ({
+          noteId: un.noteId,
+          title: un.title,
+          cover: un.cover,
+          likedCount: 0,
+          likeText: un.likeText,
+          images: [un.cover],
+        } as unknown as RawNote));
+
+      const allNotes = [...notes, ...extraNotes];
+
+      // 按互动量排序笔记（兼容 likeText 字段）
       // 优先保留有封面图的笔记
-      const sortedNotes = [...notes]
+      const sortedNotes = [...allNotes]
         .map(n => ({
           ...n,
           likedCount: n.likedCount ?? n.likeText ?? 0,
@@ -359,8 +378,7 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
           _engagement: parseCount(n.likedCount ?? n.likeText) + parseCount(n.collectedCount) + parseCount(n.commentCount),
           _hasCover: (n.cover || n.images?.length) ? 1 : 0,
         }))
-        .sort((a, b) => b._hasCover - a._hasCover || b._engagement - a._engagement)
-        .slice(0, 5);
+        .sort((a, b) => b._hasCover - a._hasCover || b._engagement - a._engagement);
 
       const posts: Post[] = sortedNotes.map((note, idx) => ({
         id: note.noteId || `post-${userInfo.userId}-${idx}`,
@@ -437,7 +455,7 @@ export function transformCrawledData(rawData: RawCrawledItem[]): Influencer[] {
         matchingFilters: calcMatchingFilters(userInfo, notes),
         posts,
         avgViews: calcAvgViews(notes),
-        noteCount: (userInfo.noteCount && userInfo.noteCount > 0) ? userInfo.noteCount : notes.length,
+        noteCount: (userInfo.noteCount && userInfo.noteCount > 0) ? userInfo.noteCount : allNotes.length,
       };
 
       return influencer;
